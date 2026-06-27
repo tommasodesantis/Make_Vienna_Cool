@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Make Vienna Cool - Cooled & AC Public Places</title>
+    <!-- Safe fetch getter/setter guard for sandboxed/iframe preview environments -->
+    <script>
+      (function() {
+        try {
+          var originalFetch = window.fetch;
+          var fetchValue = originalFetch;
+          var defineProp = function(obj) {
+            if (!obj) return;
+            try {
+              Object.defineProperty(obj, 'fetch', {
+                get: function() {
+                  return fetchValue;
+                },
+                set: function(val) {
+                  fetchValue = val;
+                },
+                configurable: true,
+                enumerable: true
+              });
+            } catch (innerErr) {
+              try {
+                obj.fetch = fetchValue;
+              } catch (err) {}
+            }
+          };
+          defineProp(window);
+          if (typeof globalThis !== 'undefined') {
+            defineProp(globalThis);
+          }
+          if (typeof global !== 'undefined') {
+            defineProp(global);
+          }
+        } catch (e) {
+          console.warn('Fetch polyfill guard warning:', e);
+        }
+      })();
+    </script>
+    <!-- Leaflet CSS for interactive map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  </head>
+  <body class="bg-[#f8faf9] text-slate-800">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
