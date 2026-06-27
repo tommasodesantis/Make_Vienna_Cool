@@ -1,5 +1,8 @@
 import { OSM_IMPORTED_PLACES } from "./osm_imported_places";
 
+export type PlaceType = "cool" | "drinking" | "water";
+export type AccessibilityStatus = "yes" | "limited" | "no" | "unknown";
+
 export interface CompactPlace {
   id: string;
   name: string;
@@ -17,6 +20,9 @@ export interface CompactPlace {
   free: boolean;
   notes: string | null;
   sourceUrls?: string[];
+  placeType?: PlaceType;
+  accessibility?: AccessibilityStatus;
+  accessibilitySource?: string;
 }
 
 export interface ExcludedSuggestion {
@@ -641,8 +647,8 @@ const CORE_VIENNA_PLACES: CompactPlace[] = [
     name: "AKH Wien - Allgemeines Krankenhaus (Public Areas)",
     address: "Währinger Gürtel 18-20, 1090 Wien",
     district: "9",
-    lat: 48.2201,
-    lng: 16.3478,
+    lat: 48.2200439,
+    lng: 16.3479083,
     category: "Public Concourse",
     coolingType: "reddit_claim_air_conditioned_unverified",
     ac: true,
@@ -651,7 +657,10 @@ const CORE_VIENNA_PLACES: CompactPlace[] = [
     amenities: ["Hospital public concourse", "Shops & cafés", "Bistros", "Toilets"],
     hours: ["Mon - Sun: 00:00 - 24:00 (Public areas)"],
     free: true,
-    notes: "Opening hours for shops vary; useful as a reliable emergency cooling point."
+    notes: "Opening hours for shops vary; useful as a reliable emergency cooling point.",
+    sourceUrls: ["https://www.openstreetmap.org/relation/2764083"],
+    accessibility: "yes",
+    accessibilitySource: "OpenStreetMap wheelchair=yes"
   },
   {
     id: "ikea-wien-westbahnhof",
@@ -999,8 +1008,8 @@ const CORE_VIENNA_PLACES: CompactPlace[] = [
     name: "Bockshorn Irish Pub",
     address: "Naglergasse 7, 1010 Wien",
     district: "1",
-    lat: 48.2104,
-    lng: 16.3681,
+    lat: 48.2098841,
+    lng: 16.3677000,
     category: "Pub / Bar",
     coolingType: "reddit_claim_air_conditioned_unverified",
     ac: true,
@@ -1009,15 +1018,18 @@ const CORE_VIENNA_PLACES: CompactPlace[] = [
     amenities: ["Historical pub seating", "Draft beers", "Air conditioning", "Late-night hours"],
     hours: ["Mon - Thu: 16:00 - 02:00", "Fri - Sat: 16:00 - 04:00", "Sun: 16:00 - 02:00"],
     free: false,
-    notes: "Reddit users specifically praise Bockshorn's cold AC. Purchase of a drink is required."
+    notes: "Reddit users specifically praise Bockshorn's cold AC. Purchase of a drink is required.",
+    sourceUrls: ["https://www.openstreetmap.org/node/334390933"],
+    accessibility: "no",
+    accessibilitySource: "OpenStreetMap wheelchair=no"
   },
   {
     id: "cafe-bar-lukas",
     name: "Café Bar Lukas",
-    address: "Marchettigasse 4, 1060 Wien",
-    district: "6",
-    lat: 48.1938,
-    lng: 16.3491,
+    address: "Schönlaterngasse 2, 1010 Wien",
+    district: "1",
+    lat: 48.2093993,
+    lng: 16.3770325,
     category: "Café / Bar",
     coolingType: "reddit_claim_air_conditioned_unverified",
     ac: true,
@@ -1026,7 +1038,10 @@ const CORE_VIENNA_PLACES: CompactPlace[] = [
     amenities: ["Cozy bar seating", "Air conditioning", "Drinks & cocktails", "Late opening"],
     hours: ["Mon - Sun: 17:00 - 04:00"],
     free: false,
-    notes: "Traditional cozy air-conditioned neighborhood bar. Drink purchase required."
+    notes: "Traditional cozy air-conditioned bar. Drink purchase required. Address and coordinates corrected from OpenStreetMap.",
+    sourceUrls: ["https://www.openstreetmap.org/node/2736336390"],
+    accessibility: "no",
+    accessibilitySource: "OpenStreetMap wheelchair=no"
   },
   {
     id: "starbucks-wien-hauptbahnhof",
@@ -1086,8 +1101,8 @@ const CORE_VIENNA_PLACES: CompactPlace[] = [
     name: "Kurkonditorei Oberlaa Neuer Markt",
     address: "Neuer Markt 16, 1010 Wien",
     district: "1",
-    lat: 48.2058,
-    lng: 16.3705,
+    lat: 48.2067216,
+    lng: 16.3707002,
     category: "Confectionery / Café",
     coolingType: "cool_or_mixed_reports",
     ac: true,
@@ -1096,7 +1111,10 @@ const CORE_VIENNA_PLACES: CompactPlace[] = [
     amenities: ["Famous pastries & cakes", "Air conditioning (mild)", "Classic Viennese interior", "Free Wi-Fi"],
     hours: ["Mon - Sun: 08:00 - 20:00"],
     free: false,
-    notes: "Air conditioning can sometimes feel mild during extremely hot days. Purchase required."
+    notes: "Air conditioning can sometimes feel mild during extremely hot days. Purchase required.",
+    sourceUrls: ["https://www.openstreetmap.org/node/394941625"],
+    accessibility: "yes",
+    accessibilitySource: "OpenStreetMap wheelchair=yes"
   },
   {
     id: "cafe-sacher-wien",
@@ -1120,8 +1138,8 @@ const CORE_VIENNA_PLACES: CompactPlace[] = [
     name: "Café Imperial Wien",
     address: "Kärntner Ring 16, 1010 Wien",
     district: "1",
-    lat: 48.2021,
-    lng: 16.3728,
+    lat: 48.2010498,
+    lng: 16.3728337,
     category: "Grand Café",
     coolingType: "likely_air_conditioned",
     ac: true,
@@ -1130,7 +1148,10 @@ const CORE_VIENNA_PLACES: CompactPlace[] = [
     amenities: ["Ringstraße luxury café", "Air conditioning", "Imperial Torte", "Barrier-free access"],
     hours: ["Mon - Sun: 07:00 - 23:00"],
     free: false,
-    notes: "Hotel café with high-quality cooling. Purchase required."
+    notes: "Hotel café with high-quality cooling. Purchase required.",
+    sourceUrls: ["https://www.openstreetmap.org/relation/151292"],
+    accessibility: "yes",
+    accessibilitySource: "OpenStreetMap wheelchair=yes"
   },
   {
     id: "mcdonald-s-wien-hauptbahnhof",
@@ -1168,4 +1189,5 @@ const CORE_VIENNA_PLACES: CompactPlace[] = [
   }
 ];
 
-export const VIENNA_PLACES: CompactPlace[] = [...CORE_VIENNA_PLACES, ...OSM_IMPORTED_PLACES];
+export const COOL_PLACES: CompactPlace[] = [...CORE_VIENNA_PLACES, ...OSM_IMPORTED_PLACES];
+export const VIENNA_PLACES: CompactPlace[] = COOL_PLACES;

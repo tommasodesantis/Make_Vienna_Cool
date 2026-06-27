@@ -1,13 +1,15 @@
 import React, { useState, useMemo } from "react";
-import { CompactPlace } from "../data/vienna_cool_places";
+import { CompactPlace, PlaceType } from "../data/vienna_cool_places";
 import { TRANSLATIONS, translateCategory } from "../data/translations";
 import { Wind, HelpCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { getAccessibilityStatus } from "../data/place_utils";
 
 interface PlaceListProps {
   places: CompactPlace[];
   selectedPlaceId: string | null;
   onSelectPlace: (id: string | null, fromMap?: boolean) => void;
   lang: "en" | "de";
+  activeMode: PlaceType;
   selectedCategory: string;
   onCategoryChange: (val: string) => void;
   // Checklist states
@@ -39,6 +41,7 @@ export const PlaceList: React.FC<PlaceListProps> = ({
   selectedPlaceId,
   onSelectPlace,
   lang,
+  activeMode,
   selectedCategory,
   onCategoryChange,
   filterAc,
@@ -62,6 +65,13 @@ export const PlaceList: React.FC<PlaceListProps> = ({
   categories,
 }) => {
   const t = TRANSLATIONS[lang];
+  const isCoolMode = activeMode === "cool";
+  const filterTitle =
+    activeMode === "drinking"
+      ? t.filterDrinkingWater
+      : activeMode === "water"
+        ? t.filterWaterAccess
+        : t.filterCoolPlaces;
 
   // Tooltip state for Klima (AC) filter
   const [showAcTooltip, setShowAcTooltip] = useState(false);
@@ -74,17 +84,20 @@ export const PlaceList: React.FC<PlaceListProps> = ({
   const activeFiltersCount = useMemo(() => {
     let count = 0;
     if (selectedCategory !== "ALL") count++;
-    if (filterAc) count++;
-    if (filterSeating) count++;
-    if (filterWifi) count++;
-    if (filterFree) count++;
-    if (filterSockets) count++;
-    if (filterTables) count++;
     if (filterAccessible) count++;
-    if (selectedDay !== "ALL") count++;
-    if (selectedHourRange !== "ALL") count++;
+    if (isCoolMode) {
+      if (filterAc) count++;
+      if (filterSeating) count++;
+      if (filterWifi) count++;
+      if (filterFree) count++;
+      if (filterSockets) count++;
+      if (filterTables) count++;
+      if (selectedDay !== "ALL") count++;
+      if (selectedHourRange !== "ALL") count++;
+    }
     return count;
   }, [
+    isCoolMode,
     selectedCategory,
     filterAc,
     filterSeating,
@@ -105,9 +118,8 @@ export const PlaceList: React.FC<PlaceListProps> = ({
         className="flex items-center justify-between w-full p-4 bg-offwhite border-b border-slate-100 text-left hover:bg-slate-50 transition-colors cursor-pointer select-none rounded-t-2xl"
       >
         <div className="flex items-center gap-2">
-          <Wind className="w-4.5 h-4.5 text-green-brand animate-pulse" />
           <span className="font-bold text-slate-700 text-sm">
-            {t.filterCoolPlaces}
+            {filterTitle}
           </span>
           {activeFiltersCount > 0 && (
             <span className="bg-green-brand text-white text-[10px] font-black px-1.5 py-0.5 rounded-full">
@@ -151,6 +163,8 @@ export const PlaceList: React.FC<PlaceListProps> = ({
             {t.filterByFeatures}
           </span>
           <div className="grid grid-cols-2 gap-2">
+            {isCoolMode && (
+              <>
             {/* AC Checkbox with Info Tooltip */}
             <div className="relative flex items-center justify-between px-2 py-1.5 bg-white border border-slate-200/60 hover:border-green-brand/40 rounded-lg transition-colors">
               <label className="flex items-center gap-2 cursor-pointer select-none flex-1">
@@ -244,6 +258,8 @@ export const PlaceList: React.FC<PlaceListProps> = ({
               />
               <span className="text-xs font-semibold text-slate-700">{t.sockets}</span>
             </label>
+              </>
+            )}
 
             {/* Accessible Checkbox */}
             <label className="flex items-center gap-2 px-2 py-1.5 bg-white border border-slate-200/60 hover:border-green-brand/40 rounded-lg cursor-pointer select-none transition-colors">
@@ -257,6 +273,7 @@ export const PlaceList: React.FC<PlaceListProps> = ({
             </label>
 
             {/* Free Entry Checkbox -> Renamed to No paid/consumption */}
+            {isCoolMode && (
             <label className="flex items-center gap-2 px-2 py-1.5 bg-white border border-slate-200/60 hover:border-green-brand/40 rounded-lg cursor-pointer select-none transition-colors col-span-2">
               <input
                 type="checkbox"
@@ -266,10 +283,12 @@ export const PlaceList: React.FC<PlaceListProps> = ({
               />
               <span className="text-xs font-semibold text-slate-700 truncate">{t.freeEntry}</span>
             </label>
+            )}
           </div>
         </div>
 
         {/* Days and Hours Selector Dropdowns */}
+        {isCoolMode && (
         <div className="grid grid-cols-2 gap-2 border-t border-slate-200/40 pt-2.5">
           {/* Day Dropdown */}
           <div className="flex flex-col">
@@ -310,6 +329,7 @@ export const PlaceList: React.FC<PlaceListProps> = ({
             </select>
           </div>
         </div>
+        )}
       </div>
 
       {/* Place List Counter */}
@@ -327,7 +347,9 @@ export const PlaceList: React.FC<PlaceListProps> = ({
             <div className="w-12 h-12 bg-aqua rounded-full flex items-center justify-center text-green-brand mx-auto mb-3">
               <Wind className="w-6 h-6 animate-pulse" />
             </div>
-            <p className="text-[#2C3E50] text-sm font-bold mb-1">{t.noPlacesFound}</p>
+            <p className="text-[#2C3E50] text-sm font-bold mb-1">
+              {isCoolMode ? t.noPlacesFound : t.noLocationsFound}
+            </p>
             <p className="text-slate-400 text-xs mb-4">
               {t.tryAdjustingFilters}
             </p>
@@ -355,6 +377,8 @@ export const PlaceList: React.FC<PlaceListProps> = ({
             const acLabel = place.ac
               ? t.acFilterLabel
               : (place.coolingType === "official_cool_indoor_room_not_ac_confirmed" ? t.acOfficialZone : t.acCoolRoom);
+            const accessibility = getAccessibilityStatus(place);
+            const showDistrict = /^\d+$/.test(place.district);
 
             return (
               <div
@@ -372,24 +396,40 @@ export const PlaceList: React.FC<PlaceListProps> = ({
                   <h4 className="font-semibold text-[#2C3E50] text-sm leading-snug break-words flex-1">
                     {place.name}
                   </h4>
-                  <span className={`inline-flex items-center shrink-0 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
-                    place.ac
-                      ? "bg-green-brand text-white"
-                      : "bg-mint text-dark-green"
-                  }`}>
-                    {acLabel}
-                  </span>
+                  {isCoolMode ? (
+                    <span className={`inline-flex items-center shrink-0 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
+                      place.ac
+                        ? "bg-green-brand text-white"
+                        : "bg-mint text-dark-green"
+                    }`}>
+                      {acLabel}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center shrink-0 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-aqua text-dark-green">
+                      {translateCategory(place.category, lang)}
+                    </span>
+                  )}
                 </div>
 
                 {/* Subtitle / Details */}
                 <div className="flex flex-wrap items-center gap-x-2 text-[11px] text-slate-400 font-medium">
                   <span className="text-dark-green font-bold">{translateCategory(place.category, lang)}</span>
-                  <span>•</span>
-                  <span>{place.district}. {t.district}</span>
+                  {showDistrict && (
+                    <>
+                      <span>•</span>
+                      <span>{place.district}. {t.district}</span>
+                    </>
+                  )}
                   <span>•</span>
                   <span className={place.free ? "text-[#2ECC71] font-bold" : "text-amber-600 font-bold"}>
-                    {place.free ? t.freeEntry : t.paid}
+                    {place.free ? (isCoolMode ? t.freeEntry : t.freeAccess) : t.paid}
                   </span>
+                  {accessibility !== "unknown" && (
+                    <>
+                      <span>•</span>
+                      <span>{accessibility === "yes" ? t.accessibilityYes : accessibility === "limited" ? t.accessibilityLimited : t.accessibilityNo}</span>
+                    </>
+                  )}
                 </div>
 
                 {/* Address summary */}

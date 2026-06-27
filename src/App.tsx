@@ -1,15 +1,18 @@
 import { useState, useMemo } from "react";
-import { VIENNA_PLACES, CompactPlace } from "./data/vienna_cool_places";
+import { COOL_PLACES, CompactPlace, PlaceType } from "./data/vienna_cool_places";
+import { VIENNA_DRINKING_WATER_FOUNTAINS, VIENNA_WATER_ACCESS_PLACES } from "./data/water_places";
 import { TRANSLATIONS } from "./data/translations";
 import { ViennaMap } from "./components/ViennaMap";
 import { PlaceList } from "./components/PlaceList";
 import { PlaceDetailCard } from "./components/PlaceDetailCard";
-import { Wind } from "lucide-react";
+import { Droplets, Snowflake, Waves } from "lucide-react";
+import { getAccessibilityStatus } from "./data/place_utils";
 
 export default function App() {
   const [lang, setLang] = useState<"en" | "de">("de");
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
+  const [activeMode, setActiveMode] = useState<PlaceType>("cool");
 
   // Checklist filters states
   const [filterAc, setFilterAc] = useState<boolean>(false);
@@ -26,11 +29,32 @@ export default function App() {
 
   const t = TRANSLATIONS[lang];
 
+  const datasetPlaces = useMemo(() => {
+    if (activeMode === "drinking") return VIENNA_DRINKING_WATER_FOUNTAINS;
+    if (activeMode === "water") return VIENNA_WATER_ACCESS_PLACES;
+    return COOL_PLACES;
+  }, [activeMode]);
+
   // Dynamically extract categories
   const categories = useMemo(() => {
-    const cats = VIENNA_PLACES.map((p) => p.category);
+    const cats = datasetPlaces.map((p) => p.category);
     return Array.from(new Set(cats)).sort();
-  }, []);
+  }, [datasetPlaces]);
+
+  const handleModeChange = (mode: PlaceType) => {
+    setActiveMode(mode);
+    setSelectedPlaceId(null);
+    setSelectedCategory("ALL");
+    setFilterAc(false);
+    setFilterSeating(false);
+    setFilterWifi(false);
+    setFilterFree(false);
+    setFilterSockets(false);
+    setFilterTables(false);
+    setFilterAccessible(false);
+    setSelectedDay("ALL");
+    setSelectedHourRange("ALL");
+  };
 
   // Helper to parse days from hours string
   const parseDaysFromHoursString = (hoursStr: string): string[] => {
@@ -152,10 +176,19 @@ export default function App() {
 
   // Search & Filter Logic
   const filteredPlaces = useMemo(() => {
-    return VIENNA_PLACES.filter((place) => {
+    return datasetPlaces.filter((place) => {
       // Category filter
       if (selectedCategory !== "ALL" && place.category !== selectedCategory) {
         return false;
+      }
+
+      // Accessible filter
+      if (filterAccessible && getAccessibilityStatus(place) !== "yes") {
+        return false;
+      }
+
+      if (activeMode !== "cool") {
+        return true;
       }
 
       // AC filter
@@ -194,19 +227,6 @@ export default function App() {
         if (!hasTables) return false;
       }
 
-      // Accessible filter
-      if (filterAccessible) {
-        const hasAccessibility = place.amenities.some(a => 
-          /barrier|access|wheelchair|rollstuhl|barriere/i.test(a)
-        ) || (place.notes && /barrier|access|wheelchair|rollstuhl|barriere/i.test(place.notes)) ||
-        place.category === "Official Cool Zone" || 
-        place.category === "Public Library" || 
-        place.category === "Shopping Mall" || 
-        place.category === "Shopping Mall & Transit Station" ||
-        place.category === "Department Store";
-        if (!hasAccessibility) return false;
-      }
-
       // Opening Day filter
       if (selectedDay !== "ALL" && !isPlaceOpenOnDay(place.hours, selectedDay)) {
         return false;
@@ -219,13 +239,13 @@ export default function App() {
 
       return true;
     });
-  }, [selectedCategory, filterAc, filterSeating, filterWifi, filterFree, filterSockets, filterTables, filterAccessible, selectedDay, selectedHourRange]);
+  }, [datasetPlaces, selectedCategory, filterAccessible, activeMode, filterAc, filterSeating, filterWifi, filterFree, filterSockets, filterTables, selectedDay, selectedHourRange]);
 
   // Selected place object
   const selectedPlace = useMemo(() => {
     if (!selectedPlaceId) return null;
-    return VIENNA_PLACES.find((p) => p.id === selectedPlaceId) || null;
-  }, [selectedPlaceId]);
+    return datasetPlaces.find((p) => p.id === selectedPlaceId) || null;
+  }, [selectedPlaceId, datasetPlaces]);
 
   // Automatically scroll to detail card or map on mobile when a place is selected from list
   const handleSelectPlace = (id: string | null, fromMap = false) => {
@@ -250,7 +270,7 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col font-sans bg-offwhite text-slate-brand">
       {/* Premium Header */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/50 sticky top-0 z-[1010] shadow-sm">
+      <header className="sticky top-0 z-[1010] border-b border-white/40 bg-white/45 backdrop-blur-2xl shadow-[0_12px_40px_rgba(30,64,175,0.10)] supports-[backdrop-filter]:bg-white/35">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 sm:py-4 flex items-center justify-between gap-4">
           {/* Logo / Title */}
           <div className="flex items-center gap-3">
@@ -294,7 +314,7 @@ export default function App() {
       <div className="bg-aqua py-6 sm:py-8 border-b border-slate-100">
         <div className="w-full px-4 sm:px-6 lg:px-8 text-center sm:text-left">
           <p className="text-dark-green font-bold text-xs uppercase tracking-wider mb-2 flex items-center justify-center sm:justify-start gap-1.5">
-            <Wind className="w-4 h-4 text-green-brand" />
+            <Snowflake className="w-4 h-4 text-green-brand" />
             {t.heatEyebrow}
           </p>
           <p className="text-[#2C3E50] text-sm sm:text-base font-medium max-w-none leading-relaxed m-0">
@@ -314,6 +334,31 @@ export default function App() {
 
       {/* Main Container */}
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6">
+        <div className="mb-5 inline-flex w-full sm:w-auto rounded-xl border border-slate-200/70 bg-white/70 p-1 shadow-sm backdrop-blur-xl">
+          {[
+            { mode: "cool" as const, label: t.modeCool, icon: Snowflake },
+            { mode: "drinking" as const, label: t.modeDrinking, icon: Droplets },
+            { mode: "water" as const, label: t.modeWater, icon: Waves },
+          ].map(({ mode, label, icon: Icon }) => {
+            const selected = activeMode === mode;
+            return (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => handleModeChange(mode)}
+                className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-bold transition-all ${
+                  selected
+                    ? "bg-green-brand text-white shadow-sm"
+                    : "text-slate-500 hover:bg-white hover:text-slate-brand"
+                }`}
+              >
+                <Icon className="h-4 w-4 shrink-0" />
+                <span className="truncate">{label}</span>
+              </button>
+            );
+          })}
+        </div>
+
         {/* Layout Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
@@ -324,6 +369,7 @@ export default function App() {
               selectedPlaceId={selectedPlaceId}
               onSelectPlace={handleSelectPlace}
               lang={lang}
+              activeMode={activeMode}
               selectedCategory={selectedCategory}
               onCategoryChange={setSelectedCategory}
               filterAc={filterAc}

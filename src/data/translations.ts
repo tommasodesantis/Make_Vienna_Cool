@@ -13,6 +13,7 @@ export interface LanguageTranslations {
   amenities: string;
   access: string;
   freeEntry: string;
+  freeAccess: string;
   paidRequired: string;
   airConditioning: string;
   acConfirmed: string;
@@ -65,6 +66,29 @@ export interface LanguageTranslations {
   sockets: string;
   tablesDesks: string;
   accessible: string;
+  modeCool: string;
+  modeDrinking: string;
+  modeWater: string;
+  filterDrinkingWater: string;
+  filterWaterAccess: string;
+  noLocationsFound: string;
+  location: string;
+  source: string;
+  accessibilityYes: string;
+  accessibilityLimited: string;
+  accessibilityNo: string;
+  accessibilityUnknown: string;
+  reportWrongInfo: string;
+  reportTitle: string;
+  reportDescription: string;
+  reportPlaceholder: string;
+  reportSubmit: string;
+  reportSubmitting: string;
+  reportSuccess: string;
+  reportUnavailable: string;
+  reportError: string;
+  reportTooShort: string;
+  close: string;
 }
 
 export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations } = {
@@ -83,6 +107,7 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     amenities: "Amenities",
     access: "Access",
     freeEntry: "No paid/consumption",
+    freeAccess: "Free access",
     paidRequired: "Purchase Required / Ticket Required",
     airConditioning: "Air Conditioning",
     acConfirmed: "Confirmed AC",
@@ -135,6 +160,29 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     sockets: "Sockets",
     tablesDesks: "Tables / Desks",
     accessible: "Accessible",
+    modeCool: "Cool places",
+    modeDrinking: "Drinking water",
+    modeWater: "Swim / refresh",
+    filterDrinkingWater: "Filter Drinking Water",
+    filterWaterAccess: "Filter Swim / Refresh",
+    noLocationsFound: "No locations found matching your filters.",
+    location: "Location",
+    source: "Source",
+    accessibilityYes: "Wheelchair accessible",
+    accessibilityLimited: "Limited accessibility",
+    accessibilityNo: "Not wheelchair accessible",
+    accessibilityUnknown: "Accessibility unknown",
+    reportWrongInfo: "Report wrong info",
+    reportTitle: "Report wrong information",
+    reportDescription: "Briefly describe what is wrong with this place.",
+    reportPlaceholder: "Example: the address is wrong, the place is closed, accessibility info is incorrect...",
+    reportSubmit: "Submit report",
+    reportSubmitting: "Submitting...",
+    reportSuccess: "Report submitted. Thank you.",
+    reportUnavailable: "Online reports are not configured in this build.",
+    reportError: "The report could not be submitted. Please try again later.",
+    reportTooShort: "Please add a little more detail.",
+    close: "Close",
   },
   de: {
     title: "Make Vienna Cool",
@@ -151,6 +199,7 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     amenities: "Ausstattung",
     access: "Zugang",
     freeEntry: "Kein Verzehrzwang/Eintritt",
+    freeAccess: "Freier Zugang",
     paidRequired: "Konsumpflicht oder Ticket erforderlich",
     airConditioning: "Klimaanlage",
     acConfirmed: "Bestätigte Klimaanlage",
@@ -203,6 +252,29 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     sockets: "Steckdosen",
     tablesDesks: "Arbeitstische / Tische",
     accessible: "Barrierefrei",
+    modeCool: "Kühle Orte",
+    modeDrinking: "Trinkwasser",
+    modeWater: "Baden / Erfrischen",
+    filterDrinkingWater: "Trinkwasser filtern",
+    filterWaterAccess: "Baden / Erfrischen filtern",
+    noLocationsFound: "Keine Standorte mit diesen Filtern gefunden.",
+    location: "Standort",
+    source: "Quelle",
+    accessibilityYes: "Rollstuhlgerecht",
+    accessibilityLimited: "Eingeschränkt barrierefrei",
+    accessibilityNo: "Nicht rollstuhlgerecht",
+    accessibilityUnknown: "Barrierefreiheit unbekannt",
+    reportWrongInfo: "Falsche Info melden",
+    reportTitle: "Falsche Information melden",
+    reportDescription: "Beschreibe kurz, was an diesem Ort nicht stimmt.",
+    reportPlaceholder: "Beispiel: Die Adresse stimmt nicht, der Ort ist geschlossen, die Barrierefreiheit ist falsch...",
+    reportSubmit: "Meldung senden",
+    reportSubmitting: "Wird gesendet...",
+    reportSuccess: "Meldung gesendet. Danke.",
+    reportUnavailable: "Online-Meldungen sind in diesem Build nicht konfiguriert.",
+    reportError: "Die Meldung konnte nicht gesendet werden. Bitte versuche es später erneut.",
+    reportTooShort: "Bitte beschreibe das Problem etwas genauer.",
+    close: "Schließen",
   }
 };
 
@@ -223,6 +295,12 @@ export const CATEGORY_LABELS: Record<string, { en: string; de: string }> = {
   "Confectionery / Café": { en: "Confectionery / Café", de: "Konditorei / Café" },
   "Grand Café": { en: "Grand Café", de: "Traditionscafé" },
   "Fast Food": { en: "Fast Food", de: "Fast Food" },
+  "Drinking Water Fountain": { en: "Drinking Water Fountain", de: "Trinkbrunnen" },
+  "Drinking Water Hydrant": { en: "Drinking Water Hydrant", de: "Trinkhydrant" },
+  "Official Bathing Site": { en: "Official Bathing Site", de: "Offizielle Badestelle" },
+  "Natural Bathing Site": { en: "Natural Bathing Site", de: "Naturbadestelle" },
+  "Mist / Spray Cooling": { en: "Mist / Spray Cooling", de: "Sprühnebel / Sommerspritzer" },
+  "Water Play Fountain": { en: "Water Play Fountain", de: "Wasserspiel / Fontäne" },
 };
 
 export const translateCategory = (category: string, lang: "en" | "de"): string =>
@@ -327,10 +405,32 @@ export const AMENITY_LABELS: Record<string, { en: string; de: string }> = {
   "Quick stop": { en: "Quick stop", de: "Schneller Stopp" },
   "Quick meals": { en: "Quick meals", de: "Schnelle Mahlzeiten" },
   "Sub sandwiches": { en: "Sub sandwiches", de: "Sub-Sandwiches" },
+  "Drinking water": { en: "Drinking water", de: "Trinkwasser" },
+  "Official Vienna Open Data": { en: "Official Vienna Open Data", de: "Offene Daten der Stadt Wien" },
+  "Public water refresh point": { en: "Public water refresh point", de: "Öffentlicher Wasser-Erfrischungspunkt" },
+  "Official bathing-water monitoring": { en: "Official bathing-water monitoring", de: "Offizielle Badewasser-Überwachung" },
+  "Bathing water quality class 1": { en: "Bathing water quality class 1", de: "Badewasserqualität Klasse 1" },
+  "Bathing water quality class 2": { en: "Bathing water quality class 2", de: "Badewasserqualität Klasse 2" },
+  "Trinkbrunnen": { en: "Drinking fountain", de: "Trinkbrunnen" },
+  "Trinkbrunnen mit Tränke": { en: "Drinking fountain with trough", de: "Trinkbrunnen mit Tränke" },
+  "Trinkhydrant": { en: "Drinking hydrant", de: "Trinkhydrant" },
+  "Trinkhydrant mit Tränke": { en: "Drinking hydrant with trough", de: "Trinkhydrant mit Tränke" },
+  "Mobiler Trinkbrunnen mit Sprühnebelfunktion": { en: "Mobile drinking fountain with mist", de: "Mobiler Trinkbrunnen mit Sprühnebelfunktion" },
+  "Sommerspritzer": { en: "Summer sprayer", de: "Sommerspritzer" },
+  "Sprühnebeldusche": { en: "Mist shower", de: "Sprühnebeldusche" },
+  "Spielbrunnen": { en: "Play fountain", de: "Spielbrunnen" },
+  "Wasserspielmöglichkeit": { en: "Water play feature", de: "Wasserspielmöglichkeit" },
+  "Bodenfontäne": { en: "Ground fountain", de: "Bodenfontäne" },
 };
 
-export const translateAmenity = (amenity: string, lang: "en" | "de"): string =>
-  AMENITY_LABELS[amenity]?.[lang] || amenity;
+export const translateAmenity = (amenity: string, lang: "en" | "de"): string => {
+  const waterTemperature = amenity.match(/^Water temperature (.+)$/);
+  if (waterTemperature) {
+    return lang === "de" ? `Wassertemperatur ${waterTemperature[1]}` : amenity;
+  }
+
+  return AMENITY_LABELS[amenity]?.[lang] || amenity;
+};
 
 export const isAirConditioningAmenity = (amenity: string): boolean =>
   /\b(ac|air[- ]?condition(?:ing|ed)?)\b/i.test(amenity);

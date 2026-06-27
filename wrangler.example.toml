@@ -1,0 +1,19 @@
+name = "make-vienna-cool-report"
+main = "worker/report-wrong-info.js"
+compatibility_date = "2026-06-27"
+
+[vars]
+GITHUB_OWNER = "tommasodesantis"
+GITHUB_REPO = "Make_Vienna_Cool"
+ALLOWED_ORIGINS = "https://your-domain.example"
+# Optional, only use labels that already exist in the GitHub repo.
+# GITHUB_LABELS = "user-report,data-quality"
+
+# Create this KV namespace in Cloudflare and bind it here for per-IP rate limiting.
+# [[kv_namespaces]]
+# binding = "REPORT_RATE_LIMIT"
+# id = "replace-with-kv-namespace-id"
+
+# Required secrets, set with `wrangler secret put`:
+# GITHUB_TOKEN
+# TURNSTILE_SECRET_KEY

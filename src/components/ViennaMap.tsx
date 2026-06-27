@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import L from "leaflet";
 import { CompactPlace } from "../data/vienna_cool_places";
 import { TRANSLATIONS, translateCategory } from "../data/translations";
+import { getPlaceType, googleMapsUrlForPlace } from "../data/place_utils";
 
 interface ViennaMapProps {
   places: CompactPlace[];
@@ -86,16 +87,25 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
   }, [selectedPlaceId, places]);
 
   // Function to create marker SVG dynamically
-  const createCustomIcon = (isSelected: boolean, category: string) => {
+  const createCustomIcon = (isSelected: boolean, place: CompactPlace) => {
     // Clean Minimalism blue tones:
     // Selected is #3498DB (electric blue)
     // Non-selected Official Cool Zone is #2980B9 (strong blue)
     // Non-selected other spots are #94A3B8 (slate)
     let pinColor = "#94A3B8";
-    if (isSelected) {
+    const placeType = getPlaceType(place);
+    if (placeType === "drinking") {
+      pinColor = "#0EA5E9";
+    } else if (placeType === "water") {
+      pinColor = "#06B6D4";
+    } else if (isSelected) {
       pinColor = "#3498DB";
-    } else if (category === "Official Cool Zone") {
+    } else if (place.category === "Official Cool Zone") {
       pinColor = "#2980B9";
+    }
+
+    if (isSelected) {
+      pinColor = placeType === "water" ? "#0891B2" : placeType === "drinking" ? "#0284C7" : "#3498DB";
     }
 
     const size = isSelected ? 36 : 28;
@@ -118,6 +128,14 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
     });
   };
 
+  const escapeHtml = (value: string) =>
+    value
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+
   const updateMarkers = (currentPlaces: CompactPlace[], activeId: string | null) => {
     const map = mapRef.current;
     if (!map) return;
@@ -131,30 +149,48 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
     // Add new markers
     currentPlaces.forEach((place) => {
       const isSelected = place.id === activeId;
-      const icon = createCustomIcon(isSelected, place.category);
+      const icon = createCustomIcon(isSelected, place);
 
       const marker = L.marker([place.lat, place.lng], { icon }).addTo(map);
 
       // Create a nice styled popup content
       const t = TRANSLATIONS[lang];
-      const acLabel = place.ac
-        ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#3498DB] text-white">${t.acFilterLabel}</span>`
-        : `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#D4E6F1] text-[#1F618D]">${place.coolingType === "official_cool_indoor_room_not_ac_confirmed" ? t.acOfficialZone : t.acCoolRoom}</span>`;
-      const categoryLabel = translateCategory(place.category, lang);
+      const placeType = getPlaceType(place);
+      const typeLabel =
+        placeType === "drinking"
+          ? t.modeDrinking
+          : placeType === "water"
+            ? t.modeWater
+            : place.ac
+              ? t.acFilterLabel
+              : place.coolingType === "official_cool_indoor_room_not_ac_confirmed"
+                ? t.acOfficialZone
+                : t.acCoolRoom;
+      const typeBadgeColor =
+        placeType === "drinking"
+          ? "bg-[#E0F2FE] text-[#075985]"
+          : placeType === "water"
+            ? "bg-[#CFFAFE] text-[#155E75]"
+            : place.ac
+              ? "bg-[#3498DB] text-white"
+              : "bg-[#D4E6F1] text-[#1F618D]";
+      const primaryLabel = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${typeBadgeColor}">${escapeHtml(typeLabel)}</span>`;
+      const categoryLabel = escapeHtml(translateCategory(place.category, lang));
+      const mapsUrl = googleMapsUrlForPlace(place);
 
       const popupHtml = `
         <div class="p-1 max-w-[240px] font-sans">
           <div class="flex items-start justify-between gap-2 mb-1.5">
-            <h3 class="font-bold text-base text-[#2C3E50] leading-snug m-0">${place.name}</h3>
+            <h3 class="font-bold text-base text-[#2C3E50] leading-snug m-0">${escapeHtml(place.name)}</h3>
           </div>
           <div class="flex flex-wrap gap-1 mb-2">
-            ${acLabel}
-            ${place.category !== "Official Cool Zone" ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#EBF5FB] text-[#1F618D]">${categoryLabel}</span>` : ""}
+            ${primaryLabel}
+            ${placeType !== "cool" || place.category !== "Official Cool Zone" ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#EBF5FB] text-[#1F618D]">${categoryLabel}</span>` : ""}
           </div>
-          <p class="text-xs text-[#718096] mb-2 leading-relaxed font-normal">${place.address}</p>
-          ${place.hours.length > 0 ? `<p class="text-[11px] text-slate-500 font-semibold m-0 flex items-center gap-1">⏰ ${place.hours[0]}</p>` : ""}
+          <p class="text-xs text-[#718096] mb-2 leading-relaxed font-normal">${escapeHtml(place.address)}</p>
+          ${place.hours.length > 0 ? `<p class="text-[11px] text-slate-500 font-semibold m-0 flex items-center gap-1">${escapeHtml(place.hours[0])}</p>` : ""}
           <div class="mt-2.5 pt-2 border-t border-[#F0F4F8]">
-            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name + ", " + place.address)}" target="_blank" rel="noopener noreferrer" style="color: #3498DB; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 2px; font-size: 12px;">
+            <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" style="color: #3498DB; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 2px; font-size: 12px;">
               ${t.openInGoogleMaps} &rarr;
             </a>
           </div>
