@@ -35,6 +35,7 @@ interface PlaceListProps {
   selectedHourRange: string;
   onSelectedHourRangeChange: (val: string) => void;
   categories: string[];
+  mode?: "full" | "filters" | "list";
 }
 
 export const PlaceList: React.FC<PlaceListProps> = ({
@@ -68,10 +69,13 @@ export const PlaceList: React.FC<PlaceListProps> = ({
   selectedHourRange,
   onSelectedHourRangeChange,
   categories,
+  mode = "full",
 }) => {
   const t = TRANSLATIONS[lang];
   const isCoolMode = activeMode === "cool";
   const hasFilterControls = activeMode !== "drinking";
+  const showFilterSection = mode !== "list" && hasFilterControls;
+  const showResultsSection = mode !== "filters";
   const filterTitle =
     activeMode === "drinking"
       ? t.filterDrinkingWater
@@ -129,12 +133,18 @@ export const PlaceList: React.FC<PlaceListProps> = ({
     onSelectedHourRangeChange("ALL");
   };
 
+  if (mode === "filters" && !hasFilterControls) {
+    return null;
+  }
+
   return (
     <div className="flex flex-col h-full bg-white rounded-2xl border border-slate-100 shadow-sm animate-fade-in relative z-20">
-      {hasFilterControls && (
+      {showFilterSection && (
         <button
           onClick={() => setIsFiltersCollapsed(!isFiltersCollapsed)}
-          className="flex items-center justify-between w-full p-4 bg-offwhite border-b border-slate-100 text-left hover:bg-slate-50 transition-colors cursor-pointer select-none rounded-t-2xl"
+          className={`flex items-center justify-between w-full p-4 bg-offwhite text-left hover:bg-slate-50 transition-colors cursor-pointer select-none rounded-t-2xl ${
+            isFiltersCollapsed || !showResultsSection ? "rounded-b-2xl" : "border-b border-slate-100"
+          }`}
         >
           <div className="flex items-center gap-2">
             <span className="font-bold text-slate-700 text-sm">
@@ -153,8 +163,8 @@ export const PlaceList: React.FC<PlaceListProps> = ({
         </button>
       )}
 
-      {hasFilterControls && (
-      <div className={`${isFiltersCollapsed ? "hidden" : "flex"} flex-col gap-3 p-4 bg-offwhite border-b border-slate-100`}>
+      {showFilterSection && (
+      <div className={`${isFiltersCollapsed ? "hidden" : "flex"} flex-col gap-3 p-4 bg-offwhite ${showResultsSection ? "border-b border-slate-100" : "rounded-b-2xl"}`}>
         <div className="flex flex-col gap-1.5">
           <div className="flex flex-col">
             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
@@ -205,8 +215,8 @@ export const PlaceList: React.FC<PlaceListProps> = ({
                   >
                     <HelpCircle className="w-3.5 h-3.5" />
                   </button>
-                  <div className={`absolute top-full right-[-40px] sm:right-auto sm:left-1/2 sm:-translate-x-1/2 mt-2 w-72 bg-slate-800 text-white text-[11.5px] leading-relaxed p-3.5 rounded-lg shadow-xl z-[2000] transition-all duration-200 ${
-                    showAcTooltip ? "opacity-100 scale-100 visible" : "opacity-0 scale-95 invisible group-hover:opacity-100 group-hover:scale-100 group-hover:visible"
+                  <div className={`fixed left-4 right-4 top-36 max-h-[calc(100vh-10rem)] overflow-y-auto sm:absolute sm:left-1/2 sm:right-auto sm:top-full sm:mt-2 sm:w-72 sm:max-h-none sm:overflow-visible sm:-translate-x-1/2 bg-slate-800 text-white text-[11.5px] leading-relaxed p-3.5 rounded-lg shadow-xl z-[3000] transition-all duration-200 ${
+                    showAcTooltip ? "opacity-100 scale-100 visible" : "opacity-0 scale-95 invisible sm:group-hover:opacity-100 sm:group-hover:scale-100 sm:group-hover:visible"
                   }`}>
                     <div className="font-bold mb-1.5 border-b border-slate-700 pb-1 text-xs text-[#2ECC71]">
                       {t.acTooltipTitle}
@@ -223,7 +233,7 @@ export const PlaceList: React.FC<PlaceListProps> = ({
                     >
                       wien.gv.at/umwelt/coole-zonen
                     </a>
-                    <div className="absolute top-0 right-[46px] sm:right-auto sm:left-1/2 sm:-translate-x-1/2 w-2.5 h-2.5 bg-slate-800 transform rotate-45 -translate-y-1/2"></div>
+                    <div className="hidden sm:block absolute top-0 right-[46px] sm:right-auto sm:left-1/2 sm:-translate-x-1/2 w-2.5 h-2.5 bg-slate-800 transform rotate-45 -translate-y-1/2"></div>
                   </div>
                 </div>
               </div>
@@ -334,6 +344,8 @@ export const PlaceList: React.FC<PlaceListProps> = ({
       </div>
       )}
 
+      {showResultsSection && (
+      <>
       <div className="px-4 py-2 bg-offwhite border-b border-slate-100 flex justify-between items-center text-xs text-slate-500 font-medium">
         <span>{t.places}</span>
         <span className="bg-mint text-dark-green px-2.5 py-0.5 rounded-full font-bold text-[11px]">
@@ -447,6 +459,8 @@ export const PlaceList: React.FC<PlaceListProps> = ({
           })
         )}
       </div>
+      </>
+      )}
     </div>
   );
 };

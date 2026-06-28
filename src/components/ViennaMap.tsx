@@ -91,6 +91,11 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
       fillColor: "#14B8A6",
       fillOpacity: 0.85,
     }).addTo(map);
+
+    map.flyTo([userLocation.lat, userLocation.lng], Math.max(map.getZoom(), 15), {
+      animate: true,
+      duration: 0.8,
+    });
   }, [userLocation]);
 
   // Handle selected place animation/popup

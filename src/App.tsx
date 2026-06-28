@@ -181,6 +181,7 @@ export default function App() {
     setLocationStatus("requesting");
     navigator.geolocation.getCurrentPosition(
       (position) => {
+        setSelectedPlaceId(null);
         setUserLocation({
           lat: position.coords.latitude,
           lng: position.coords.longitude,
@@ -527,7 +528,7 @@ export default function App() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          <div className="lg:col-span-5 flex flex-col gap-6 order-1 lg:order-1">
+          <div className="hidden lg:col-span-5 lg:flex lg:flex-col lg:gap-6 lg:order-1">
             <PlaceList
               places={visiblePlaces}
               selectedPlaceId={selectedPlaceId}
@@ -560,13 +561,45 @@ export default function App() {
               onSelectedHourRangeChange={setSelectedHourRange}
               categories={categories}
             />
-
-            <div className="block lg:hidden">
-              <PlaceDetailCard place={selectedPlace} lang={lang} />
-            </div>
           </div>
 
           <div className="lg:col-span-7 flex flex-col gap-6 order-2 lg:order-2">
+            <div className="lg:hidden">
+              <PlaceList
+                places={visiblePlaces}
+                selectedPlaceId={selectedPlaceId}
+                onSelectPlace={handleSelectPlace}
+                lang={lang}
+                activeMode={activeMode}
+                selectedCategory={selectedCategory}
+                onCategoryChange={setSelectedCategory}
+                selectedDistrict={selectedDistrict}
+                onDistrictChange={setSelectedDistrict}
+                districts={districts}
+                isLoading={isDatasetLoading}
+                filterAc={filterAc}
+                onFilterAcChange={setFilterAc}
+                filterSeating={filterSeating}
+                onFilterSeatingChange={setFilterSeating}
+                filterWifi={filterWifi}
+                onFilterWifiChange={setFilterWifi}
+                filterFree={filterFree}
+                onFilterFreeChange={setFilterFree}
+                filterSockets={filterSockets}
+                onFilterSocketsChange={setFilterSockets}
+                filterTables={filterTables}
+                onFilterTablesChange={setFilterTables}
+                filterAccessible={filterAccessible}
+                onFilterAccessibleChange={setFilterAccessible}
+                selectedDay={selectedDay}
+                onSelectedDayChange={setSelectedDay}
+                selectedHourRange={selectedHourRange}
+                onSelectedHourRangeChange={setSelectedHourRange}
+                categories={categories}
+                mode="filters"
+              />
+            </div>
+
             <div id="map-section" className="h-[350px] sm:h-[450px] md:h-[500px]">
               <ViennaMap
                 places={visiblePlaces}
@@ -577,8 +610,44 @@ export default function App() {
               />
             </div>
 
-            <div className="hidden lg:block">
+            <div>
               <PlaceDetailCard place={selectedPlace} lang={lang} />
+            </div>
+
+            <div className="lg:hidden">
+              <PlaceList
+                places={visiblePlaces}
+                selectedPlaceId={selectedPlaceId}
+                onSelectPlace={handleSelectPlace}
+                lang={lang}
+                activeMode={activeMode}
+                selectedCategory={selectedCategory}
+                onCategoryChange={setSelectedCategory}
+                selectedDistrict={selectedDistrict}
+                onDistrictChange={setSelectedDistrict}
+                districts={districts}
+                isLoading={isDatasetLoading}
+                filterAc={filterAc}
+                onFilterAcChange={setFilterAc}
+                filterSeating={filterSeating}
+                onFilterSeatingChange={setFilterSeating}
+                filterWifi={filterWifi}
+                onFilterWifiChange={setFilterWifi}
+                filterFree={filterFree}
+                onFilterFreeChange={setFilterFree}
+                filterSockets={filterSockets}
+                onFilterSocketsChange={setFilterSockets}
+                filterTables={filterTables}
+                onFilterTablesChange={setFilterTables}
+                filterAccessible={filterAccessible}
+                onFilterAccessibleChange={setFilterAccessible}
+                selectedDay={selectedDay}
+                onSelectedDayChange={setSelectedDay}
+                selectedHourRange={selectedHourRange}
+                onSelectedHourRangeChange={setSelectedHourRange}
+                categories={categories}
+                mode="list"
+              />
             </div>
           </div>
         </div>
