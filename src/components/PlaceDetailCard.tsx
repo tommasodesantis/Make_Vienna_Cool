@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { CompactPlace } from "../data/vienna_cool_places";
-import { isAirConditioningAmenity, TRANSLATIONS, translateAmenity, translateCategory } from "../data/translations";
-import { getAccessibilityStatus, getPlaceType, googleMapsUrlForPlace } from "../data/place_utils";
+import { isAirConditioningAmenity, TRANSLATIONS, translateAmenity, translateCategory, translateNote } from "../data/translations";
+import { formatDistance, getAccessibilityStatus, getPlaceType, googleMapsUrlForPlace } from "../data/place_utils";
 import { AlertCircle, ArrowRight, CheckCircle2, ExternalLink, Flag, Loader2, Send, X } from "lucide-react";
 
 interface PlaceDetailCardProps {
@@ -226,9 +226,11 @@ export const PlaceDetailCard: React.FC<PlaceDetailCardProps> = ({ place, lang })
             {translateCategory(place.category, lang)}
           </span>
         )}
-        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${place.free ? "bg-mint text-dark-green" : "bg-amber-100 text-amber-800"}`}>
-          {place.free ? (isCoolPlace ? t.freeEntry : t.freeAccess) : t.paidRequired}
-        </span>
+        {isCoolPlace && (
+          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${place.free ? "bg-mint text-dark-green" : "bg-amber-100 text-amber-800"}`}>
+            {place.free ? t.freeEntry : t.paidRequired}
+          </span>
+        )}
       </div>
 
       {/* Place Title */}
@@ -255,6 +257,17 @@ export const PlaceDetailCard: React.FC<PlaceDetailCardProps> = ({ place, lang })
         </div>
       </div>
 
+      {typeof place.distanceMeters === "number" && (
+        <div className="mb-4">
+          <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-0.5">
+            {t.useMyLocation}
+          </p>
+          <p className="text-sky-700 text-sm font-bold m-0">
+            {formatDistance(place.distanceMeters, lang)}
+          </p>
+        </div>
+      )}
+
       {/* Opening Hours */}
       {place.hours && place.hours.length > 0 && (
         <div className="mb-4">
@@ -271,27 +284,28 @@ export const PlaceDetailCard: React.FC<PlaceDetailCardProps> = ({ place, lang })
         </div>
       )}
 
-      {/* Accessibility */}
-      <div className="mb-4">
-        <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-1">{t.accessible}</p>
-        <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold ${
-          accessibility === "yes"
-            ? "bg-mint text-dark-green"
-            : accessibility === "limited"
-              ? "bg-amber-100 text-amber-800"
-              : accessibility === "no"
-                ? "bg-rose-100 text-rose-800"
-                : "bg-slate-100 text-slate-500"
-        }`}>
-          {accessibility === "yes"
-            ? t.accessibilityYes
-            : accessibility === "limited"
-              ? t.accessibilityLimited
-              : accessibility === "no"
-                ? t.accessibilityNo
-                : t.accessibilityUnknown}
-        </span>
-      </div>
+      {isCoolPlace && (
+        <div className="mb-4">
+          <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-1">{t.accessible}</p>
+          <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold ${
+            accessibility === "yes"
+              ? "bg-mint text-dark-green"
+              : accessibility === "limited"
+                ? "bg-amber-100 text-amber-800"
+                : accessibility === "no"
+                  ? "bg-rose-100 text-rose-800"
+                  : "bg-slate-100 text-slate-500"
+          }`}>
+            {accessibility === "yes"
+              ? t.accessibilityYes
+              : accessibility === "limited"
+                ? t.accessibilityLimited
+                : accessibility === "no"
+                  ? t.accessibilityNo
+                  : t.accessibilityUnknown}
+          </span>
+        </div>
+      )}
 
       {/* Amenities / Features List */}
       {visibleAmenities.length > 0 && (
@@ -309,7 +323,7 @@ export const PlaceDetailCard: React.FC<PlaceDetailCardProps> = ({ place, lang })
       )}
 
       {place.notes && (
-        <p className="text-slate-500 text-xs leading-relaxed mb-4">{place.notes}</p>
+        <p className="text-slate-500 text-xs leading-relaxed mb-4">{translateNote(place.notes, lang)}</p>
       )}
 
       {primarySourceUrl && (

@@ -2,12 +2,14 @@ import fs from "node:fs";
 
 const fountainInputPath = "C:/tmp/trinkbrunnen.json";
 const bathingInputPath = "C:/tmp/badestellen.json";
-const outputPath = "src/data/water_places.ts";
+const addressInputPath = "C:/tmp/adressen_compact.json";
+const drinkingOutputPath = "src/data/drinking_water_places.ts";
+const waterOutputPath = "src/data/water_access_places.ts";
 
-const fountainSource =
-  "https://data.wien.gv.at/daten/geo?service=WFS&version=1.1.0&request=GetFeature&typeName=ogdwien:TRINKBRUNNENOGD&srsName=EPSG:4326&outputFormat=json";
-const bathingSource =
-  "https://data.wien.gv.at/daten/geo?service=WFS&version=1.1.0&request=GetFeature&typeName=ogdwien:BADESTELLENOGD&srsName=EPSG:4326&outputFormat=json";
+const fountainDatasetPage = "https://www.data.gv.at/suche/?searchterm=TRINKBRUNNENOGD";
+const bathingDatasetPage = "https://www.data.gv.at/suche/?searchterm=BADESTELLENOGD";
+const bathingInfoPage =
+  "https://www.wien.gv.at/forschung/laboratorien/umweltmedizin/wasserhygiene/badewasserqualitaet/index.html";
 
 const drinkTypes = new Set([
   "Trinkbrunnen",
@@ -44,8 +46,114 @@ const drinkCategory = (type) =>
 const refreshCategory = (type) =>
   /Spritz|Sprüh|Sprühnebel/.test(type) ? "Mist / Spray Cooling" : "Water Play Fountain";
 
+const displayType = (type) => {
+  if (type.includes("Hydrant")) return "Trinkhydrant";
+  if (/Spritz|Sprüh|Sprühnebel/.test(type)) return "Sprühnebel";
+  if (/Spiel|Wasserspiel|Fontäne|Bodenfont/.test(type)) return "Wasserspiel";
+  return "Trinkbrunnen";
+};
+
+const normalizeDistrict = (district) => {
+  const parsed = Number.parseInt(String(district ?? ""), 10);
+  return Number.isFinite(parsed) && parsed > 0 ? String(parsed) : "Vienna";
+};
+
+const loadAddressIndex = () => {
+  if (!fs.existsSync(addressInputPath)) {
+    console.warn(
+      `Address enrichment skipped: ${addressInputPath} not found. Download ogdwien:ADRESSENOGD with NAME,NAME_STR,PLZ,GEB_BEZIRK,SHAPE to improve water-place names.`,
+    );
+    return null;
+  }
+
+  const addressData = readJson(addressInputPath);
+  const cellSize = 0.004;
+  const cells = new Map();
+
+  const cellKey = (lat, lng) => `${Math.floor(lat / cellSize)}:${Math.floor(lng / cellSize)}`;
+  const addToCell = (address) => {
+    const key = cellKey(address.lat, address.lng);
+    const list = cells.get(key) ?? [];
+    list.push(address);
+    cells.set(key, list);
+  };
+
+  for (const feature of addressData.features) {
+    const [lng, lat] = feature.geometry?.coordinates ?? [];
+    const props = feature.properties ?? {};
+    if (!Number.isFinite(lat) || !Number.isFinite(lng) || !props.NAME) continue;
+
+    addToCell({
+      lat,
+      lng,
+      name: props.NAME,
+      street: props.NAME_STR || props.NAME,
+      postcode: props.PLZ || null,
+      district: normalizeDistrict(props.GEB_BEZIRK),
+    });
+  }
+
+  const distanceSquared = (aLat, aLng, bLat, bLng) => {
+    const latScale = 111320;
+    const lngScale = Math.cos((aLat * Math.PI) / 180) * 111320;
+    const dLat = (aLat - bLat) * latScale;
+    const dLng = (aLng - bLng) * lngScale;
+    return dLat * dLat + dLng * dLng;
+  };
+
+  const nearest = (lat, lng) => {
+    const baseLat = Math.floor(lat / cellSize);
+    const baseLng = Math.floor(lng / cellSize);
+    let best = null;
+    let bestDistance = Infinity;
+
+    for (let radius = 0; radius <= 4; radius++) {
+      for (let latOffset = -radius; latOffset <= radius; latOffset++) {
+        for (let lngOffset = -radius; lngOffset <= radius; lngOffset++) {
+          if (Math.max(Math.abs(latOffset), Math.abs(lngOffset)) !== radius) continue;
+          const list = cells.get(`${baseLat + latOffset}:${baseLng + lngOffset}`);
+          if (!list) continue;
+
+          for (const address of list) {
+            const distance = distanceSquared(lat, lng, address.lat, address.lng);
+            if (distance < bestDistance) {
+              best = address;
+              bestDistance = distance;
+            }
+          }
+        }
+      }
+
+      if (best) return best;
+    }
+
+    return null;
+  };
+
+  return { nearest };
+};
+
+const enrichedLocation = (addressIndex, lat, lng) => {
+  const nearest = addressIndex?.nearest(lat, lng) ?? null;
+  if (!nearest) {
+    return {
+      address: coordinateAddress(lat, lng),
+      district: "Vienna",
+      label: coordinateAddress(lat, lng),
+    };
+  }
+
+  const address = nearest.postcode ? `${nearest.name}, ${nearest.postcode} Wien` : nearest.name;
+  return {
+    address,
+    district: nearest.district,
+    label: nearest.name,
+  };
+};
+
 const fountainData = readJson(fountainInputPath);
 const bathingData = readJson(bathingInputPath);
+const addressIndex = loadAddressIndex();
 
 const drinking = fountainData.features
   .filter((feature) => drinkTypes.has(feature.properties.BASIS_TYP_TXT))
@@ -53,12 +161,13 @@ const drinking = fountainData.features
     const [lng, lat] = feature.geometry.coordinates;
     const type = feature.properties.BASIS_TYP_TXT;
     const id = feature.properties.OBJECTID;
+    const location = enrichedLocation(addressIndex, lat, lng);
 
     return {
       id: `drinking-water-${id}`,
-      name: `Drinking water point ${id}`,
-      address: coordinateAddress(lat, lng),
-      district: "Vienna",
+      name: `${displayType(type)} - ${location.label}`,
+      address: location.address,
+      district: location.district,
       lat: roundCoord(lat),
       lng: roundCoord(lng),
       category: drinkCategory(type),
@@ -70,8 +179,8 @@ const drinking = fountainData.features
       hours: [],
       free: true,
       notes:
-        "Official Vienna open-data drinking-water point. Availability can vary seasonally or during maintenance.",
-      sourceUrls: [fountainSource],
+        "Official Vienna open-data drinking-water point. Address label is based on the nearest official Vienna address point; availability can vary seasonally or during maintenance.",
+      sourceUrls: [fountainDatasetPage],
       placeType: "drinking",
       accessibility: "unknown",
     };
@@ -83,12 +192,13 @@ const refreshFountains = fountainData.features
     const [lng, lat] = feature.geometry.coordinates;
     const type = feature.properties.BASIS_TYP_TXT;
     const id = feature.properties.OBJECTID;
+    const location = enrichedLocation(addressIndex, lat, lng);
 
     return {
       id: `refresh-fountain-${id}`,
-      name: `${type} ${id}`,
-      address: coordinateAddress(lat, lng),
-      district: "Vienna",
+      name: `${displayType(type)} - ${location.label}`,
+      address: location.address,
+      district: location.district,
       lat: roundCoord(lat),
       lng: roundCoord(lng),
       category: refreshCategory(type),
@@ -100,8 +210,8 @@ const refreshFountains = fountainData.features
       hours: [],
       free: true,
       notes:
-        "Official Vienna open-data water feature for cooling down or getting wet. This is not a monitored swimming site; follow posted local rules.",
-      sourceUrls: [fountainSource],
+        "Official Vienna open-data water feature for cooling down or getting wet. Address label is based on the nearest official Vienna address point. This is not a monitored swimming site; follow posted local rules.",
+      sourceUrls: [fountainDatasetPage],
       placeType: "water",
       accessibility: "unknown",
     };
@@ -144,27 +254,34 @@ const bathingSites = bathingData.features.map((feature) => {
     notes: `City of Vienna bathing-water monitoring point${
       testedOn ? ` last tested ${testedOn}` : ""
     }. Check local rules, currents, closures, and posted safety information before entering the water.`,
-    sourceUrls: [props.WEITERE_INFO || bathingSource, bathingSource],
+    sourceUrls: [bathingDatasetPage, props.WEITERE_INFO || bathingInfoPage],
     placeType: "water",
     accessibility: "unknown",
   };
 });
 
-const output = `import type { CompactPlace } from "./vienna_cool_places";
+const generatedHeader = `import type { CompactPlace } from "./vienna_cool_places";
 
 // Generated from public City of Vienna Open Government Data WFS layers.
-// Source layers: ogdwien:TRINKBRUNNENOGD and ogdwien:BADESTELLENOGD.
+// Source layers: ogdwien:TRINKBRUNNENOGD, ogdwien:BADESTELLENOGD, and ogdwien:ADRESSENOGD for nearest-address labels.
 
-export const VIENNA_DRINKING_WATER_FOUNTAINS: CompactPlace[] = ${JSON.stringify(
-  drinking,
-)};
-
-export const VIENNA_WATER_ACCESS_PLACES: CompactPlace[] = ${JSON.stringify(
-  [...bathingSites, ...refreshFountains],
-)};
 `;
 
-fs.writeFileSync(outputPath, output);
+fs.writeFileSync(
+  drinkingOutputPath,
+  `${generatedHeader}export const VIENNA_DRINKING_WATER_FOUNTAINS: CompactPlace[] = ${JSON.stringify(
+    drinking,
+  )};
+`,
+);
+
+fs.writeFileSync(
+  waterOutputPath,
+  `${generatedHeader}export const VIENNA_WATER_ACCESS_PLACES: CompactPlace[] = ${JSON.stringify(
+    [...bathingSites, ...refreshFountains],
+  )};
+`,
+);
 
 console.log(
   `Generated ${drinking.length} drinking-water points and ${

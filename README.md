@@ -1,5 +1,7 @@
 # Make Vienna Cool
 
+![Screenshot of the Make Vienna Cool app](./Screenshot_ReadMe.png)
+
 Make Vienna Cool is an independent open-source project that helps people living in Vienna, or visiting Vienna, find places to cool down during heat waves, find public drinking water, and locate monitored places to swim or refresh themselves.
 
 Too few homes in Vienna have air conditioning. During extreme heat this can become dangerous, especially for vulnerable people, older people, children, people with health conditions, and anyone who is overheated or has nowhere cool to rest. I could not find a comprehensive public map or database of air-conditioned and cool indoor public spaces in Vienna, so I started this project.
@@ -20,7 +22,7 @@ Most places in this database come from:
 - City of Vienna Open Government Data for public drinking-water points
 - City of Vienna Open Government Data for monitored bathing-water sites
 
-Thank you to OpenStreetMap and its contributors. Without OpenStreetMap, this project would not be possible.
+Thank you to OpenStreetMap and its contributors. Without OpenStreetMap, this project would not be possible. Thank you also to data.gv.at, Austria's open-data portal, and to the City of Vienna Open Government Data program for curating and publishing the public open data used by this project.
 
 ## Contributing
 
@@ -30,28 +32,42 @@ In general, cool-place entries should be places where people can stop, sit, stud
 
 Drinking-water and water-refresh entries are separate datasets. Do not mix them into the cool-place list unless the location also independently qualifies as a place to spend time indoors or cool down.
 
+Wrong-information reports submitted through the app are automatically opened as issues in this repository, so they can be reviewed and fixed in public.
+
 It is strictly forbidden to use this project to sponsor or promote commercial activities. The database is for public heat-safety help, not advertising. Contributions will be monitored with this in mind.
 
 ## Data Maintenance
 
 The current place database lives in `src/data/`.
 
-- `vienna_cool_places.ts` and `osm_imported_places.ts` contain cool and air-conditioned places.
-- `water_places.ts` contains generated drinking-water and water-refresh datasets.
-- `scripts/generate_water_places.mjs` regenerates `water_places.ts` from downloaded City of Vienna WFS GeoJSON files.
+Future data-maintenance effort should focus mostly on expanding and improving the cool-places database. The drinking-water and swim/refresh datasets come from official open-data layers and are expected to be more or less complete, although they should still be refreshed periodically.
 
-To refresh water data, download the source layers to `C:\tmp\trinkbrunnen.json` and `C:\tmp\badestellen.json`, then run:
+- `vienna_cool_places.ts` and `osm_imported_places.ts` contain cool and air-conditioned places.
+- `drinking_water_places.ts` contains generated public drinking-water points.
+- `water_access_places.ts` contains generated bathing sites and public water-refresh features.
+- `scripts/generate_water_places.mjs` regenerates the water files from downloaded City of Vienna WFS GeoJSON files.
+
+To refresh water data, download the source layers to `C:\tmp\trinkbrunnen.json` and `C:\tmp\badestellen.json`. For better fountain and spray-feature names, also download the trimmed `ogdwien:ADRESSENOGD` layer to `C:\tmp\adressen_compact.json` with `NAME`, `NAME_STR`, `PLZ`, `GEB_BEZIRK`, and `SHAPE`. Then run:
 
 ```bash
 npm run generate:water-data
 ```
 
-Wrong-information reports can be submitted through a Cloudflare Worker. Copy `wrangler.example.toml`, configure the Worker secrets, deploy the Worker, and set these frontend environment variables for the app build:
+Wrong-information reports can be submitted through a Cloudflare Worker. Copy `wrangler.example.toml`, configure the Worker secrets, deploy the Worker, and set these frontend environment variables for the Vite app build. `VITE_REPORT_ENDPOINT` is not a Vite route; it is the frontend build variable used by `src/components/PlaceDetailCard.tsx`, and its value should be the deployed Worker URL:
 
 ```bash
 VITE_REPORT_ENDPOINT=https://your-worker.example
 VITE_TURNSTILE_SITE_KEY=your-turnstile-site-key
 ```
+
+Store private report-flow secrets only in Cloudflare Worker secrets:
+
+```bash
+wrangler secret put TURNSTILE_SECRET_KEY
+wrangler secret put GITHUB_TOKEN
+```
+
+Use a fine-grained GitHub token limited to issue read/write access on this repository. If a token has ever been pasted into chat, rotate it before saving it.
 
 ## Local Development
 

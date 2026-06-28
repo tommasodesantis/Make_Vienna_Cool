@@ -69,8 +69,24 @@ export interface LanguageTranslations {
   modeCool: string;
   modeDrinking: string;
   modeWater: string;
+  modeCoolShort: string;
+  modeDrinkingShort: string;
+  modeWaterShort: string;
   filterDrinkingWater: string;
   filterWaterAccess: string;
+  datasetLoading: string;
+  useMyLocation: string;
+  locating: string;
+  nearestActive: string;
+  locationDenied: string;
+  locationUnsupported: string;
+  preferencesTitle: string;
+  preferencesDescription: string;
+  languagePreference: string;
+  locationConsent: string;
+  locationConsentDescription: string;
+  savePreferences: string;
+  maybeLater: string;
   noLocationsFound: string;
   location: string;
   source: string;
@@ -130,8 +146,8 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     allDistricts: "All Districts",
     districtFilter: "District Filter",
     heatEyebrow: "Beat the Heat in Vienna",
-    heroTextBeforeLink: "Find public cool zones and air-conditioned spots in Vienna. This is an independent open-source project, not affiliated with the City of Vienna. If you want to collaborate, please visit this ",
-    githubRepository: "GitHub repo",
+    heroTextBeforeLink: "Find public AC, fountains and swim spots in Vienna. This is an indie open-source project, not affiliated with the City of Vienna. If you want to collaborate, visit the ",
+    githubRepository: "repo",
     heroTextAfterLink: ".",
     filterCoolPlaces: "Filter Cool Places",
     showFilters: "Show Filters",
@@ -163,8 +179,24 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     modeCool: "Cool places",
     modeDrinking: "Drinking water",
     modeWater: "Swim / refresh",
+    modeCoolShort: "Cool",
+    modeDrinkingShort: "Water",
+    modeWaterShort: "Swim",
     filterDrinkingWater: "Filter Drinking Water",
     filterWaterAccess: "Filter Swim / Refresh",
+    datasetLoading: "Loading locations...",
+    useMyLocation: "Near me",
+    locating: "Locating...",
+    nearestActive: "Sorted by distance",
+    locationDenied: "Location access is not enabled.",
+    locationUnsupported: "Geolocation is not supported by this browser.",
+    preferencesTitle: "Preferences",
+    preferencesDescription: "Save your language and whether this app may ask for your browser location.",
+    languagePreference: "Language",
+    locationConsent: "Allow nearest-place features",
+    locationConsentDescription: "Your exact location stays in this browser session and is not stored.",
+    savePreferences: "Save preferences",
+    maybeLater: "Maybe later",
     noLocationsFound: "No locations found matching your filters.",
     location: "Location",
     source: "Source",
@@ -222,8 +254,8 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     allDistricts: "Alle Bezirke",
     districtFilter: "Bezirksfilter",
     heatEyebrow: "Abkühlung in Wien",
-    heroTextBeforeLink: "Finde kühle öffentliche Orte und klimatisierte Lokale in Wien. Dies ist ein unabhängiges Open-Source-Projekt und steht in keiner Verbindung zur Stadt Wien. Wenn Sie mitarbeiten möchten, besuchen Sie bitte dieses ",
-    githubRepository: "GitHub-Repository",
+    heroTextBeforeLink: "Finde öffentliche klimatisierte Orte, Trinkbrunnen und Badestellen in Wien. Dies ist ein unabhängiges Open-Source-Projekt und steht in keiner Verbindung zur Stadt Wien. Wenn du mitarbeiten möchtest, besuche das ",
+    githubRepository: "Repository",
     heroTextAfterLink: ".",
     filterCoolPlaces: "Kühle Orte filtern",
     showFilters: "Filter anzeigen",
@@ -255,8 +287,24 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     modeCool: "Kühle Orte",
     modeDrinking: "Trinkwasser",
     modeWater: "Baden / Erfrischen",
+    modeCoolShort: "Kühl",
+    modeDrinkingShort: "Wasser",
+    modeWaterShort: "Baden",
     filterDrinkingWater: "Trinkwasser filtern",
     filterWaterAccess: "Baden / Erfrischen filtern",
+    datasetLoading: "Standorte werden geladen...",
+    useMyLocation: "In der Nähe",
+    locating: "Standort wird gesucht...",
+    nearestActive: "Nach Entfernung sortiert",
+    locationDenied: "Standortzugriff ist nicht aktiviert.",
+    locationUnsupported: "Geolokalisierung wird von diesem Browser nicht unterstützt.",
+    preferencesTitle: "Einstellungen",
+    preferencesDescription: "Speichere deine Sprache und ob diese App nach deinem Browser-Standort fragen darf.",
+    languagePreference: "Sprache",
+    locationConsent: "Orte in der Nähe erlauben",
+    locationConsentDescription: "Dein genauer Standort bleibt nur in dieser Browser-Sitzung und wird nicht gespeichert.",
+    savePreferences: "Einstellungen speichern",
+    maybeLater: "Vielleicht später",
     noLocationsFound: "Keine Standorte mit diesen Filtern gefunden.",
     location: "Standort",
     source: "Quelle",
@@ -430,6 +478,35 @@ export const translateAmenity = (amenity: string, lang: "en" | "de"): string => 
   }
 
   return AMENITY_LABELS[amenity]?.[lang] || amenity;
+};
+
+const DRINKING_WATER_NOTE =
+  "Official Vienna open-data drinking-water point. Address label is based on the nearest official Vienna address point; availability can vary seasonally or during maintenance.";
+
+const WATER_REFRESH_NOTE =
+  "Official Vienna open-data water feature for cooling down or getting wet. Address label is based on the nearest official Vienna address point. This is not a monitored swimming site; follow posted local rules.";
+
+export const translateNote = (note: string, lang: "en" | "de"): string => {
+  if (lang === "en") return note;
+
+  if (note === DRINKING_WATER_NOTE) {
+    return "Offizieller Trinkwasserpunkt aus offenen Daten der Stadt Wien. Die Adressbezeichnung basiert auf dem nächstgelegenen offiziellen Wiener Adresspunkt; die Verfügbarkeit kann saisonal oder wegen Wartungsarbeiten variieren.";
+  }
+
+  if (note === WATER_REFRESH_NOTE) {
+    return "Offizielle Wasseranlage aus offenen Daten der Stadt Wien zum Abkühlen oder Nasswerden. Die Adressbezeichnung basiert auf dem nächstgelegenen offiziellen Wiener Adresspunkt. Dies ist keine überwachte Badestelle; beachte die örtlich ausgeschilderten Regeln.";
+  }
+
+  const bathingMatch = note.match(
+    /^City of Vienna bathing-water monitoring point(?: last tested ([^.]+))?\. Check local rules, currents, closures, and posted safety information before entering the water\.$/,
+  );
+
+  if (bathingMatch) {
+    const testedOn = bathingMatch[1] ? ` zuletzt geprüft am ${bathingMatch[1]}` : "";
+    return `Badewasser-Messstelle der Stadt Wien${testedOn}. Prüfe örtliche Regeln, Strömungen, Sperren und ausgeschilderte Sicherheitshinweise, bevor du ins Wasser gehst.`;
+  }
+
+  return note;
 };
 
 export const isAirConditioningAmenity = (amenity: string): boolean =>

@@ -23,6 +23,7 @@ export interface CompactPlace {
   placeType?: PlaceType;
   accessibility?: AccessibilityStatus;
   accessibilitySource?: string;
+  distanceMeters?: number;
 }
 
 export interface ExcludedSuggestion {

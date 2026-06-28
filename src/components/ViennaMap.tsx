@@ -2,13 +2,14 @@ import React, { useEffect, useRef } from "react";
 import L from "leaflet";
 import { CompactPlace } from "../data/vienna_cool_places";
 import { TRANSLATIONS, translateCategory } from "../data/translations";
-import { getPlaceType, googleMapsUrlForPlace } from "../data/place_utils";
+import { getPlaceType, googleMapsUrlForPlace, UserLocation } from "../data/place_utils";
 
 interface ViennaMapProps {
   places: CompactPlace[];
   selectedPlaceId: string | null;
   onSelectPlace: (id: string | null, fromMap?: boolean) => void;
   lang: "en" | "de";
+  userLocation?: UserLocation | null;
 }
 
 export const ViennaMap: React.FC<ViennaMapProps> = ({
@@ -16,10 +17,12 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
   selectedPlaceId,
   onSelectPlace,
   lang,
+  userLocation,
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<{ [id: string]: L.Marker }>({});
+  const userMarkerRef = useRef<L.CircleMarker | null>(null);
   const placesRef = useRef<CompactPlace[]>(places);
 
   // Keep places ref updated so callbacks can read current places
@@ -55,6 +58,10 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
     // Leaflet map cleanup on unmount
     return () => {
       if (mapRef.current) {
+        if (userMarkerRef.current) {
+          mapRef.current.removeLayer(userMarkerRef.current);
+          userMarkerRef.current = null;
+        }
         mapRef.current.remove();
         mapRef.current = null;
       }
@@ -65,6 +72,26 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
   useEffect(() => {
     updateMarkers(places, selectedPlaceId);
   }, [places, selectedPlaceId, lang]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    if (userMarkerRef.current) {
+      map.removeLayer(userMarkerRef.current);
+      userMarkerRef.current = null;
+    }
+
+    if (!userLocation) return;
+
+    userMarkerRef.current = L.circleMarker([userLocation.lat, userLocation.lng], {
+      radius: 8,
+      color: "#0F766E",
+      weight: 2,
+      fillColor: "#14B8A6",
+      fillOpacity: 0.85,
+    }).addTo(map);
+  }, [userLocation]);
 
   // Handle selected place animation/popup
   useEffect(() => {

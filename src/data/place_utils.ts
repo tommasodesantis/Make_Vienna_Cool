@@ -1,5 +1,10 @@
 import type { AccessibilityStatus, CompactPlace, PlaceType } from "./vienna_cool_places";
 
+export interface UserLocation {
+  lat: number;
+  lng: number;
+}
+
 export const getPlaceType = (place: CompactPlace): PlaceType => place.placeType ?? "cool";
 
 export const getAccessibilityStatus = (place: CompactPlace): AccessibilityStatus => {
@@ -26,4 +31,30 @@ export const googleMapsUrlForPlace = (place: CompactPlace): string => {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
     `${place.lat},${place.lng}`,
   )}`;
+};
+
+export const distanceMetersBetween = (from: UserLocation, to: UserLocation): number => {
+  const earthRadiusMeters = 6371000;
+  const toRadians = (value: number) => (value * Math.PI) / 180;
+  const deltaLat = toRadians(to.lat - from.lat);
+  const deltaLng = toRadians(to.lng - from.lng);
+  const lat1 = toRadians(from.lat);
+  const lat2 = toRadians(to.lat);
+
+  const a =
+    Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+    Math.cos(lat1) * Math.cos(lat2) * Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
+
+  return 2 * earthRadiusMeters * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+};
+
+export const formatDistance = (distanceMeters: number, lang: "en" | "de"): string => {
+  if (distanceMeters < 1000) {
+    const rounded = Math.max(10, Math.round(distanceMeters / 10) * 10);
+    return lang === "de" ? `${rounded} m entfernt` : `${rounded} m away`;
+  }
+
+  const kilometers = distanceMeters / 1000;
+  const formatted = kilometers < 10 ? kilometers.toFixed(1) : Math.round(kilometers).toString();
+  return lang === "de" ? `${formatted.replace(".", ",")} km entfernt` : `${formatted} km away`;
 };
