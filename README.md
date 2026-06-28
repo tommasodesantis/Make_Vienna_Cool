@@ -24,6 +24,12 @@ Most places in this database come from:
 
 Thank you to OpenStreetMap and its contributors. Without OpenStreetMap, this project would not be possible. Thank you also to data.gv.at, Austria's open-data portal, and to the City of Vienna Open Government Data program for curating and publishing the public open data used by this project.
 
+## Why this project?
+
+The urge to develop this project came from a practical gap: Google Maps does not offer an air-conditioning filter for places, and in my testing it was not very good at finding all of Vienna's public drinking-water fountains.
+
+The City of Vienna does offer official maps for drinking-water fountains and places to swim, but those maps can be hard to navigate and are not optimized for mobile use. This project puts cool indoor places, public drinking water, and swim/refresh spots into one mobile-friendly interface.
+
 ## Contributing
 
 Make Vienna Cool is meant to be collaborative. The goal is to add as many useful places as possible and keep the database accurate over time.

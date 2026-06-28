@@ -373,6 +373,7 @@ export const PlaceList: React.FC<PlaceListProps> = ({
             const acLabel = place.ac
               ? t.acFilterLabel
               : (place.coolingType === "official_cool_indoor_room_not_ac_confirmed" ? t.acOfficialZone : t.acCoolRoom);
+            const showCoolBadge = isCoolMode && place.category !== "Official Cool Zone";
             const accessibility = getAccessibilityStatus(place);
             const metadataItems: React.ReactNode[] = [];
 
@@ -416,7 +417,7 @@ export const PlaceList: React.FC<PlaceListProps> = ({
                   <h4 className="font-semibold text-[#2C3E50] text-sm leading-snug break-words flex-1">
                     {place.name}
                   </h4>
-                  {isCoolMode ? (
+                  {showCoolBadge ? (
                     <span className={`inline-flex items-center shrink-0 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
                       place.ac
                         ? "bg-green-brand text-white"
@@ -424,11 +425,11 @@ export const PlaceList: React.FC<PlaceListProps> = ({
                     }`}>
                       {acLabel}
                     </span>
-                  ) : (
+                  ) : !isCoolMode ? (
                     <span className="inline-flex items-center shrink-0 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-aqua text-dark-green">
                       {translateCategory(place.category, lang)}
                     </span>
-                  )}
+                  ) : null}
                 </div>
 
                 {metadataItems.length > 0 && (
