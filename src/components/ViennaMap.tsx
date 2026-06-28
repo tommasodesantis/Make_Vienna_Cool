@@ -12,9 +12,7 @@ interface ViennaMapProps {
   userLocation?: UserLocation | null;
 }
 
-type PlaceMarker = L.Marker | L.CircleMarker;
-
-const DENSE_MARKER_THRESHOLD = 250;
+type PlaceMarker = L.CircleMarker;
 
 export const ViennaMap: React.FC<ViennaMapProps> = ({
   places,
@@ -52,7 +50,7 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
     });
 
     mapRef.current = map;
-    canvasRendererRef.current = L.canvas({ padding: 0.5 });
+    canvasRendererRef.current = L.canvas({ padding: 0.5, tolerance: 18 });
 
     // Add clean Light OpenStreetMap tiles
     L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
@@ -152,17 +150,17 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
     let pinColor = "#94A3B8";
     const placeType = getPlaceType(place);
 
-    if (placeType === "drinking") {
+    if (isSelected && placeType === "cool") {
+      pinColor = place.category === "Official Cool Zone" ? "#1D4ED8" : "#475569";
+    } else if (placeType === "drinking") {
       pinColor = "#0EA5E9";
     } else if (placeType === "water") {
       pinColor = "#06B6D4";
-    } else if (isSelected) {
-      pinColor = "#3498DB";
     } else if (place.category === "Official Cool Zone") {
       pinColor = "#2980B9";
     }
 
-    if (isSelected) {
+    if (isSelected && placeType !== "cool") {
       pinColor = placeType === "water" ? "#0891B2" : placeType === "drinking" ? "#0284C7" : "#3498DB";
     }
 
@@ -171,59 +169,22 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
 
   const getCircleMarkerOptions = (place: CompactPlace, isSelected: boolean): L.CircleMarkerOptions => ({
     renderer: canvasRendererRef.current ?? undefined,
-    radius: isSelected ? 8 : 5,
+    radius: isSelected ? 10 : 7,
     color: "#ffffff",
-    weight: isSelected ? 3 : 1.5,
+    weight: isSelected ? 3 : 2,
     opacity: 1,
     fillColor: getMarkerColor(isSelected, place),
-    fillOpacity: isSelected ? 0.95 : 0.85,
+    fillOpacity: isSelected ? 0.96 : 0.88,
     bubblingMouseEvents: false,
+    interactive: true,
   });
 
   const setMarkerSelection = (marker: PlaceMarker, place: CompactPlace, isSelected: boolean) => {
-    if (marker instanceof L.Marker) {
-      marker.setIcon(createCustomIcon(isSelected, place));
-      return;
-    }
-
     marker.setStyle(getCircleMarkerOptions(place, isSelected));
   };
 
-  const createPlaceMarker = (place: CompactPlace, isSelected: boolean, useDenseMarkers: boolean): PlaceMarker => {
-    if (useDenseMarkers) {
-      return L.circleMarker([place.lat, place.lng], getCircleMarkerOptions(place, isSelected));
-    }
-
-    return L.marker([place.lat, place.lng], {
-      icon: createCustomIcon(isSelected, place),
-    });
-  };
-
-  // Function to create marker SVG dynamically
-  const createCustomIcon = (isSelected: boolean, place: CompactPlace) => {
-    // Clean Minimalism blue tones:
-    // Selected is #3498DB (electric blue)
-    // Non-selected Official Cool Zone is #2980B9 (strong blue)
-    // Non-selected other spots are #94A3B8 (slate)
-    const pinColor = getMarkerColor(isSelected, place);
-    const size = isSelected ? 36 : 28;
-    const svgHtml = `
-      <div class="relative flex items-center justify-center">
-        ${isSelected ? `<span class="absolute inline-flex h-full w-full rounded-full bg-[#3498DB] opacity-30 animate-pulse"></span>` : ""}
-        <svg width="${size}" height="${size + 8}" viewBox="0 0 24 30" fill="none" xmlns="http://www.w3.org/2000/svg" class="drop-shadow-sm">
-          <path d="M12 2C7.58172 2 4 5.58172 4 10C4 15.25 12 28 12 28C12 28 20 15.25 20 10C20 5.58172 16.4183 2 12 2Z" fill="${pinColor}" stroke="#ffffff" stroke-width="2"/>
-          <circle cx="12" cy="10" r="4" fill="#ffffff" />
-        </svg>
-      </div>
-    `;
-
-    return L.divIcon({
-      html: svgHtml,
-      className: "custom-div-icon",
-      iconSize: [size, size + 8],
-      iconAnchor: [size / 2, size + 8],
-      popupAnchor: [0, -size],
-    });
+  const createPlaceMarker = (place: CompactPlace, isSelected: boolean): PlaceMarker => {
+    return L.circleMarker([place.lat, place.lng], getCircleMarkerOptions(place, isSelected));
   };
 
   const escapeHtml = (value: string) =>
@@ -290,7 +251,6 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
   const updateMarkers = (currentPlaces: CompactPlace[], activeId: string | null) => {
     const map = mapRef.current;
     if (!map) return;
-    const useDenseMarkers = currentPlaces.length > DENSE_MARKER_THRESHOLD;
 
     // Remove existing markers
     Object.values(markersRef.current).forEach((marker) => {
@@ -302,7 +262,7 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
     // Add new markers
     currentPlaces.forEach((place) => {
       const isSelected = place.id === activeId;
-      const marker = createPlaceMarker(place, isSelected, useDenseMarkers).addTo(map);
+      const marker = createPlaceMarker(place, isSelected).addTo(map);
 
       // Marker click handler
       marker.on("click", () => {
