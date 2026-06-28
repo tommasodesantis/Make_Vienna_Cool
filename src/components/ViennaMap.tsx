@@ -92,11 +92,14 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
     if (!userLocation) return;
 
     userMarkerRef.current = L.circleMarker([userLocation.lat, userLocation.lng], {
+      renderer: canvasRendererRef.current ?? undefined,
       radius: 8,
       color: "#0F766E",
       weight: 2,
       fillColor: "#14B8A6",
       fillOpacity: 0.85,
+      interactive: false,
+      bubblingMouseEvents: false,
     }).addTo(map);
 
     map.flyTo([userLocation.lat, userLocation.lng], Math.max(map.getZoom(), 15), {
