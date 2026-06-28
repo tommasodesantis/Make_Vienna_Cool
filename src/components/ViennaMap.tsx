@@ -12,6 +12,10 @@ interface ViennaMapProps {
   userLocation?: UserLocation | null;
 }
 
+type PlaceMarker = L.Marker | L.CircleMarker;
+
+const DENSE_MARKER_THRESHOLD = 250;
+
 export const ViennaMap: React.FC<ViennaMapProps> = ({
   places,
   selectedPlaceId,
@@ -21,9 +25,12 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
-  const markersRef = useRef<{ [id: string]: L.Marker }>({});
+  const markersRef = useRef<Record<string, PlaceMarker>>({});
   const userMarkerRef = useRef<L.CircleMarker | null>(null);
+  const selectedPlaceIdRef = useRef<string | null>(selectedPlaceId);
+  const canvasRendererRef = useRef<L.Canvas | null>(null);
   const placesRef = useRef<CompactPlace[]>(places);
+  const placeIdsSignature = places.map((place) => place.id).join("|");
 
   // Keep places ref updated so callbacks can read current places
   useEffect(() => {
@@ -41,9 +48,11 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
       minZoom: 10,
       maxZoom: 18,
       zoomControl: true,
+      preferCanvas: true,
     });
 
     mapRef.current = map;
+    canvasRendererRef.current = L.canvas({ padding: 0.5 });
 
     // Add clean Light OpenStreetMap tiles
     L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
@@ -51,9 +60,6 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
       subdomains: "abcd",
       maxZoom: 20,
     }).addTo(map);
-
-    // Initial load markers
-    updateMarkers(places, selectedPlaceId);
 
     // Leaflet map cleanup on unmount
     return () => {
@@ -64,14 +70,17 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
         }
         mapRef.current.remove();
         mapRef.current = null;
+        canvasRendererRef.current = null;
       }
     };
   }, []);
 
-  // Sync markers when places or selection changes
+  // Sync markers only when the visible point set or popup language changes.
+  // Selection styling is handled separately so selecting one item does not
+  // rebuild hundreds of markers.
   useEffect(() => {
     updateMarkers(places, selectedPlaceId);
-  }, [places, selectedPlaceId, lang]);
+  }, [placeIdsSignature, lang]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -98,34 +107,51 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
     });
   }, [userLocation]);
 
-  // Handle selected place animation/popup
+  // Handle selected place animation/popup without rebuilding every marker.
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !selectedPlaceId) return;
+    if (!map) return;
+
+    const previousId = selectedPlaceIdRef.current;
+    if (previousId && previousId !== selectedPlaceId) {
+      const previousMarker = markersRef.current[previousId];
+      const previousPlace = placesRef.current.find((p) => p.id === previousId);
+      if (previousMarker && previousPlace) {
+        setMarkerSelection(previousMarker, previousPlace, false);
+      }
+    }
+
+    selectedPlaceIdRef.current = selectedPlaceId;
+
+    if (!selectedPlaceId) {
+      map.closePopup();
+      return;
+    }
 
     const marker = markersRef.current[selectedPlaceId];
-    const place = places.find((p) => p.id === selectedPlaceId);
+    const place = placesRef.current.find((p) => p.id === selectedPlaceId);
 
-    if (marker && place) {
-      // Center precisely on the pin, Leaflet's autoPan will adjust to fit the popup
-      map.setView([place.lat, place.lng], 15, {
-        animate: true,
-        duration: 0.8,
-      });
+    if (!marker || !place) return;
 
-      // Open popup
-      marker.openPopup();
+    setMarkerSelection(marker, place, true);
+
+    if (typeof marker.bringToFront === "function") {
+      marker.bringToFront();
     }
-  }, [selectedPlaceId, places]);
 
-  // Function to create marker SVG dynamically
-  const createCustomIcon = (isSelected: boolean, place: CompactPlace) => {
-    // Clean Minimalism blue tones:
-    // Selected is #3498DB (electric blue)
-    // Non-selected Official Cool Zone is #2980B9 (strong blue)
-    // Non-selected other spots are #94A3B8 (slate)
+    // Center precisely on the pin, Leaflet's autoPan will adjust to fit the popup
+    map.setView([place.lat, place.lng], 15, {
+      animate: true,
+      duration: 0.8,
+    });
+
+    marker.bindPopup(createPopupHtml(place), getPopupOptions()).openPopup();
+  }, [selectedPlaceId, lang]);
+
+  const getMarkerColor = (isSelected: boolean, place: CompactPlace) => {
     let pinColor = "#94A3B8";
     const placeType = getPlaceType(place);
+
     if (placeType === "drinking") {
       pinColor = "#0EA5E9";
     } else if (placeType === "water") {
@@ -140,6 +166,46 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
       pinColor = placeType === "water" ? "#0891B2" : placeType === "drinking" ? "#0284C7" : "#3498DB";
     }
 
+    return pinColor;
+  };
+
+  const getCircleMarkerOptions = (place: CompactPlace, isSelected: boolean): L.CircleMarkerOptions => ({
+    renderer: canvasRendererRef.current ?? undefined,
+    radius: isSelected ? 8 : 5,
+    color: "#ffffff",
+    weight: isSelected ? 3 : 1.5,
+    opacity: 1,
+    fillColor: getMarkerColor(isSelected, place),
+    fillOpacity: isSelected ? 0.95 : 0.85,
+    bubblingMouseEvents: false,
+  });
+
+  const setMarkerSelection = (marker: PlaceMarker, place: CompactPlace, isSelected: boolean) => {
+    if (marker instanceof L.Marker) {
+      marker.setIcon(createCustomIcon(isSelected, place));
+      return;
+    }
+
+    marker.setStyle(getCircleMarkerOptions(place, isSelected));
+  };
+
+  const createPlaceMarker = (place: CompactPlace, isSelected: boolean, useDenseMarkers: boolean): PlaceMarker => {
+    if (useDenseMarkers) {
+      return L.circleMarker([place.lat, place.lng], getCircleMarkerOptions(place, isSelected));
+    }
+
+    return L.marker([place.lat, place.lng], {
+      icon: createCustomIcon(isSelected, place),
+    });
+  };
+
+  // Function to create marker SVG dynamically
+  const createCustomIcon = (isSelected: boolean, place: CompactPlace) => {
+    // Clean Minimalism blue tones:
+    // Selected is #3498DB (electric blue)
+    // Non-selected Official Cool Zone is #2980B9 (strong blue)
+    // Non-selected other spots are #94A3B8 (slate)
+    const pinColor = getMarkerColor(isSelected, place);
     const size = isSelected ? 36 : 28;
     const svgHtml = `
       <div class="relative flex items-center justify-center">
@@ -168,77 +234,79 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
 
+  const getPopupOptions = (): L.PopupOptions => ({
+    closeButton: true,
+    offset: [0, -5],
+    className: "custom-leaflet-popup",
+    autoPan: true,
+    autoPanPadding: [20, 20],
+  });
+
+  const createPopupHtml = (place: CompactPlace) => {
+    const t = TRANSLATIONS[lang];
+    const placeType = getPlaceType(place);
+    const typeLabel =
+      placeType === "drinking"
+        ? t.modeDrinking
+        : placeType === "water"
+          ? t.modeWater
+          : place.ac
+            ? t.acFilterLabel
+            : place.coolingType === "official_cool_indoor_room_not_ac_confirmed"
+              ? t.acOfficialZone
+              : t.acCoolRoom;
+    const typeBadgeColor =
+      placeType === "drinking"
+        ? "bg-[#E0F2FE] text-[#075985]"
+        : placeType === "water"
+          ? "bg-[#CFFAFE] text-[#155E75]"
+          : place.ac
+            ? "bg-[#3498DB] text-white"
+            : "bg-[#D4E6F1] text-[#1F618D]";
+    const primaryLabel = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${typeBadgeColor}">${escapeHtml(typeLabel)}</span>`;
+    const categoryLabel = escapeHtml(translateCategory(place.category, lang));
+    const mapsUrl = googleMapsUrlForPlace(place);
+
+    return `
+      <div class="p-1 max-w-[240px] font-sans">
+        <div class="flex items-start justify-between gap-2 mb-1.5">
+          <h3 class="font-bold text-base text-[#2C3E50] leading-snug m-0">${escapeHtml(place.name)}</h3>
+        </div>
+        <div class="flex flex-wrap gap-1 mb-2">
+          ${primaryLabel}
+          ${placeType !== "cool" || place.category !== "Official Cool Zone" ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#EBF5FB] text-[#1F618D]">${categoryLabel}</span>` : ""}
+        </div>
+        <p class="text-xs text-[#718096] mb-2 leading-relaxed font-normal">${escapeHtml(place.address)}</p>
+        ${place.hours.length > 0 ? `<p class="text-[11px] text-slate-500 font-semibold m-0 flex items-center gap-1">${escapeHtml(place.hours[0])}</p>` : ""}
+        <div class="mt-2.5 pt-2 border-t border-[#F0F4F8]">
+          <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" style="color: #3498DB; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 2px; font-size: 12px;">
+            ${t.openInGoogleMaps} &rarr;
+          </a>
+        </div>
+      </div>
+    `;
+  };
+
   const updateMarkers = (currentPlaces: CompactPlace[], activeId: string | null) => {
     const map = mapRef.current;
     if (!map) return;
+    const useDenseMarkers = currentPlaces.length > DENSE_MARKER_THRESHOLD;
 
     // Remove existing markers
     Object.values(markersRef.current).forEach((marker) => {
       map.removeLayer(marker);
     });
     markersRef.current = {};
+    selectedPlaceIdRef.current = activeId;
 
     // Add new markers
     currentPlaces.forEach((place) => {
       const isSelected = place.id === activeId;
-      const icon = createCustomIcon(isSelected, place);
-
-      const marker = L.marker([place.lat, place.lng], { icon }).addTo(map);
-
-      // Create a nice styled popup content
-      const t = TRANSLATIONS[lang];
-      const placeType = getPlaceType(place);
-      const typeLabel =
-        placeType === "drinking"
-          ? t.modeDrinking
-          : placeType === "water"
-            ? t.modeWater
-            : place.ac
-              ? t.acFilterLabel
-              : place.coolingType === "official_cool_indoor_room_not_ac_confirmed"
-                ? t.acOfficialZone
-                : t.acCoolRoom;
-      const typeBadgeColor =
-        placeType === "drinking"
-          ? "bg-[#E0F2FE] text-[#075985]"
-          : placeType === "water"
-            ? "bg-[#CFFAFE] text-[#155E75]"
-            : place.ac
-              ? "bg-[#3498DB] text-white"
-              : "bg-[#D4E6F1] text-[#1F618D]";
-      const primaryLabel = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${typeBadgeColor}">${escapeHtml(typeLabel)}</span>`;
-      const categoryLabel = escapeHtml(translateCategory(place.category, lang));
-      const mapsUrl = googleMapsUrlForPlace(place);
-
-      const popupHtml = `
-        <div class="p-1 max-w-[240px] font-sans">
-          <div class="flex items-start justify-between gap-2 mb-1.5">
-            <h3 class="font-bold text-base text-[#2C3E50] leading-snug m-0">${escapeHtml(place.name)}</h3>
-          </div>
-          <div class="flex flex-wrap gap-1 mb-2">
-            ${primaryLabel}
-            ${placeType !== "cool" || place.category !== "Official Cool Zone" ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#EBF5FB] text-[#1F618D]">${categoryLabel}</span>` : ""}
-          </div>
-          <p class="text-xs text-[#718096] mb-2 leading-relaxed font-normal">${escapeHtml(place.address)}</p>
-          ${place.hours.length > 0 ? `<p class="text-[11px] text-slate-500 font-semibold m-0 flex items-center gap-1">${escapeHtml(place.hours[0])}</p>` : ""}
-          <div class="mt-2.5 pt-2 border-t border-[#F0F4F8]">
-            <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" style="color: #3498DB; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 2px; font-size: 12px;">
-              ${t.openInGoogleMaps} &rarr;
-            </a>
-          </div>
-        </div>
-      `;
-
-      marker.bindPopup(popupHtml, {
-        closeButton: true,
-        offset: [0, -5],
-        className: "custom-leaflet-popup",
-        autoPan: true,
-        autoPanPadding: [20, 20],
-      });
+      const marker = createPlaceMarker(place, isSelected, useDenseMarkers).addTo(map);
 
       // Marker click handler
       marker.on("click", () => {
+        marker.bindPopup(createPopupHtml(place), getPopupOptions()).openPopup();
         onSelectPlace(place.id, true);
       });
 
