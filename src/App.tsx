@@ -4,7 +4,7 @@ import { TRANSLATIONS } from "./data/translations";
 import { ViennaMap } from "./components/ViennaMap";
 import { PlaceList } from "./components/PlaceList";
 import { PlaceDetailCard } from "./components/PlaceDetailCard";
-import { Droplets, LocateFixed, Loader2, Snowflake, Waves, X } from "lucide-react";
+import { Droplets, LocateFixed, Loader2, Snowflake, Toilet, Waves, X } from "lucide-react";
 import { distanceMetersBetween, getAccessibilityStatus, UserLocation } from "./data/place_utils";
 
 type LocationConsent = "unknown" | "granted" | "denied";
@@ -61,6 +61,7 @@ export default function App() {
   const [filterSockets, setFilterSockets] = useState<boolean>(false);
   const [filterTables, setFilterTables] = useState<boolean>(false);
   const [filterAccessible, setFilterAccessible] = useState<boolean>(false);
+  const [filterOpenNow, setFilterOpenNow] = useState<boolean>(false);
 
   // Days and hours states
   const [selectedDay, setSelectedDay] = useState<string>("ALL");
@@ -80,7 +81,15 @@ export default function App() {
     const loader =
       activeMode === "drinking"
         ? import("./data/drinking_water_places").then((module) => module.VIENNA_DRINKING_WATER_FOUNTAINS)
-        : import("./data/water_access_places").then((module) => module.VIENNA_WATER_ACCESS_PLACES);
+        : activeMode === "water"
+          ? Promise.all([
+              import("./data/water_access_places"),
+              import("./data/outside_vienna_water_access_places"),
+            ]).then(([waterModule, outsideModule]) => [
+              ...waterModule.VIENNA_WATER_ACCESS_PLACES,
+              ...outsideModule.OUTSIDE_VIENNA_WATER_ACCESS_PLACES,
+            ])
+          : import("./data/public_toilet_places").then((module) => module.VIENNA_PUBLIC_TOILET_PLACES);
 
     loader
       .then((places) => {
@@ -157,8 +166,31 @@ export default function App() {
     setFilterSockets(false);
     setFilterTables(false);
     setFilterAccessible(false);
+    setFilterOpenNow(false);
     setSelectedDay("ALL");
     setSelectedHourRange("ALL");
+  };
+
+  const handleFilterOpenNowChange = (nextValue: boolean) => {
+    setFilterOpenNow(nextValue);
+    if (nextValue) {
+      setSelectedDay("ALL");
+      setSelectedHourRange("ALL");
+    }
+  };
+
+  const handleSelectedDayChange = (nextValue: string) => {
+    setSelectedDay(nextValue);
+    if (nextValue !== "ALL") {
+      setFilterOpenNow(false);
+    }
+  };
+
+  const handleSelectedHourRangeChange = (nextValue: string) => {
+    setSelectedHourRange(nextValue);
+    if (nextValue !== "ALL") {
+      setFilterOpenNow(false);
+    }
   };
 
   const handleModeChange = (mode: PlaceType) => {
@@ -324,8 +356,20 @@ export default function App() {
         return true;
       }
 
-      if (selectedCategory !== "ALL" && place.category !== selectedCategory) {
+      if (activeMode !== "toilet" && selectedCategory !== "ALL" && place.category !== selectedCategory) {
         return false;
+      }
+
+      if (activeMode === "toilet") {
+        if (filterAccessible && getAccessibilityStatus(place) !== "yes") {
+          return false;
+        }
+
+        if (filterFree && !place.free) {
+          return false;
+        }
+
+        return true;
       }
 
       if (activeMode !== "cool") {
@@ -370,13 +414,17 @@ export default function App() {
         return false;
       }
 
+      if (filterOpenNow && !isPlaceOpenAtHourRange(place.hours, "now")) {
+        return false;
+      }
+
       if (selectedHourRange !== "ALL" && !isPlaceOpenAtHourRange(place.hours, selectedHourRange)) {
         return false;
       }
 
       return true;
     });
-  }, [datasetPlaces, activeMode, selectedCategory, filterAccessible, filterAc, filterSeating, filterWifi, filterFree, filterSockets, filterTables, selectedDay, selectedHourRange]);
+  }, [datasetPlaces, activeMode, selectedCategory, filterAccessible, filterAc, filterSeating, filterWifi, filterFree, filterSockets, filterTables, filterOpenNow, selectedDay, selectedHourRange]);
 
   const visiblePlaces = useMemo(() => {
     if (!userLocation) return filteredPlaces;
@@ -479,11 +527,12 @@ export default function App() {
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6">
         <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="grid w-full grid-cols-3 rounded-xl border border-slate-200/70 bg-white/70 p-1 shadow-sm backdrop-blur-xl sm:w-auto">
+          <div className="grid w-full grid-cols-2 rounded-xl border border-slate-200/70 bg-white/70 p-1 shadow-sm backdrop-blur-xl sm:w-auto sm:grid-cols-4">
             {[
               { mode: "cool" as const, label: t.modeCool, shortLabel: t.modeCoolShort, icon: Snowflake },
               { mode: "drinking" as const, label: t.modeDrinking, shortLabel: t.modeDrinkingShort, icon: Droplets },
               { mode: "water" as const, label: t.modeWater, shortLabel: t.modeWaterShort, icon: Waves },
+              { mode: "toilet" as const, label: t.modeToilets, shortLabel: t.modeToiletsShort, icon: Toilet },
             ].map(({ mode, label, shortLabel, icon: Icon }) => {
               const selected = activeMode === mode;
               return (
@@ -555,10 +604,12 @@ export default function App() {
               onFilterTablesChange={setFilterTables}
               filterAccessible={filterAccessible}
               onFilterAccessibleChange={setFilterAccessible}
+              filterOpenNow={filterOpenNow}
+              onFilterOpenNowChange={handleFilterOpenNowChange}
               selectedDay={selectedDay}
-              onSelectedDayChange={setSelectedDay}
+              onSelectedDayChange={handleSelectedDayChange}
               selectedHourRange={selectedHourRange}
-              onSelectedHourRangeChange={setSelectedHourRange}
+              onSelectedHourRangeChange={handleSelectedHourRangeChange}
               categories={categories}
             />
           </div>
@@ -591,10 +642,12 @@ export default function App() {
                 onFilterTablesChange={setFilterTables}
                 filterAccessible={filterAccessible}
                 onFilterAccessibleChange={setFilterAccessible}
+                filterOpenNow={filterOpenNow}
+                onFilterOpenNowChange={handleFilterOpenNowChange}
                 selectedDay={selectedDay}
-                onSelectedDayChange={setSelectedDay}
+                onSelectedDayChange={handleSelectedDayChange}
                 selectedHourRange={selectedHourRange}
-                onSelectedHourRangeChange={setSelectedHourRange}
+                onSelectedHourRangeChange={handleSelectedHourRangeChange}
                 categories={categories}
                 mode="filters"
               />
@@ -641,10 +694,12 @@ export default function App() {
                 onFilterTablesChange={setFilterTables}
                 filterAccessible={filterAccessible}
                 onFilterAccessibleChange={setFilterAccessible}
+                filterOpenNow={filterOpenNow}
+                onFilterOpenNowChange={handleFilterOpenNowChange}
                 selectedDay={selectedDay}
-                onSelectedDayChange={setSelectedDay}
+                onSelectedDayChange={handleSelectedDayChange}
                 selectedHourRange={selectedHourRange}
-                onSelectedHourRangeChange={setSelectedHourRange}
+                onSelectedHourRangeChange={handleSelectedHourRangeChange}
                 categories={categories}
                 mode="list"
               />

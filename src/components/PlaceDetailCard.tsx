@@ -127,6 +127,13 @@ export const PlaceDetailCard: React.FC<PlaceDetailCardProps> = ({ place, lang })
       };
     }
 
+    if (placeType === "toilet") {
+      return {
+        bg: "bg-violet-100 text-violet-900",
+        text: t.modeToilets,
+      };
+    }
+
     switch (place.coolingType) {
       case "confirmed_air_conditioned":
         return {
@@ -226,9 +233,9 @@ export const PlaceDetailCard: React.FC<PlaceDetailCardProps> = ({ place, lang })
             {translateCategory(place.category, lang)}
           </span>
         )}
-        {isCoolPlace && (
+        {(isCoolPlace || placeType === "toilet") && (
           <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${place.free ? "bg-mint text-dark-green" : "bg-amber-100 text-amber-800"}`}>
-            {place.free ? t.freeEntry : t.paidRequired}
+            {place.free ? (placeType === "toilet" ? t.freeAccess : t.freeEntry) : t.paidRequired}
           </span>
         )}
       </div>
@@ -284,7 +291,7 @@ export const PlaceDetailCard: React.FC<PlaceDetailCardProps> = ({ place, lang })
         </div>
       )}
 
-      {isCoolPlace && (
+      {(isCoolPlace || placeType === "toilet") && (
         <div className="mb-4">
           <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-1">{t.accessible}</p>
           <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold ${

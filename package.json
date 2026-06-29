@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
-    "generate:water-data": "node scripts/generate_water_places.mjs"
+    "generate:water-data": "node scripts/generate_water_places.mjs",
+    "generate:toilet-data": "node scripts/generate_public_toilets.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

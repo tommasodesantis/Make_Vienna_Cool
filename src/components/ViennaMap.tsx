@@ -150,21 +150,31 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
   }, [selectedPlaceId, lang]);
 
   const getMarkerColor = (isSelected: boolean, place: CompactPlace) => {
-    let pinColor = "#94A3B8";
+    const nonOfficialCoolColor = "#4C1D95";
+    let pinColor = nonOfficialCoolColor;
     const placeType = getPlaceType(place);
 
     if (isSelected && placeType === "cool") {
-      pinColor = place.category === "Official Cool Zone" ? "#1D4ED8" : "#475569";
+      pinColor = place.category === "Official Cool Zone" ? "#1D4ED8" : nonOfficialCoolColor;
     } else if (placeType === "drinking") {
       pinColor = "#0EA5E9";
     } else if (placeType === "water") {
       pinColor = "#06B6D4";
+    } else if (placeType === "toilet") {
+      pinColor = "#7C3AED";
     } else if (place.category === "Official Cool Zone") {
       pinColor = "#2980B9";
     }
 
     if (isSelected && placeType !== "cool") {
-      pinColor = placeType === "water" ? "#0891B2" : placeType === "drinking" ? "#0284C7" : "#3498DB";
+      pinColor =
+        placeType === "water"
+          ? "#0891B2"
+          : placeType === "drinking"
+            ? "#0284C7"
+            : placeType === "toilet"
+              ? "#6D28D9"
+              : "#3498DB";
     }
 
     return pinColor;
@@ -214,6 +224,8 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
         ? t.modeDrinking
         : placeType === "water"
           ? t.modeWater
+          : placeType === "toilet"
+            ? t.modeToilets
           : place.ac
             ? t.acFilterLabel
             : place.coolingType === "official_cool_indoor_room_not_ac_confirmed"
@@ -224,6 +236,8 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
         ? "bg-[#E0F2FE] text-[#075985]"
         : placeType === "water"
           ? "bg-[#CFFAFE] text-[#155E75]"
+          : placeType === "toilet"
+            ? "bg-[#EDE9FE] text-[#4C1D95]"
           : place.ac
             ? "bg-[#3498DB] text-white"
             : "bg-[#D4E6F1] text-[#1F618D]";

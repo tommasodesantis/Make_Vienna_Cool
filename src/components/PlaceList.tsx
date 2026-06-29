@@ -30,6 +30,8 @@ interface PlaceListProps {
   onFilterTablesChange: (val: boolean) => void;
   filterAccessible: boolean;
   onFilterAccessibleChange: (val: boolean) => void;
+  filterOpenNow: boolean;
+  onFilterOpenNowChange: (val: boolean) => void;
   selectedDay: string;
   onSelectedDayChange: (val: string) => void;
   selectedHourRange: string;
@@ -64,6 +66,8 @@ export const PlaceList: React.FC<PlaceListProps> = ({
   onFilterTablesChange,
   filterAccessible,
   onFilterAccessibleChange,
+  filterOpenNow,
+  onFilterOpenNowChange,
   selectedDay,
   onSelectedDayChange,
   selectedHourRange,
@@ -73,6 +77,8 @@ export const PlaceList: React.FC<PlaceListProps> = ({
 }) => {
   const t = TRANSLATIONS[lang];
   const isCoolMode = activeMode === "cool";
+  const isToiletMode = activeMode === "toilet";
+  const showCategoryFilter = !isToiletMode;
   const hasFilterControls = activeMode !== "drinking";
   const showFilterSection = mode !== "list" && hasFilterControls;
   const showResultsSection = mode !== "filters";
@@ -81,7 +87,9 @@ export const PlaceList: React.FC<PlaceListProps> = ({
       ? t.filterDrinkingWater
       : activeMode === "water"
         ? t.filterWaterAccess
-        : t.filterCoolPlaces;
+        : activeMode === "toilet"
+          ? t.filterPublicToilets
+          : t.filterCoolPlaces;
 
   const [showAcTooltip, setShowAcTooltip] = useState(false);
   const [isFiltersCollapsed, setIsFiltersCollapsed] = useState(
@@ -90,7 +98,7 @@ export const PlaceList: React.FC<PlaceListProps> = ({
 
   const activeFiltersCount = useMemo(() => {
     let count = 0;
-    if (selectedCategory !== "ALL") count++;
+    if (showCategoryFilter && selectedCategory !== "ALL") count++;
 
     if (isCoolMode) {
       if (filterAccessible) count++;
@@ -100,14 +108,22 @@ export const PlaceList: React.FC<PlaceListProps> = ({
       if (filterFree) count++;
       if (filterSockets) count++;
       if (filterTables) count++;
+      if (filterOpenNow) count++;
       if (selectedDay !== "ALL") count++;
       if (selectedHourRange !== "ALL") count++;
+    }
+
+    if (isToiletMode) {
+      if (filterAccessible) count++;
+      if (filterFree) count++;
     }
 
     return count;
   }, [
     selectedCategory,
     isCoolMode,
+    isToiletMode,
+    showCategoryFilter,
     filterAccessible,
     filterAc,
     filterSeating,
@@ -115,6 +131,7 @@ export const PlaceList: React.FC<PlaceListProps> = ({
     filterFree,
     filterSockets,
     filterTables,
+    filterOpenNow,
     selectedDay,
     selectedHourRange,
   ]);
@@ -129,6 +146,7 @@ export const PlaceList: React.FC<PlaceListProps> = ({
     onFilterSocketsChange(false);
     onFilterTablesChange(false);
     onFilterAccessibleChange(false);
+    onFilterOpenNowChange(false);
     onSelectedDayChange("ALL");
     onSelectedHourRangeChange("ALL");
   };
@@ -165,25 +183,27 @@ export const PlaceList: React.FC<PlaceListProps> = ({
 
       {showFilterSection && (
       <div className={`${isFiltersCollapsed ? "hidden" : "flex"} flex-col gap-3 p-4 bg-offwhite ${showResultsSection ? "border-b border-slate-100" : "rounded-b-2xl"}`}>
-        <div className="flex flex-col gap-1.5">
-          <div className="flex flex-col">
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-              {t.category}
-            </label>
-            <select
-              value={selectedCategory}
-              onChange={(e) => onCategoryChange(e.target.value)}
-              className="w-full py-1.5 px-2 bg-white border border-slate-200 focus:border-green-brand focus:ring-1 focus:ring-mint rounded-lg text-xs text-slate-700 outline-none transition-all cursor-pointer font-medium"
-            >
-              <option value="ALL">{t.allCategories}</option>
-              {categories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {translateCategory(cat, lang)}
-                </option>
-              ))}
-            </select>
+        {showCategoryFilter && (
+          <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                {t.category}
+              </label>
+              <select
+                value={selectedCategory}
+                onChange={(e) => onCategoryChange(e.target.value)}
+                className="w-full py-1.5 px-2 bg-white border border-slate-200 focus:border-green-brand focus:ring-1 focus:ring-mint rounded-lg text-xs text-slate-700 outline-none transition-all cursor-pointer font-medium"
+              >
+                <option value="ALL">{t.allCategories}</option>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {translateCategory(cat, lang)}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-        </div>
+        )}
 
         {isCoolMode && (
           <div className="flex flex-col gap-2 border-t border-slate-200/40 pt-2.5">
@@ -301,9 +321,43 @@ export const PlaceList: React.FC<PlaceListProps> = ({
           </div>
         )}
 
-        {isCoolMode && (
+        {isToiletMode && (
           <div className="grid grid-cols-2 gap-2 border-t border-slate-200/40 pt-2.5">
-            <div className="flex flex-col">
+            <label className="flex items-center gap-2 px-2 py-1.5 bg-white border border-slate-200/60 hover:border-green-brand/40 rounded-lg cursor-pointer select-none transition-colors">
+              <input
+                type="checkbox"
+                checked={filterAccessible}
+                onChange={(e) => onFilterAccessibleChange(e.target.checked)}
+                className="w-3.5 h-3.5 rounded text-green-brand border-slate-300 focus:ring-green-brand/30"
+              />
+              <span className="text-xs font-semibold text-slate-700">{t.accessible}</span>
+            </label>
+
+            <label className="flex items-center gap-2 px-2 py-1.5 bg-white border border-slate-200/60 hover:border-green-brand/40 rounded-lg cursor-pointer select-none transition-colors">
+              <input
+                type="checkbox"
+                checked={filterFree}
+                onChange={(e) => onFilterFreeChange(e.target.checked)}
+                className="w-3.5 h-3.5 rounded text-green-brand border-slate-300 focus:ring-green-brand/30"
+              />
+              <span className="text-xs font-semibold text-slate-700">{t.freeAccess}</span>
+            </label>
+          </div>
+        )}
+
+        {isCoolMode && (
+          <div className="flex flex-col gap-2 border-t border-slate-200/40 pt-2.5">
+            <label className="flex items-center justify-between gap-3 rounded-xl border border-green-brand/30 bg-mint px-3 py-2.5 cursor-pointer select-none transition-colors hover:border-green-brand/60">
+              <span className="text-sm font-black text-dark-green">{t.openNow}</span>
+              <input
+                type="checkbox"
+                checked={filterOpenNow}
+                onChange={(e) => onFilterOpenNowChange(e.target.checked)}
+                className="h-4 w-4 shrink-0 rounded border-green-brand/40 text-green-brand focus:ring-green-brand/30"
+              />
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="flex flex-col">
               <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
                 {t.openingDay}
               </label>
@@ -321,9 +375,9 @@ export const PlaceList: React.FC<PlaceListProps> = ({
                 <option value="Sat">{t.saturday}</option>
                 <option value="Sun">{t.sunday}</option>
               </select>
-            </div>
+              </div>
 
-            <div className="flex flex-col">
+              <div className="flex flex-col">
               <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
                 {t.openingHour}
               </label>
@@ -333,11 +387,11 @@ export const PlaceList: React.FC<PlaceListProps> = ({
                 className="w-full py-1.5 px-2 bg-white border border-slate-200 focus:border-green-brand focus:ring-1 focus:ring-mint rounded-lg text-xs text-slate-700 outline-none transition-all cursor-pointer"
               >
                 <option value="ALL">{t.anyTime}</option>
-                <option value="now">{t.openNow}</option>
                 <option value="morning">{t.morning}</option>
                 <option value="afternoon">{t.afternoon}</option>
                 <option value="evening">{t.evening}</option>
               </select>
+              </div>
             </div>
           </div>
         )}
@@ -396,6 +450,22 @@ export const PlaceList: React.FC<PlaceListProps> = ({
               metadataItems.push(
                 <span className={place.free ? "text-[#2ECC71] font-bold" : "text-amber-600 font-bold"}>
                   {place.free ? t.freeEntry : t.paid}
+                </span>
+              );
+
+              if (accessibility !== "unknown") {
+                metadataItems.push(
+                  <span>
+                    {accessibility === "yes" ? t.accessibilityYes : accessibility === "limited" ? t.accessibilityLimited : t.accessibilityNo}
+                  </span>
+                );
+              }
+            }
+
+            if (isToiletMode) {
+              metadataItems.push(
+                <span className={place.free ? "text-[#2ECC71] font-bold" : "text-amber-600 font-bold"}>
+                  {place.free ? t.freeAccess : t.paid}
                 </span>
               );
 

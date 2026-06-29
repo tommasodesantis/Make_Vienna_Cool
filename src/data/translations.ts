@@ -69,11 +69,14 @@ export interface LanguageTranslations {
   modeCool: string;
   modeDrinking: string;
   modeWater: string;
+  modeToilets: string;
   modeCoolShort: string;
   modeDrinkingShort: string;
   modeWaterShort: string;
+  modeToiletsShort: string;
   filterDrinkingWater: string;
   filterWaterAccess: string;
+  filterPublicToilets: string;
   datasetLoading: string;
   useMyLocation: string;
   locating: string;
@@ -146,7 +149,7 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     allDistricts: "All Districts",
     districtFilter: "District Filter",
     heatEyebrow: "Beat the Heat in Vienna",
-    heroTextBeforeLink: "Find public AC, fountains and swim spots in Vienna. This is an indie open-source project, not affiliated with the City of Vienna. If you want to collaborate, visit the ",
+    heroTextBeforeLink: "Find public AC, fountains, swim spots and toilets in Vienna. This is an indie open-source project, not affiliated with the City of Vienna. If you want to collaborate, visit the ",
     githubRepository: "repo",
     heroTextAfterLink: ".",
     filterCoolPlaces: "Filter Cool Places",
@@ -179,11 +182,14 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     modeCool: "Cool places",
     modeDrinking: "Drinking water",
     modeWater: "Swim / refresh",
+    modeToilets: "Public toilets",
     modeCoolShort: "Cool",
     modeDrinkingShort: "Water",
     modeWaterShort: "Swim",
+    modeToiletsShort: "Toilets",
     filterDrinkingWater: "Filter Drinking Water",
     filterWaterAccess: "Filter Swim / Refresh",
+    filterPublicToilets: "Filter Public Toilets",
     datasetLoading: "Loading locations...",
     useMyLocation: "Near me",
     locating: "Locating...",
@@ -254,7 +260,7 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     allDistricts: "Alle Bezirke",
     districtFilter: "Bezirksfilter",
     heatEyebrow: "Abkühlung in Wien",
-    heroTextBeforeLink: "Finde öffentliche klimatisierte Orte, Trinkbrunnen und Badestellen in Wien. Dies ist ein unabhängiges Open-Source-Projekt und steht in keiner Verbindung zur Stadt Wien. Wenn du mitarbeiten möchtest, besuche das ",
+    heroTextBeforeLink: "Finde öffentliche klimatisierte Orte, Trinkbrunnen, Badestellen und WCs in Wien. Dies ist ein unabhängiges Open-Source-Projekt und steht in keiner Verbindung zur Stadt Wien. Wenn du mitarbeiten möchtest, besuche das ",
     githubRepository: "Repository",
     heroTextAfterLink: ".",
     filterCoolPlaces: "Kühle Orte filtern",
@@ -287,11 +293,14 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     modeCool: "Kühle Orte",
     modeDrinking: "Trinkwasser",
     modeWater: "Baden / Erfrischen",
+    modeToilets: "Öffentliche WCs",
     modeCoolShort: "Kühl",
     modeDrinkingShort: "Wasser",
     modeWaterShort: "Baden",
+    modeToiletsShort: "WCs",
     filterDrinkingWater: "Trinkwasser filtern",
     filterWaterAccess: "Baden / Erfrischen filtern",
+    filterPublicToilets: "Öffentliche WCs filtern",
     datasetLoading: "Standorte werden geladen...",
     useMyLocation: "In der Nähe",
     locating: "Standort wird gesucht...",
@@ -343,12 +352,16 @@ export const CATEGORY_LABELS: Record<string, { en: string; de: string }> = {
   "Confectionery / Café": { en: "Confectionery / Café", de: "Konditorei / Café" },
   "Grand Café": { en: "Grand Café", de: "Traditionscafé" },
   "Fast Food": { en: "Fast Food", de: "Fast Food" },
+  "Restaurant": { en: "Restaurant", de: "Restaurant" },
+  "Hotel Lobby / Bar": { en: "Hotel Lobby / Bar", de: "Hotellobby / Bar" },
   "Drinking Water Fountain": { en: "Drinking Water Fountain", de: "Trinkbrunnen" },
   "Drinking Water Hydrant": { en: "Drinking Water Hydrant", de: "Trinkhydrant" },
   "Official Bathing Site": { en: "Official Bathing Site", de: "Offizielle Badestelle" },
   "Natural Bathing Site": { en: "Natural Bathing Site", de: "Naturbadestelle" },
+  "Free Natural Water Access": { en: "Free Natural Water Access", de: "Freier Naturwasserzugang" },
   "Mist / Spray Cooling": { en: "Mist / Spray Cooling", de: "Sprühnebel / Sommerspritzer" },
   "Water Play Fountain": { en: "Water Play Fountain", de: "Wasserspiel / Fontäne" },
+  "Public Toilet": { en: "Public Toilet", de: "Öffentliches WC" },
 };
 
 export const translateCategory = (category: string, lang: "en" | "de"): string =>
@@ -388,6 +401,17 @@ export const AMENITY_LABELS: Record<string, { en: string; de: string }> = {
   "Toilets in station": { en: "Toilets in station", de: "Toiletten im Bahnhof" },
   "Toilets in mall": { en: "Toilets in mall", de: "Toiletten im Einkaufszentrum" },
   "Lockers & toilets": { en: "Lockers & toilets", de: "Schließfächer & Toiletten" },
+  "Public toilet": { en: "Public toilet", de: "Öffentliches WC" },
+  "OpenStreetMap toilet point": { en: "OpenStreetMap toilet point", de: "WC-Punkt aus OpenStreetMap" },
+  "Official Vienna public WC information": { en: "Official Vienna public WC information", de: "Öffentliche-WC-Information der Stadt Wien" },
+  "Changing table": { en: "Changing table", de: "Wickeltisch" },
+  "Fee may apply": { en: "Fee may apply", de: "Gebühr möglich" },
+  "Free public toilet": { en: "Free public toilet", de: "Kostenloses öffentliches WC" },
+  "24/7": { en: "24/7", de: "Rund um die Uhr" },
+  "Shower": { en: "Shower", de: "Dusche" },
+  "Staffed public toilet": { en: "Staffed public toilet", de: "WC mit Wartepersonal" },
+  "Euro-key": { en: "Euro-key", de: "Euro-Key" },
+  "Tampon/pad dispenser": { en: "Tampon/pad dispenser", de: "Tampon-/Bindenspender" },
   "Café": { en: "Café", de: "Café" },
   "Cafés nearby": { en: "Cafés nearby", de: "Cafés in der Nähe" },
   "Café / restaurant": { en: "Café / restaurant", de: "Café / Restaurant" },
@@ -409,10 +433,12 @@ export const AMENITY_LABELS: Record<string, { en: string; de: string }> = {
   "Quiet rest spots": { en: "Quiet rest spots", de: "Ruhige Rastplätze" },
   "Indoor rest benches": { en: "Indoor rest benches", de: "Sitzbänke im Innenbereich" },
   "Transit connected (Handelskai)": { en: "Transit connected (Handelskai)", de: "Verbindung zu Öffis (Handelskai)" },
+  "Transit connected (Westbahnhof)": { en: "Transit connected (Westbahnhof)", de: "Verbindung zu Öffis (Westbahnhof)" },
   "Central transit hub": { en: "Central transit hub", de: "Zentraler Verkehrsknotenpunkt" },
   "Major travel hub": { en: "Major travel hub", de: "Großer Verkehrsknotenpunkt" },
   "Western Vienna regional hub": { en: "Western Vienna regional hub", de: "Regionaler Knotenpunkt Westwien" },
   "Restaurants": { en: "Restaurants", de: "Restaurants" },
+  "Restaurant seating": { en: "Restaurant seating", de: "Restaurant-Sitzplätze" },
   "Restaurants open Sundays": { en: "Restaurants open Sundays", de: "Sonntags geöffnete Restaurants" },
   "Food outlets": { en: "Food outlets", de: "Gastronomie-Angebote" },
   "Rooftop dining views": { en: "Rooftop dining views", de: "Rooftop-Dining mit Aussicht" },
@@ -436,6 +462,9 @@ export const AMENITY_LABELS: Record<string, { en: string; de: string }> = {
   "Drinks": { en: "Drinks", de: "Getränke" },
   "Coffee drinks": { en: "Coffee drinks", de: "Kaffeespezialitäten" },
   "Charging sockets": { en: "Charging sockets", de: "Steckdosen zum Laden" },
+  "Hotel lobby": { en: "Hotel lobby", de: "Hotellobby" },
+  "Bar / restaurant": { en: "Bar / restaurant", de: "Bar / Restaurant" },
+  "Outdoor seating nearby": { en: "Outdoor seating nearby", de: "Sitzplätze im Außenbereich in der Nähe" },
   "Traditional Viennese Café": { en: "Traditional Viennese Café", de: "Traditionelles Wiener Café" },
   "Classic Viennese interior": { en: "Classic Viennese interior", de: "Klassisches Wiener Interieur" },
   "Cakes & coffee": { en: "Cakes & coffee", de: "Kuchen & Kaffee" },
@@ -456,6 +485,9 @@ export const AMENITY_LABELS: Record<string, { en: string; de: string }> = {
   "Drinking water": { en: "Drinking water", de: "Trinkwasser" },
   "Official Vienna Open Data": { en: "Official Vienna Open Data", de: "Offene Daten der Stadt Wien" },
   "Public water refresh point": { en: "Public water refresh point", de: "Öffentlicher Wasser-Erfrischungspunkt" },
+  "Free natural water access": { en: "Free natural water access", de: "Freier Naturwasserzugang" },
+  "Public Danube access": { en: "Public Danube access", de: "Öffentlicher Donauzugang" },
+  "No lifeguard / no official bathing operation": { en: "No lifeguard / no official bathing operation", de: "Keine Badeaufsicht / kein offizieller Badebetrieb" },
   "Official bathing-water monitoring": { en: "Official bathing-water monitoring", de: "Offizielle Badewasser-Überwachung" },
   "Bathing water quality class 1": { en: "Bathing water quality class 1", de: "Badewasserqualität Klasse 1" },
   "Bathing water quality class 2": { en: "Bathing water quality class 2", de: "Badewasserqualität Klasse 2" },

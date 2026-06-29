@@ -1,6 +1,6 @@
 import { OSM_IMPORTED_PLACES } from "./osm_imported_places";
 
-export type PlaceType = "cool" | "drinking" | "water";
+export type PlaceType = "cool" | "drinking" | "water" | "toilet";
 export type AccessibilityStatus = "yes" | "limited" | "no" | "unknown";
 
 export interface CompactPlace {
@@ -40,7 +40,6 @@ export const EXCLUDED_SUGGESTIONS: ExcludedSuggestion[] = [
   { name: "MAK", reason: "Paid museum ticket generally required.", url: "https://www.reddit.com/r/wien/comments/1tne9e1/places_in_vienna_with_air_conditioning/" },
   { name: "Haus des Meeres", reason: "Paid zoo/aquarium ticket required.", url: "https://www.reddit.com/r/wien/comments/1lcv415/was_kann_man_in_wien_drinnen_so_machen_wenns/" },
   { name: "Cinemas / Cineplexx / Artis / Filmcasino etc.", reason: "Cinema ticket required.", url: "https://www.reddit.com/r/wien/comments/1tne9e1/places_in_vienna_with_air_conditioning/" },
-  { name: "Austrian National Library reading rooms", reason: "Free public entry/access not verified as no-ticket.", url: "https://www.reddit.com/r/wien/comments/i89w3p/wo_kann_ich_momentan_gut_lernen_bei_der_hitze/" },
   { name: "Lidl / Penny / supermarkets generally", reason: "Generic category, not suitable for sitting.", url: "https://www.reddit.com/r/wien/comments/1tne9e1/places_in_vienna_with_air_conditioning/" },
   { name: "Gas stations generally", reason: "Generic category, not suitable for sitting.", url: "https://www.reddit.com/r/wien/comments/1tne9e1/places_in_vienna_with_air_conditioning/" },
   { name: "Radatz Abholmarkt / Wurstico generally", reason: "Generic category, not suitable for sitting.", url: "https://www.reddit.com/r/wien/comments/1tne9e1/places_in_vienna_with_air_conditioning/" }
@@ -443,8 +442,8 @@ const CORE_VIENNA_PLACES: CompactPlace[] = [
     name: "Amtshaus Währing",
     address: "Martinstraße 100, 1180 Wien",
     district: "18",
-    lat: 48.2238,
-    lng: 16.3475,
+    lat: 48.2268648,
+    lng: 16.3425081,
     category: "Official Cool Zone",
     coolingType: "official_cool_indoor_room_not_ac_confirmed",
     ac: false,
@@ -453,7 +452,8 @@ const CORE_VIENNA_PLACES: CompactPlace[] = [
     amenities: ["Official public cooling space (2nd floor)", "Cold drinks / water", "Seating"],
     hours: ["Mon - Fri: 12:00 - 17:00"],
     free: true,
-    notes: "Coole Zone in the 2nd floor."
+    notes: "Coole Zone in the 2nd floor. Coordinates corrected to the Martinstraße 100 town-hall building footprint.",
+    sourceUrls: ["https://www.openstreetmap.org/way/278260341"]
   },
   {
     id: "pensionist-innenklub-greiseneckergasse",
@@ -662,6 +662,83 @@ const CORE_VIENNA_PLACES: CompactPlace[] = [
     sourceUrls: ["https://www.openstreetmap.org/relation/2764083"],
     accessibility: "yes",
     accessibilitySource: "OpenStreetMap wheelchair=yes"
+  },
+  {
+    id: "austrian-national-library-heldenplatz-reading-rooms",
+    name: "Austrian National Library - Heldenplatz Reading Rooms",
+    address: "Heldenplatz, 1010 Wien",
+    district: "1",
+    lat: 48.2053760,
+    lng: 16.3652818,
+    category: "Public Library",
+    coolingType: "reddit_claim_air_conditioned_unverified",
+    ac: true,
+    sitting: true,
+    wifi: true,
+    amenities: ["Public library", "Reading rooms", "Study desks", "Free Wi-Fi", "Wheelchair accessible", "Toilets"],
+    hours: ["Mon - Sun: 09:00 - 21:00"],
+    free: false,
+    notes: "Heldenplatz reading rooms. ONB confirms daily hours and barrier-free access; reading-room registration or pass rules may apply.",
+    sourceUrls: ["https://www.onb.ac.at/en/opening-hours", "https://www.openstreetmap.org/way/337249526"],
+    accessibility: "yes",
+    accessibilitySource: "ONB opening-hours page states barrier-free access for the Heldenplatz reading rooms"
+  },
+  {
+    id: "bahnhofcity-wien-west-lower-floor-restaurants",
+    name: "BahnhofCity Wien West - Lower-floor restaurants",
+    address: "Europaplatz 3, 1150 Wien",
+    district: "15",
+    lat: 48.1967798,
+    lng: 16.3382307,
+    category: "Shopping Mall & Transit Station",
+    coolingType: "reddit_claim_air_conditioned_unverified",
+    ac: true,
+    sitting: true,
+    wifi: null,
+    amenities: ["Restaurants", "Indoor seating", "Toilets in station", "Transit connected (Westbahnhof)"],
+    hours: ["Mon - Sun: 09:00 - 21:00 (Individual restaurant hours vary)"],
+    free: false,
+    notes: "Use the lower-floor restaurant area only; the AC claim is not applied to the other Westbahnhof floors. Purchase is expected for restaurant seating.",
+    sourceUrls: ["https://bahnhofcitywienwest.at/", "https://www.openstreetmap.org/way/359327989"],
+    accessibility: "unknown"
+  },
+  {
+    id: "jo-and-joe-vienna-lobby",
+    name: "JO&JOE Vienna - Lobby / Bar",
+    address: "Europaplatz 1/6, 1150 Wien",
+    district: "15",
+    lat: 48.1956694,
+    lng: 16.3376841,
+    category: "Hotel Lobby / Bar",
+    coolingType: "reddit_claim_air_conditioned_unverified",
+    ac: true,
+    sitting: true,
+    wifi: true,
+    amenities: ["Hotel lobby", "Bar / restaurant", "Indoor seating", "Free Wi-Fi", "Toilets"],
+    hours: ["Mon - Sun: 00:00 - 24:00 (Lobby; bar and restaurant hours vary)"],
+    free: false,
+    notes: "Lobby/bar area in the IKEA Westbahnhof building. Staff rules, hotel events, or purchase expectations can apply.",
+    sourceUrls: ["https://www.joandjoe.com/vienna/en/", "https://www.joandjoe.com/vienna/en/restaurant-and-bar/"],
+    accessibility: "unknown"
+  },
+  {
+    id: "das-glashaus-prater",
+    name: "Das Glashaus",
+    address: "Am Grünen Prater 11, 1020 Wien",
+    district: "2",
+    lat: 48.2118847,
+    lng: 16.4120651,
+    category: "Restaurant",
+    coolingType: "reddit_claim_air_conditioned_unverified",
+    ac: true,
+    sitting: true,
+    wifi: false,
+    amenities: ["Restaurant seating", "Toilets", "Outdoor seating nearby"],
+    hours: ["Mon - Fri: 11:30 - 22:00", "Sat: 09:00 - 22:00", "Sun, PH: 09:00 - 15:00"],
+    free: false,
+    notes: "Restaurant in Viertel Zwei. Purchase required; AC claim is user-suggested, while address and hours are from OSM/venue sources.",
+    sourceUrls: ["https://www.dasglashaus.at/", "https://www.openstreetmap.org/node/5762966457"],
+    accessibility: "unknown"
   },
   {
     id: "ikea-wien-westbahnhof",
