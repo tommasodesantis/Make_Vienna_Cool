@@ -6,6 +6,10 @@ compatibility_date = "2026-06-27"
 GITHUB_OWNER = "tommasodesantis"
 GITHUB_REPO = "Make_Vienna_Cool"
 ALLOWED_ORIGINS = "https://your-domain.example"
+# Assign and mention the maintainer account so GitHub notifications still work
+# when the issue is authored by the bot/service account token.
+GITHUB_ASSIGNEES = "tommasodesantis"
+GITHUB_NOTIFY_USERS = "tommasodesantis"
 # Optional, only use labels that already exist in the GitHub repo.
 # GITHUB_LABELS = "user-report,data-quality"
 

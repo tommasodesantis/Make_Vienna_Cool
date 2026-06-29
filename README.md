@@ -40,7 +40,7 @@ In general, cool-place entries should be places where people can stop, sit, stud
 
 Drinking-water, water-refresh, and public-toilet entries are separate datasets. Do not mix them into the cool-place list unless the location also independently qualifies as a place to spend time indoors or cool down.
 
-Wrong-information reports submitted through the app are automatically opened as issues in this repository, so they can be reviewed and fixed in public.
+Wrong-information reports and missing-place suggestions submitted through the app are automatically opened as issues in this repository, so they can be reviewed and fixed in public.
 
 It is strictly forbidden to use this project to sponsor or promote commercial activities. The database is for public heat-safety help, not advertising. Contributions will be monitored with this in mind.
 
@@ -48,28 +48,30 @@ It is strictly forbidden to use this project to sponsor or promote commercial ac
 
 The current place database lives in `src/data/`.
 
-Future data-maintenance effort should focus mostly on expanding and improving the cool-places database. The drinking-water and swim/refresh datasets come from official open-data layers and are expected to be more or less complete, although they should still be refreshed periodically. Public-toilet data currently comes from OpenStreetMap and should be reviewed periodically for fees, accessibility, closures, and naming quality.
+Future data-maintenance effort should focus mostly on expanding and improving the cool-places database. Drinking-water points, swim/refresh places, and public toilets are refreshed automatically every week. Successful refreshes are committed directly to the generated data files, including added/removed places, bathing-water quality and temperature, and public-toilet free/paid status.
 
 - `vienna_cool_places.ts` and `osm_imported_places.ts` contain cool and air-conditioned places.
 - `drinking_water_places.ts` contains generated public drinking-water points.
 - `water_access_places.ts` contains generated bathing sites and public water-refresh features.
 - `public_toilet_places.ts` contains generated public-toilet points.
+- `auto_update_metadata.ts` records the last successful automatic refresh displayed in the app footer.
+- `source_ignores.json` records source IDs that should stay intentionally excluded from generated datasets.
 - `scripts/generate_water_places.mjs` regenerates the water files from downloaded City of Vienna WFS GeoJSON files.
 - `scripts/generate_public_toilets.mjs` regenerates public toilets from an OpenStreetMap `amenity=toilets` export and can use the same compact Vienna address layer for clearer display names.
+- `scripts/auto_update_data.mjs` downloads the source datasets, regenerates the generated files, validates them, and updates `auto_update_metadata.ts`.
+- `scripts/open_auto_update_failure_issue.mjs` opens or updates a GitHub issue with logs when the scheduled update fails.
 
-To refresh water data, download the source layers to `C:\tmp\trinkbrunnen.json` and `C:\tmp\badestellen.json`. For better fountain and spray-feature names, also download the trimmed `ogdwien:ADRESSENOGD` layer to `C:\tmp\adressen_compact.json` with `NAME`, `NAME_STR`, `PLZ`, `GEB_BEZIRK`, and `SHAPE`. Then run:
-
-```bash
-npm run generate:water-data
-```
-
-To refresh public-toilet data, export Vienna OpenStreetMap `amenity=toilets` objects to `C:\tmp\vienna_public_toilets_osm.json`. For address-based names, keep the same compact `ogdwien:ADRESSENOGD` file at `C:\tmp\adressen_compact.json`. Then run:
+To run the full refresh locally:
 
 ```bash
-npm run generate:toilet-data
+npm run auto-update:data
 ```
 
-Wrong-information reports can be submitted through a Cloudflare Worker. Copy `wrangler.example.toml`, configure the Worker secrets, deploy the Worker, and set these frontend environment variables for the Vite app build. `VITE_REPORT_ENDPOINT` is not a Vite route; it is the frontend build variable used by `src/components/PlaceDetailCard.tsx`, and its value should be the deployed Worker URL:
+The scheduled GitHub Actions workflow runs the same refresh weekly, then runs the TypeScript check and production build. If source APIs are unreachable, schemas change, generation fails, or validation fails, the workflow does not commit partial data. It opens or updates a GitHub issue containing the failure stage and log output so the deployed website can keep using the last successful committed data.
+
+Ignored generated records should be added to `source_ignores.json` by source key, for example `trinkbrunnen:12345`, `badestellen:some-stable-id`, or `node:12345` for OpenStreetMap toilets. Private/customer-only toilets are also excluded by the generator.
+
+Wrong-information reports and missing-place suggestions can be submitted through a Cloudflare Worker. Copy `wrangler.example.toml`, configure the Worker secrets, deploy the Worker, and set these frontend environment variables for the Vite app build. `VITE_REPORT_ENDPOINT` is not a Vite route; it is the frontend build variable used by the report and suggestion forms, and its value should be the deployed Worker URL:
 
 ```bash
 VITE_REPORT_ENDPOINT=https://your-worker.example
@@ -84,6 +86,8 @@ wrangler secret put GITHUB_TOKEN
 ```
 
 Use a fine-grained GitHub token limited to issue read/write access on this repository. If a token has ever been pasted into chat, rotate it before saving it.
+
+Use a bot or secondary GitHub account token for `GITHUB_TOKEN` if you want your main account to receive notifications. Set `GITHUB_ASSIGNEES` and `GITHUB_NOTIFY_USERS` in the Worker variables to the maintainer account that should be assigned and mentioned on submitted issues.
 
 ## Local Development
 

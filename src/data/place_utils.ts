@@ -7,6 +7,9 @@ export interface UserLocation {
 
 export const getPlaceType = (place: CompactPlace): PlaceType => place.placeType ?? "cool";
 
+export const isTemporarilyClosed = (place: CompactPlace): boolean =>
+  place.status === "temporarily_closed";
+
 export const getAccessibilityStatus = (place: CompactPlace): AccessibilityStatus => {
   if (place.accessibility) return place.accessibility;
 

@@ -2,6 +2,7 @@ import { OSM_IMPORTED_PLACES } from "./osm_imported_places";
 
 export type PlaceType = "cool" | "drinking" | "water" | "toilet";
 export type AccessibilityStatus = "yes" | "limited" | "no" | "unknown";
+export type PlaceStatus = "temporarily_closed";
 
 export interface CompactPlace {
   id: string;
@@ -23,6 +24,8 @@ export interface CompactPlace {
   placeType?: PlaceType;
   accessibility?: AccessibilityStatus;
   accessibilitySource?: string;
+  status?: PlaceStatus;
+  statusNote?: string;
   distanceMeters?: number;
 }
 

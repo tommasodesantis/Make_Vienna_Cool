@@ -41,7 +41,7 @@ const assertRateLimit = async (request, env) => {
   if (!env.REPORT_RATE_LIMIT) return true;
 
   const ip = request.headers.get("CF-Connecting-IP") || "unknown";
-  const key = `report:${ip}`;
+  const key = `submission:${ip}`;
   const current = Number((await env.REPORT_RATE_LIMIT.get(key)) || "0");
   if (current >= 3) return false;
 
@@ -49,7 +49,23 @@ const assertRateLimit = async (request, env) => {
   return true;
 };
 
-const issueBody = (payload, request) => [
+const parseCsv = (value) =>
+  String(value || "")
+    .split(",")
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+
+const validPlaceTypes = new Set(["cool", "drinking", "water", "toilet"]);
+
+const issueFooter = (env) => {
+  const mentions = parseCsv(env.GITHUB_NOTIFY_USERS || "tommasodesantis")
+    .map((user) => `@${user.replace(/^@/, "")}`)
+    .join(" ");
+
+  return mentions ? ["", `Notify: ${mentions}`] : [];
+};
+
+const wrongInfoIssueBody = (payload, request, env) => [
   "A visitor reported wrong information in the app.",
   "",
   `Place: ${payload.placeName}`,
@@ -60,13 +76,35 @@ const issueBody = (payload, request) => [
   "",
   "Report:",
   payload.reportText,
+  ...issueFooter(env),
+].join("\n");
+
+const missingPlaceIssueBody = (payload, request, env) => [
+  "A visitor suggested a missing place for the app.",
+  "",
+  `Suggested place: ${payload.placeName}`,
+  `Suggested dataset: ${payload.placeType}`,
+  `Address or map link: ${payload.locationText}`,
+  `Page URL: ${payload.pageUrl || "not provided"}`,
+  `Reporter IP country: ${request.cf?.country || "unknown"}`,
+  "",
+  "Notes:",
+  payload.notes,
+  ...issueFooter(env),
 ].join("\n");
 
 const createGitHubIssue = async (payload, request, env) => {
-  const labels = (env.GITHUB_LABELS || "")
-    .split(",")
-    .map((label) => label.trim())
-    .filter(Boolean);
+  const labels = parseCsv(env.GITHUB_LABELS);
+  const assignees = parseCsv(env.GITHUB_ASSIGNEES || "tommasodesantis");
+  const submissionType = payload.submissionType === "missing_place" ? "missing_place" : "wrong_info";
+  const title =
+    submissionType === "missing_place"
+      ? `Missing place suggestion: ${payload.placeName}`
+      : `Wrong info report: ${payload.placeName}`;
+  const body =
+    submissionType === "missing_place"
+      ? missingPlaceIssueBody(payload, request, env)
+      : wrongInfoIssueBody(payload, request, env);
 
   const response = await fetch(`https://api.github.com/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/issues`, {
     method: "POST",
@@ -78,9 +116,10 @@ const createGitHubIssue = async (payload, request, env) => {
       "X-GitHub-Api-Version": "2022-11-28",
     },
     body: JSON.stringify({
-      title: `Wrong info report: ${payload.placeName}`,
-      body: issueBody(payload, request),
+      title,
+      body,
       ...(labels.length > 0 ? { labels } : {}),
+      ...(assignees.length > 0 ? { assignees } : {}),
     }),
   });
 
@@ -90,6 +129,56 @@ const createGitHubIssue = async (payload, request, env) => {
   }
 
   return response.json();
+};
+
+const normalizePayload = (payload) => {
+  const submissionType = payload.submissionType === "missing_place" ? "missing_place" : "wrong_info";
+
+  if (submissionType === "missing_place") {
+    return {
+      submissionType,
+      placeName: String(payload.placeName || "").trim(),
+      placeType: String(payload.placeType || "").trim(),
+      locationText: String(payload.locationText || "").trim(),
+      notes: String(payload.notes || "").trim(),
+      pageUrl: String(payload.pageUrl || "").trim(),
+      turnstileToken: payload.turnstileToken,
+      honeypot: payload.honeypot,
+    };
+  }
+
+  return {
+    submissionType,
+    placeId: String(payload.placeId || "").trim(),
+    placeName: String(payload.placeName || "").trim(),
+    placeType: String(payload.placeType || "").trim(),
+    pageUrl: String(payload.pageUrl || "").trim(),
+    reportText: String(payload.reportText || "").trim(),
+    turnstileToken: payload.turnstileToken,
+    honeypot: payload.honeypot,
+  };
+};
+
+const isValidPayload = (payload) => {
+  if (!validPlaceTypes.has(payload.placeType)) return false;
+
+  if (payload.submissionType === "missing_place") {
+    return (
+      payload.placeName.length >= 2 &&
+      payload.placeName.length <= 160 &&
+      payload.locationText.length >= 5 &&
+      payload.locationText.length <= 500 &&
+      payload.notes.length >= 12 &&
+      payload.notes.length <= 1200
+    );
+  }
+
+  return (
+    payload.placeId.length > 0 &&
+    payload.placeName.length > 0 &&
+    payload.reportText.length >= 12 &&
+    payload.reportText.length <= 1200
+  );
 };
 
 export default {
@@ -105,14 +194,13 @@ export default {
     }
 
     try {
-      const payload = await request.json();
-      const reportText = String(payload.reportText || "").trim();
+      const payload = normalizePayload(await request.json());
 
       if (payload.honeypot) {
         return json({ ok: false, error: "rejected" }, 400, cors);
       }
 
-      if (!payload.placeId || !payload.placeName || !payload.placeType || reportText.length < 12 || reportText.length > 1200) {
+      if (!isValidPayload(payload)) {
         return json({ ok: false, error: "invalid_payload" }, 400, cors);
       }
 
@@ -124,7 +212,7 @@ export default {
         return json({ ok: false, error: "rate_limited" }, 429, cors);
       }
 
-      const issue = await createGitHubIssue({ ...payload, reportText }, request, env);
+      const issue = await createGitHubIssue(payload, request, env);
       return json({ ok: true, issueUrl: issue.html_url }, 201, cors);
     } catch (error) {
       return json({ ok: false, error: "server_error" }, 500, cors);

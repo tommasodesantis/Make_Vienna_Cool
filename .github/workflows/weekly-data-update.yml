@@ -1,0 +1,81 @@
+name: Weekly Source Data Update
+
+on:
+  schedule:
+    - cron: "17 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run source data update
+        id: auto_update
+        shell: bash
+        run: |
+          set +e
+          npm run auto-update:data > auto-update.log 2>&1
+          status=$?
+          cat auto-update.log
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Validate updated app
+        id: validate
+        if: steps.auto_update.outputs.status == '0'
+        shell: bash
+        run: |
+          set +e
+          npm run lint >> auto-update.log 2>&1
+          lint_status=$?
+          npm run build >> auto-update.log 2>&1
+          build_status=$?
+          cat auto-update.log
+          if [ "$lint_status" -ne 0 ] || [ "$build_status" -ne 0 ]; then
+            echo "status=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "status=0" >> "$GITHUB_OUTPUT"
+          fi
+          exit 0
+
+      - name: Open failure issue
+        if: steps.auto_update.outputs.status != '0' || steps.validate.outputs.status == '1'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          AUTO_UPDATE_LOG: auto-update.log
+          AUTO_UPDATE_STAGE: ${{ steps.auto_update.outputs.status != '0' && 'source-data-update' || 'app-validation' }}
+        run: npm run auto-update:failure-issue
+
+      - name: Stop after failure
+        if: steps.auto_update.outputs.status != '0' || steps.validate.outputs.status == '1'
+        run: exit 1
+
+      - name: Commit updated source data
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/data/drinking_water_places.ts src/data/water_access_places.ts src/data/public_toilet_places.ts src/data/auto_update_metadata.ts src/data/source_ignores.json
+          if git diff --cached --quiet; then
+            echo "No source data changes to commit."
+          else
+            git commit -m "Auto-update source datasets"
+            git push
+          fi

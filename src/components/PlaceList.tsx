@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import { CompactPlace, PlaceType } from "../data/vienna_cool_places";
 import { TRANSLATIONS, translateCategory } from "../data/translations";
 import { ChevronDown, ChevronUp, Droplets, HelpCircle, Loader2 } from "lucide-react";
-import { formatDistance, getAccessibilityStatus } from "../data/place_utils";
+import { formatDistance, getAccessibilityStatus, isTemporarilyClosed } from "../data/place_utils";
 
 interface PlaceListProps {
   places: CompactPlace[];
@@ -499,7 +499,11 @@ export const PlaceList: React.FC<PlaceListProps> = ({
                   <h4 className="font-semibold text-[#2C3E50] text-sm leading-snug break-words flex-1">
                     {place.name}
                   </h4>
-                  {showCoolBadge ? (
+                  {isTemporarilyClosed(place) ? (
+                    <span className="inline-flex items-center shrink-0 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-rose-100 text-rose-800">
+                      {t.temporarilyClosed}
+                    </span>
+                  ) : showCoolBadge ? (
                     <span className={`inline-flex items-center shrink-0 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
                       place.ac
                         ? "bg-green-brand text-white"

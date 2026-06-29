@@ -4,9 +4,14 @@ import path from "node:path";
 const inputPath = process.argv[2] ?? "C:/tmp/vienna_public_toilets_osm.json";
 const outputPath = process.argv[3] ?? "src/data/public_toilet_places.ts";
 const addressInputPath = process.argv[4] ?? "C:/tmp/adressen_compact.json";
+const ignoreInputPath = process.argv[5] ?? "src/data/source_ignores.json";
 
 const raw = JSON.parse(fs.readFileSync(inputPath, "utf8"));
 const elements = raw.elements ?? [];
+const ignoreData = fs.existsSync(ignoreInputPath)
+  ? JSON.parse(fs.readFileSync(ignoreInputPath, "utf8"))
+  : {};
+const ignoredToiletIds = new Set((ignoreData.toilet ?? []).map((entry) => entry.id));
 
 const VIENNA_PUBLIC_WC_URL = "https://www.wien.gv.at/zusammenleben/oeffentliche-wc";
 const coordinateAddress = (lat, lng) => `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
@@ -224,8 +229,13 @@ const sortedPlaces = elements
     if (tags.centralkey === "yes") amenities.push("Euro-key");
     if (tags["toilets:menstrual_products"] === "yes") amenities.push("Tampon/pad dispenser");
 
+    const id = `public-toilet-${element.type}-${element.id}`;
+    if (ignoredToiletIds.has(id) || ignoredToiletIds.has(`${element.type}:${element.id}`)) {
+      return null;
+    }
+
     return {
-      id: `public-toilet-${element.type}-${element.id}`,
+      id,
       name: readableName,
       address: location.address,
       district: location.district,

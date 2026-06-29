@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { CompactPlace } from "../data/vienna_cool_places";
 import { isAirConditioningAmenity, TRANSLATIONS, translateAmenity, translateCategory, translateNote } from "../data/translations";
-import { formatDistance, getAccessibilityStatus, getPlaceType, googleMapsUrlForPlace } from "../data/place_utils";
+import { formatDistance, getAccessibilityStatus, getPlaceType, googleMapsUrlForPlace, isTemporarilyClosed } from "../data/place_utils";
 import { AlertCircle, ArrowRight, CheckCircle2, ExternalLink, Flag, Loader2, Send, X } from "lucide-react";
 
 interface PlaceDetailCardProps {
@@ -109,8 +109,12 @@ export const PlaceDetailCard: React.FC<PlaceDetailCardProps> = ({ place, lang })
   const isCoolPlace = placeType === "cool";
   const accessibility = getAccessibilityStatus(place);
   const mapsUrl = googleMapsUrlForPlace(place);
-  const visibleAmenities = place.amenities.filter((amenity) => !isAirConditioningAmenity(amenity));
+  const visibleAmenities =
+    placeType === "toilet"
+      ? []
+      : place.amenities.filter((amenity) => !isAirConditioningAmenity(amenity));
   const primarySourceUrl = place.sourceUrls?.[0];
+  const temporarilyClosed = isTemporarilyClosed(place);
 
   const getPrimaryBadge = () => {
     if (placeType === "drinking") {
@@ -195,6 +199,7 @@ export const PlaceDetailCard: React.FC<PlaceDetailCardProps> = ({ place, lang })
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          submissionType: "wrong_info",
           placeId: place.id,
           placeName: place.name,
           placeType,
@@ -225,6 +230,11 @@ export const PlaceDetailCard: React.FC<PlaceDetailCardProps> = ({ place, lang })
     <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col h-full hover:border-green-brand/30 transition-all duration-300">
       {/* Category & Status Badges */}
       <div className="flex flex-wrap items-center gap-2 mb-4">
+        {temporarilyClosed && (
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-rose-100 text-rose-800">
+            {t.temporarilyClosed}
+          </span>
+        )}
         <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${badge.bg}`}>
           {badge.text}
         </span>
@@ -317,7 +327,9 @@ export const PlaceDetailCard: React.FC<PlaceDetailCardProps> = ({ place, lang })
       {/* Amenities / Features List */}
       {visibleAmenities.length > 0 && (
         <div className="mb-5 flex-1">
-          <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2">{t.amenities}</p>
+          <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2">
+            {placeType === "water" ? t.info : t.amenities}
+          </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {visibleAmenities.map((amenity, idx) => (
               <div key={idx} className="flex items-center gap-2 text-slate-700 text-xs bg-offwhite border border-slate-100 px-3 py-2 rounded-lg">
@@ -327,6 +339,10 @@ export const PlaceDetailCard: React.FC<PlaceDetailCardProps> = ({ place, lang })
             ))}
           </div>
         </div>
+      )}
+
+      {temporarilyClosed && (
+        <p className="text-rose-700 text-xs leading-relaxed font-semibold mb-4">{t.temporarilyClosedNote}</p>
       )}
 
       {place.notes && (

@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { COOL_PLACES, CompactPlace, PlaceType } from "./data/vienna_cool_places";
 import { TRANSLATIONS } from "./data/translations";
+import { AUTO_UPDATE_METADATA } from "./data/auto_update_metadata";
 import { ViennaMap } from "./components/ViennaMap";
 import { PlaceList } from "./components/PlaceList";
 import { PlaceDetailCard } from "./components/PlaceDetailCard";
-import { Droplets, LocateFixed, Loader2, Snowflake, Toilet, Waves, X } from "lucide-react";
+import { SuggestPlaceModal } from "./components/SuggestPlaceModal";
+import { Droplets, LocateFixed, Loader2, MessageSquarePlus, Snowflake, Toilet, Waves, X } from "lucide-react";
 import { distanceMetersBetween, getAccessibilityStatus, UserLocation } from "./data/place_utils";
 
 type LocationConsent = "unknown" | "granted" | "denied";
@@ -28,6 +30,19 @@ const readStoredPreferences = (): StoredPreferences => {
   }
 };
 
+const formatAutoUpdateDate = (value: string | null, lang: "en" | "de") => {
+  if (!value) return TRANSLATIONS[lang].autoUpdateUnknown;
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return TRANSLATIONS[lang].autoUpdateUnknown;
+
+  return new Intl.DateTimeFormat(lang === "de" ? "de-AT" : "en-GB", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }).format(date);
+};
+
 export default function App() {
   const storedPreferences = useMemo(readStoredPreferences, []);
   const [lang, setLang] = useState<"en" | "de">(storedPreferences.lang ?? "de");
@@ -48,6 +63,7 @@ export default function App() {
   const [isPreferencesOpen, setIsPreferencesOpen] = useState(
     () => typeof window !== "undefined" && !window.localStorage.getItem(PREFERENCES_KEY),
   );
+  const [isSuggestPlaceOpen, setIsSuggestPlaceOpen] = useState(false);
   const [preferencesLang, setPreferencesLang] = useState<"en" | "de">(lang);
   const [preferencesLocationEnabled, setPreferencesLocationEnabled] = useState(
     locationConsent === "granted",
@@ -71,6 +87,7 @@ export default function App() {
   const preferencesT = TRANSLATIONS[preferencesLang];
   const activeDataset = datasets[activeMode];
   const datasetPlaces = activeDataset ?? [];
+  const lastAutoUpdate = formatAutoUpdateDate(AUTO_UPDATE_METADATA.lastSuccessfulUpdate, lang);
 
   useEffect(() => {
     if (activeDataset || activeMode === "cool") return;
@@ -555,19 +572,29 @@ export default function App() {
           </div>
 
           <div className="flex flex-col items-stretch gap-1.5 sm:items-end">
-            <button
-              type="button"
-              onClick={requestUserLocation}
-              disabled={locationStatus === "requesting"}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs font-bold text-slate-700 shadow-sm transition hover:border-green-brand/40 hover:bg-white disabled:cursor-wait disabled:text-slate-400"
-            >
-              {locationStatus === "requesting" ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <LocateFixed className="h-4 w-4 text-green-brand" />
-              )}
-              {locationStatus === "requesting" ? t.locating : t.useMyLocation}
-            </button>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <button
+                type="button"
+                onClick={() => setIsSuggestPlaceOpen(true)}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs font-bold text-slate-700 shadow-sm transition hover:border-green-brand/40 hover:bg-white"
+              >
+                <MessageSquarePlus className="h-4 w-4 text-green-brand" />
+                {t.suggestPlace}
+              </button>
+              <button
+                type="button"
+                onClick={requestUserLocation}
+                disabled={locationStatus === "requesting"}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs font-bold text-slate-700 shadow-sm transition hover:border-green-brand/40 hover:bg-white disabled:cursor-wait disabled:text-slate-400"
+              >
+                {locationStatus === "requesting" ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <LocateFixed className="h-4 w-4 text-green-brand" />
+                )}
+                {locationStatus === "requesting" ? t.locating : t.useMyLocation}
+              </button>
+            </div>
             {locationMessage && (
               <span className="text-[11px] font-semibold text-slate-500 sm:text-right">
                 {locationMessage}
@@ -708,8 +735,12 @@ export default function App() {
         </div>
       </main>
 
-      <footer className="h-12 bg-white border-t border-[#E2E8F0] flex items-center justify-center font-sans font-medium text-[11px] text-[#94A3B8] uppercase tracking-widest mt-16 shrink-0">
-        {t.madeBy}
+      <footer className="min-h-12 bg-white border-t border-[#E2E8F0] flex flex-col items-center justify-center gap-1 px-4 py-3 text-center font-sans font-medium text-[11px] text-[#94A3B8] uppercase tracking-widest mt-16 shrink-0 sm:flex-row sm:gap-3">
+        <span>{t.madeBy}</span>
+        <span className="hidden text-slate-300 sm:inline">|</span>
+        <span>
+          {t.dataLastUpdated}: {lastAutoUpdate}
+        </span>
       </footer>
 
       {isPreferencesOpen && (
@@ -788,6 +819,13 @@ export default function App() {
           </div>
         </div>
       )}
+
+      <SuggestPlaceModal
+        isOpen={isSuggestPlaceOpen}
+        activeMode={activeMode}
+        lang={lang}
+        onClose={() => setIsSuggestPlaceOpen(false)}
+      />
     </div>
   );
 }

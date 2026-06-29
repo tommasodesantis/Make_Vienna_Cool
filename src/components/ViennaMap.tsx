@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import L from "leaflet";
 import { CompactPlace } from "../data/vienna_cool_places";
 import { TRANSLATIONS, translateCategory } from "../data/translations";
-import { getPlaceType, googleMapsUrlForPlace, UserLocation } from "../data/place_utils";
+import { getPlaceType, googleMapsUrlForPlace, isTemporarilyClosed, UserLocation } from "../data/place_utils";
 
 interface ViennaMapProps {
   places: CompactPlace[];
@@ -150,6 +150,8 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
   }, [selectedPlaceId, lang]);
 
   const getMarkerColor = (isSelected: boolean, place: CompactPlace) => {
+    if (isTemporarilyClosed(place)) return isSelected ? "#B91C1C" : "#DC2626";
+
     const nonOfficialCoolColor = "#4C1D95";
     let pinColor = nonOfficialCoolColor;
     const placeType = getPlaceType(place);
@@ -242,6 +244,9 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
             ? "bg-[#3498DB] text-white"
             : "bg-[#D4E6F1] text-[#1F618D]";
     const primaryLabel = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${typeBadgeColor}">${escapeHtml(typeLabel)}</span>`;
+    const statusLabel = isTemporarilyClosed(place)
+      ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#FEE2E2] text-[#991B1B]">${escapeHtml(t.temporarilyClosed)}</span>`
+      : "";
     const categoryLabel = escapeHtml(translateCategory(place.category, lang));
     const mapsUrl = googleMapsUrlForPlace(place);
 
@@ -251,10 +256,12 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
           <h3 class="font-bold text-base text-[#2C3E50] leading-snug m-0">${escapeHtml(place.name)}</h3>
         </div>
         <div class="flex flex-wrap gap-1 mb-2">
+          ${statusLabel}
           ${primaryLabel}
           ${placeType !== "cool" || place.category !== "Official Cool Zone" ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#EBF5FB] text-[#1F618D]">${categoryLabel}</span>` : ""}
         </div>
         <p class="text-xs text-[#718096] mb-2 leading-relaxed font-normal">${escapeHtml(place.address)}</p>
+        ${isTemporarilyClosed(place) ? `<p class="text-[11px] text-[#991B1B] mb-2 leading-relaxed font-semibold">${escapeHtml(t.temporarilyClosedNote)}</p>` : ""}
         ${place.hours.length > 0 ? `<p class="text-[11px] text-slate-500 font-semibold m-0 flex items-center gap-1">${escapeHtml(place.hours[0])}</p>` : ""}
         <div class="mt-2.5 pt-2 border-t border-[#F0F4F8]">
           <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" style="color: #3498DB; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 2px; font-size: 12px;">

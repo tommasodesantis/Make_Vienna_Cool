@@ -107,7 +107,25 @@ export interface LanguageTranslations {
   reportUnavailable: string;
   reportError: string;
   reportTooShort: string;
+  suggestPlace: string;
+  suggestPlaceTitle: string;
+  suggestPlaceDescription: string;
+  suggestedPlaceType: string;
+  suggestedPlaceName: string;
+  suggestedPlaceNamePlaceholder: string;
+  suggestedPlaceLocation: string;
+  suggestedPlaceLocationPlaceholder: string;
+  suggestedPlaceNotes: string;
+  suggestedPlaceNotesPlaceholder: string;
+  suggestPlaceSubmit: string;
+  suggestPlaceSuccess: string;
+  suggestPlaceTooShort: string;
   close: string;
+  info: string;
+  temporarilyClosed: string;
+  temporarilyClosedNote: string;
+  dataLastUpdated: string;
+  autoUpdateUnknown: string;
 }
 
 export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations } = {
@@ -220,7 +238,25 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     reportUnavailable: "Online reports are not configured in this build.",
     reportError: "The report could not be submitted. Please try again later.",
     reportTooShort: "Please add a little more detail.",
+    suggestPlace: "Suggest place",
+    suggestPlaceTitle: "Suggest a missing place",
+    suggestPlaceDescription: "Send a place that should be reviewed for the map.",
+    suggestedPlaceType: "Map type",
+    suggestedPlaceName: "Place name",
+    suggestedPlaceNamePlaceholder: "Example: Stadtpark drinking fountain",
+    suggestedPlaceLocation: "Address or map link",
+    suggestedPlaceLocationPlaceholder: "Address, coordinates, Google Maps link, or OpenStreetMap link",
+    suggestedPlaceNotes: "Why should it be added?",
+    suggestedPlaceNotesPlaceholder: "Add useful details, such as access rules, whether it is free, opening hours, or source links.",
+    suggestPlaceSubmit: "Submit suggestion",
+    suggestPlaceSuccess: "Suggestion submitted. Thank you.",
+    suggestPlaceTooShort: "Please include a name, location, and a little more detail.",
     close: "Close",
+    info: "Info",
+    temporarilyClosed: "Temporarily closed",
+    temporarilyClosedNote: "Reported temporarily closed for renovation. Check the venue before going.",
+    dataLastUpdated: "Data last updated",
+    autoUpdateUnknown: "not yet recorded",
   },
   de: {
     title: "Make Vienna Cool",
@@ -331,7 +367,25 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     reportUnavailable: "Online-Meldungen sind in diesem Build nicht konfiguriert.",
     reportError: "Die Meldung konnte nicht gesendet werden. Bitte versuche es später erneut.",
     reportTooShort: "Bitte beschreibe das Problem etwas genauer.",
+    suggestPlace: "Ort vorschlagen",
+    suggestPlaceTitle: "Fehlenden Ort vorschlagen",
+    suggestPlaceDescription: "Sende einen Ort, der für die Karte geprüft werden sollte.",
+    suggestedPlaceType: "Kartentyp",
+    suggestedPlaceName: "Name des Orts",
+    suggestedPlaceNamePlaceholder: "Beispiel: Trinkbrunnen im Stadtpark",
+    suggestedPlaceLocation: "Adresse oder Kartenlink",
+    suggestedPlaceLocationPlaceholder: "Adresse, Koordinaten, Google-Maps-Link oder OpenStreetMap-Link",
+    suggestedPlaceNotes: "Warum sollte der Ort ergänzt werden?",
+    suggestedPlaceNotesPlaceholder: "Nützliche Details, z.B. Zugangsregeln, ob der Ort gratis ist, Öffnungszeiten oder Quellen.",
+    suggestPlaceSubmit: "Vorschlag senden",
+    suggestPlaceSuccess: "Vorschlag gesendet. Danke.",
+    suggestPlaceTooShort: "Bitte gib Name, Standort und etwas mehr Detail an.",
     close: "Schließen",
+    info: "Info",
+    temporarilyClosed: "Vorübergehend geschlossen",
+    temporarilyClosedNote: "Als vorübergehend wegen Sanierung geschlossen gemeldet. Prüfe den Ort, bevor du hingehst.",
+    dataLastUpdated: "Daten zuletzt aktualisiert",
+    autoUpdateUnknown: "noch nicht erfasst",
   }
 };
 

@@ -125,7 +125,9 @@ export const OSM_IMPORTED_PLACES: CompactPlace[] = [
     hours: ["Mon - Sat: 08:00 - 21:00", "Sun, PH: 10:00 - 21:00"],
     free: false,
     notes: "Imported from OpenStreetMap, which lists air_conditioning=yes. Purchase is expected.",
-    sourceUrls: ["https://www.openstreetmap.org/node/319734659"]
+    sourceUrls: ["https://www.openstreetmap.org/node/319734659"],
+    status: "temporarily_closed",
+    statusNote: "Reported temporarily closed for renovation. Check the venue before going."
   },
   {
     id: "der-mann-liesing",

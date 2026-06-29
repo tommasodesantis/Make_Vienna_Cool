@@ -1,10 +1,11 @@
 import fs from "node:fs";
 
-const fountainInputPath = "C:/tmp/trinkbrunnen.json";
-const bathingInputPath = "C:/tmp/badestellen.json";
-const addressInputPath = "C:/tmp/adressen_compact.json";
-const drinkingOutputPath = "src/data/drinking_water_places.ts";
-const waterOutputPath = "src/data/water_access_places.ts";
+const fountainInputPath = process.argv[2] ?? "C:/tmp/trinkbrunnen.json";
+const bathingInputPath = process.argv[3] ?? "C:/tmp/badestellen.json";
+const addressInputPath = process.argv[4] ?? "C:/tmp/adressen_compact.json";
+const drinkingOutputPath = process.argv[5] ?? "src/data/drinking_water_places.ts";
+const waterOutputPath = process.argv[6] ?? "src/data/water_access_places.ts";
+const ignoreInputPath = process.argv[7] ?? "src/data/source_ignores.json";
 
 const fountainDatasetPage = "https://www.data.gv.at/suche/?searchterm=TRINKBRUNNENOGD";
 const bathingDatasetPage = "https://www.data.gv.at/suche/?searchterm=BADESTELLENOGD";
@@ -31,6 +32,7 @@ const refreshTypes = new Set([
 const readJson = (path) => JSON.parse(fs.readFileSync(path, "utf8"));
 const roundCoord = (value) => Number(value.toFixed(8));
 const coordinateAddress = (lat, lng) => `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+const sourceKey = (prefix, value) => `${prefix}:${value}`;
 
 const slug = (value) =>
   String(value)
@@ -51,6 +53,13 @@ const displayType = (type) => {
   if (/Spritz|Sprüh|Sprühnebel/.test(type)) return "Sprühnebel";
   if (/Spiel|Wasserspiel|Fontäne|Bodenfont/.test(type)) return "Wasserspiel";
   return "Trinkbrunnen";
+};
+
+const loadIgnoredIds = (dataset) => {
+  if (!fs.existsSync(ignoreInputPath)) return new Set();
+
+  const ignoreData = readJson(ignoreInputPath);
+  return new Set((ignoreData[dataset] ?? []).map((entry) => entry.id));
 };
 
 const normalizeDistrict = (district) => {
@@ -154,6 +163,8 @@ const enrichedLocation = (addressIndex, lat, lng) => {
 const fountainData = readJson(fountainInputPath);
 const bathingData = readJson(bathingInputPath);
 const addressIndex = loadAddressIndex();
+const ignoredDrinkingIds = loadIgnoredIds("drinking");
+const ignoredWaterIds = loadIgnoredIds("water");
 
 const drinking = fountainData.features
   .filter((feature) => drinkTypes.has(feature.properties.BASIS_TYP_TXT))
@@ -163,7 +174,7 @@ const drinking = fountainData.features
     const id = feature.properties.OBJECTID;
     const location = enrichedLocation(addressIndex, lat, lng);
 
-    return {
+    const place = {
       id: `drinking-water-${id}`,
       name: `${displayType(type)} - ${location.label}`,
       address: location.address,
@@ -184,7 +195,11 @@ const drinking = fountainData.features
       placeType: "drinking",
       accessibility: "unknown",
     };
-  });
+    return ignoredDrinkingIds.has(place.id) || ignoredDrinkingIds.has(sourceKey("trinkbrunnen", id))
+      ? null
+      : place;
+  })
+  .filter(Boolean);
 
 const refreshFountains = fountainData.features
   .filter((feature) => refreshTypes.has(feature.properties.BASIS_TYP_TXT))
@@ -194,7 +209,7 @@ const refreshFountains = fountainData.features
     const id = feature.properties.OBJECTID;
     const location = enrichedLocation(addressIndex, lat, lng);
 
-    return {
+    const place = {
       id: `refresh-fountain-${id}`,
       name: `${displayType(type)} - ${location.label}`,
       address: location.address,
@@ -215,12 +230,16 @@ const refreshFountains = fountainData.features
       placeType: "water",
       accessibility: "unknown",
     };
-  });
+    return ignoredWaterIds.has(place.id) || ignoredWaterIds.has(sourceKey("trinkbrunnen", id))
+      ? null
+      : place;
+  })
+  .filter(Boolean);
 
 const bathingSites = bathingData.features.map((feature) => {
   const [lng, lat] = feature.geometry.coordinates;
   const props = feature.properties;
-  const rowId = props.SE_SDO_ROWID || props.OBJECTID || slug(props.BEZEICHNUNG);
+  const stableId = `${slug(props.BEZEICHNUNG).slice(0, 64)}-${lat.toFixed(5)}-${lng.toFixed(5)}`;
   const temperature = Number.isFinite(props.WASSERTEMPERATUR)
     ? `${props.WASSERTEMPERATUR}C`
     : null;
@@ -236,8 +255,8 @@ const bathingSites = bathingData.features.map((feature) => {
     amenities.push(`Water temperature ${temperature}`);
   }
 
-  return {
-    id: `bathing-site-${rowId}`,
+  const place = {
+    id: `bathing-site-${stableId}`,
     name: props.BEZEICHNUNG,
     address: coordinateAddress(lat, lng),
     district: props.BEZIRK ? String(props.BEZIRK) : "Vienna",
@@ -258,7 +277,10 @@ const bathingSites = bathingData.features.map((feature) => {
     placeType: "water",
     accessibility: "unknown",
   };
-});
+  return ignoredWaterIds.has(place.id) || ignoredWaterIds.has(sourceKey("badestellen", stableId))
+    ? null
+    : place;
+}).filter(Boolean);
 
 const generatedHeader = `import type { CompactPlace } from "./vienna_cool_places";
 
