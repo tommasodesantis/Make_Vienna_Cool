@@ -120,6 +120,9 @@ export interface LanguageTranslations {
   suggestPlaceSubmit: string;
   suggestPlaceSuccess: string;
   suggestPlaceTooShort: string;
+  suggestPlaceMissingName: string;
+  suggestPlaceMissingLocation: string;
+  suggestPlaceMissingNotes: string;
   close: string;
   info: string;
   temporarilyClosed: string;
@@ -251,6 +254,9 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     suggestPlaceSubmit: "Submit suggestion",
     suggestPlaceSuccess: "Suggestion submitted. Thank you.",
     suggestPlaceTooShort: "Please include a name, location, and a little more detail.",
+    suggestPlaceMissingName: "Add a place name with at least 2 characters.",
+    suggestPlaceMissingLocation: "Add an address, coordinates, or map link with at least 5 characters.",
+    suggestPlaceMissingNotes: "Add notes explaining why it should be added with at least 12 characters.",
     close: "Close",
     info: "Info",
     temporarilyClosed: "Temporarily closed",
@@ -380,6 +386,9 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     suggestPlaceSubmit: "Vorschlag senden",
     suggestPlaceSuccess: "Vorschlag gesendet. Danke.",
     suggestPlaceTooShort: "Bitte gib Name, Standort und etwas mehr Detail an.",
+    suggestPlaceMissingName: "Gib einen Ortsnamen mit mindestens 2 Zeichen ein.",
+    suggestPlaceMissingLocation: "Gib eine Adresse, Koordinaten oder einen Kartenlink mit mindestens 5 Zeichen ein.",
+    suggestPlaceMissingNotes: "Ergänze Hinweise, warum der Ort hinzugefügt werden sollte, mit mindestens 12 Zeichen.",
     close: "Schließen",
     info: "Info",
     temporarilyClosed: "Vorübergehend geschlossen",

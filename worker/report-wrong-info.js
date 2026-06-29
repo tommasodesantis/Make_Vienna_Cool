@@ -93,6 +93,21 @@ const missingPlaceIssueBody = (payload, request, env) => [
   ...issueFooter(env),
 ].join("\n");
 
+const gitHubHeaders = (env) => ({
+  "Accept": "application/vnd.github+json",
+  "Authorization": `Bearer ${env.GITHUB_TOKEN}`,
+  "Content-Type": "application/json",
+  "User-Agent": "make-vienna-cool-report-worker",
+  "X-GitHub-Api-Version": "2022-11-28",
+});
+
+const postGitHubIssue = async (env, body) =>
+  fetch(`https://api.github.com/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/issues`, {
+    method: "POST",
+    headers: gitHubHeaders(env),
+    body: JSON.stringify(body),
+  });
+
 const createGitHubIssue = async (payload, request, env) => {
   const labels = parseCsv(env.GITHUB_LABELS);
   const assignees = parseCsv(env.GITHUB_ASSIGNEES || "tommasodesantis");
@@ -106,22 +121,18 @@ const createGitHubIssue = async (payload, request, env) => {
       ? missingPlaceIssueBody(payload, request, env)
       : wrongInfoIssueBody(payload, request, env);
 
-  const response = await fetch(`https://api.github.com/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/issues`, {
-    method: "POST",
-    headers: {
-      "Accept": "application/vnd.github+json",
-      "Authorization": `Bearer ${env.GITHUB_TOKEN}`,
-      "Content-Type": "application/json",
-      "User-Agent": "make-vienna-cool-report-worker",
-      "X-GitHub-Api-Version": "2022-11-28",
-    },
-    body: JSON.stringify({
-      title,
-      body,
-      ...(labels.length > 0 ? { labels } : {}),
-      ...(assignees.length > 0 ? { assignees } : {}),
-    }),
+  const baseIssue = { title, body };
+  let response = await postGitHubIssue(env, {
+    ...baseIssue,
+    ...(labels.length > 0 ? { labels } : {}),
+    ...(assignees.length > 0 ? { assignees } : {}),
   });
+
+  if (response.status === 422 && (labels.length > 0 || assignees.length > 0)) {
+    const text = await response.text();
+    console.warn(`GitHub rejected optional issue metadata; retrying without labels/assignees: ${text}`);
+    response = await postGitHubIssue(env, baseIssue);
+  }
 
   if (!response.ok) {
     const text = await response.text();
@@ -215,6 +226,7 @@ export default {
       const issue = await createGitHubIssue(payload, request, env);
       return json({ ok: true, issueUrl: issue.html_url }, 201, cors);
     } catch (error) {
+      console.error(error instanceof Error ? error.stack || error.message : error);
       return json({ ok: false, error: "server_error" }, 500, cors);
     }
   },

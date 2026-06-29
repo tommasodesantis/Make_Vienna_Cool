@@ -85,7 +85,7 @@ wrangler secret put TURNSTILE_SECRET_KEY
 wrangler secret put GITHUB_TOKEN
 ```
 
-Use a fine-grained GitHub token limited to issue read/write access on this repository. If a token has ever been pasted into chat, rotate it before saving it.
+Use a fine-grained GitHub token limited to issue read/write access on this repository. The token's repository access must include `tommasodesantis/Make_Vienna_Cool`; a token that says it does not have access to any repositories cannot open issues, even if the issue permission category is set to read/write. If a token has ever been pasted into chat, rotate it before saving it.
 
 Use a bot or secondary GitHub account token for `GITHUB_TOKEN` if you want your main account to receive notifications. Set `GITHUB_ASSIGNEES` and `GITHUB_NOTIFY_USERS` in the Worker variables to the maintainer account that should be assigned and mentioned on submitted issues.
 

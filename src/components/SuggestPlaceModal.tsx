@@ -119,10 +119,15 @@ export const SuggestPlaceModal: React.FC<SuggestPlaceModalProps> = ({
     const trimmedName = placeName.trim();
     const trimmedLocation = locationText.trim();
     const trimmedNotes = notes.trim();
+    const validationErrors = [
+      trimmedName.length < 2 ? t.suggestPlaceMissingName : null,
+      trimmedLocation.length < 5 ? t.suggestPlaceMissingLocation : null,
+      trimmedNotes.length < 12 ? t.suggestPlaceMissingNotes : null,
+    ].filter(Boolean);
 
-    if (trimmedName.length < 2 || trimmedLocation.length < 5 || trimmedNotes.length < 12) {
+    if (validationErrors.length > 0) {
       setStatus("error");
-      setMessage(t.suggestPlaceTooShort);
+      setMessage(validationErrors.join(" "));
       return;
     }
 
