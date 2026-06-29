@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { CompactPlace } from "../data/vienna_cool_places";
 import { isAirConditioningAmenity, TRANSLATIONS, translateAmenity, translateCategory, translateNote } from "../data/translations";
-import { formatDistance, getAccessibilityStatus, getPlaceType, googleMapsUrlForPlace, isTemporarilyClosed } from "../data/place_utils";
-import { AlertCircle, ArrowRight, CheckCircle2, ExternalLink, Flag, Loader2, Send, X } from "lucide-react";
+import { formatDistance, getAccessibilityStatus, getPlaceType, googleMapsUrlForPlace, hasAccessWarning, isTemporarilyClosed } from "../data/place_utils";
+import { ArrowRight, CheckCircle2, ExternalLink, Flag, Loader2, Send, X } from "lucide-react";
 
 interface PlaceDetailCardProps {
   place: CompactPlace | null;
@@ -115,6 +115,7 @@ export const PlaceDetailCard: React.FC<PlaceDetailCardProps> = ({ place, lang })
       : place.amenities.filter((amenity) => !isAirConditioningAmenity(amenity));
   const primarySourceUrl = place.sourceUrls?.[0];
   const temporarilyClosed = isTemporarilyClosed(place);
+  const accessWarning = hasAccessWarning(place);
 
   const getPrimaryBadge = () => {
     if (placeType === "drinking") {
@@ -235,6 +236,11 @@ export const PlaceDetailCard: React.FC<PlaceDetailCardProps> = ({ place, lang })
             {t.temporarilyClosed}
           </span>
         )}
+        {accessWarning && (
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-100 text-amber-900">
+            {t.accessWarning}
+          </span>
+        )}
         <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${badge.bg}`}>
           {badge.text}
         </span>
@@ -345,6 +351,12 @@ export const PlaceDetailCard: React.FC<PlaceDetailCardProps> = ({ place, lang })
         <p className="text-rose-700 text-xs leading-relaxed font-semibold mb-4">{t.temporarilyClosedNote}</p>
       )}
 
+      {accessWarning && (
+        <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold leading-relaxed text-amber-900">
+          {t.accessWarningNote}
+        </div>
+      )}
+
       {place.notes && (
         <p className="text-slate-500 text-xs leading-relaxed mb-4">{translateNote(place.notes, lang)}</p>
       )}
@@ -429,12 +441,7 @@ export const PlaceDetailCard: React.FC<PlaceDetailCardProps> = ({ place, lang })
 
               {TURNSTILE_SITE_KEY ? (
                 <div ref={turnstileRef} className="min-h-[65px]" />
-              ) : (
-                <div className="flex items-center gap-2 rounded-xl bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
-                  <AlertCircle className="h-4 w-4 shrink-0" />
-                  {t.reportUnavailable}
-                </div>
-              )}
+              ) : null}
 
               {reportMessage && (
                 <div className={`rounded-xl px-3 py-2 text-xs font-semibold ${

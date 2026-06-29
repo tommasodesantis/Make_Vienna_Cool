@@ -10,6 +10,9 @@ export const getPlaceType = (place: CompactPlace): PlaceType => place.placeType 
 export const isTemporarilyClosed = (place: CompactPlace): boolean =>
   place.status === "temporarily_closed";
 
+export const hasAccessWarning = (place: CompactPlace): boolean =>
+  place.status === "access_warning";
+
 export const getAccessibilityStatus = (place: CompactPlace): AccessibilityStatus => {
   if (place.accessibility) return place.accessibility;
 

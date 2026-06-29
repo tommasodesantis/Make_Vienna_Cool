@@ -136,6 +136,8 @@ export interface LanguageTranslations {
   info: string;
   temporarilyClosed: string;
   temporarilyClosedNote: string;
+  accessWarning: string;
+  accessWarningNote: string;
   dataLastUpdated: string;
   autoUpdateUnknown: string;
 }
@@ -279,6 +281,8 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     info: "Info",
     temporarilyClosed: "Temporarily closed",
     temporarilyClosedNote: "Reported temporarily closed for renovation. Check the venue before going.",
+    accessWarning: "Check access",
+    accessWarningNote: "Recent user reports indicate access, seating, or cooling may be restricted. Check current on-site rules before relying on this as a cooling stop.",
     dataLastUpdated: "Data last updated",
     autoUpdateUnknown: "not yet recorded",
   },
@@ -420,6 +424,8 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     info: "Info",
     temporarilyClosed: "Vorübergehend geschlossen",
     temporarilyClosedNote: "Als vorübergehend wegen Sanierung geschlossen gemeldet. Prüfe den Ort, bevor du hingehst.",
+    accessWarning: "Zugang prüfen",
+    accessWarningNote: "Aktuelle Nutzerhinweise deuten darauf hin, dass Zugang, Sitzplätze oder Kühlung eingeschränkt sein können. Prüfe die Regeln vor Ort, bevor du diesen Ort als Abkühlungsstopp einplanst.",
     dataLastUpdated: "Daten zuletzt aktualisiert",
     autoUpdateUnknown: "noch nicht erfasst",
   }

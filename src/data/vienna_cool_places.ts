@@ -2,7 +2,7 @@ import { OSM_IMPORTED_PLACES } from "./osm_imported_places";
 
 export type PlaceType = "cool" | "drinking" | "water" | "toilet";
 export type AccessibilityStatus = "yes" | "limited" | "no" | "unknown";
-export type PlaceStatus = "temporarily_closed";
+export type PlaceStatus = "temporarily_closed" | "access_warning";
 
 export interface CompactPlace {
   id: string;
@@ -955,7 +955,8 @@ const CORE_VIENNA_PLACES: CompactPlace[] = [
     hours: ["Mon - Fri: 11:00 - 19:00", "Sat: 11:00 - 17:00"],
     free: true,
     notes: "Vast public library with free study desks; OpenStreetMap lists air_conditioning=yes.",
-    sourceUrls: ["https://www.openstreetmap.org/relation/19539609"]
+    sourceUrls: ["https://www.openstreetmap.org/relation/19539609"],
+    status: "access_warning"
   },
   {
     id: "wu-wien-central-library-library-learning-center",

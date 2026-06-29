@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import { CompactPlace, PlaceType } from "../data/vienna_cool_places";
 import { TRANSLATIONS, translateCategory } from "../data/translations";
 import { ChevronDown, ChevronUp, Droplets, HelpCircle, Loader2 } from "lucide-react";
-import { formatDistance, getAccessibilityStatus, isTemporarilyClosed } from "../data/place_utils";
+import { formatDistance, getAccessibilityStatus, hasAccessWarning, isTemporarilyClosed } from "../data/place_utils";
 
 interface PlaceListProps {
   places: CompactPlace[];
@@ -441,6 +441,7 @@ export const PlaceList: React.FC<PlaceListProps> = ({
               : (place.coolingType === "official_cool_indoor_room_not_ac_confirmed" ? t.acOfficialZone : t.acCoolRoom);
             const showCoolBadge = isCoolMode && place.category !== "Official Cool Zone";
             const accessibility = getAccessibilityStatus(place);
+            const accessWarning = hasAccessWarning(place);
             const metadataItems: React.ReactNode[] = [];
 
             if (isCoolMode) {
@@ -502,6 +503,10 @@ export const PlaceList: React.FC<PlaceListProps> = ({
                   {isTemporarilyClosed(place) ? (
                     <span className="inline-flex items-center shrink-0 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-rose-100 text-rose-800">
                       {t.temporarilyClosed}
+                    </span>
+                  ) : accessWarning ? (
+                    <span className="inline-flex items-center shrink-0 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-amber-100 text-amber-900">
+                      {t.accessWarning}
                     </span>
                   ) : showCoolBadge ? (
                     <span className={`inline-flex items-center shrink-0 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${

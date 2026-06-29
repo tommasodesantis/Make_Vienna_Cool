@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import L from "leaflet";
 import { CompactPlace } from "../data/vienna_cool_places";
 import { TRANSLATIONS, translateCategory } from "../data/translations";
-import { getPlaceType, googleMapsUrlForPlace, isTemporarilyClosed, UserLocation } from "../data/place_utils";
+import { getPlaceType, googleMapsUrlForPlace, hasAccessWarning, isTemporarilyClosed, UserLocation } from "../data/place_utils";
 
 interface ViennaMapProps {
   places: CompactPlace[];
@@ -164,6 +164,7 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
 
   const getMarkerColor = (isSelected: boolean, place: CompactPlace) => {
     if (isTemporarilyClosed(place)) return isSelected ? "#B91C1C" : "#DC2626";
+    if (hasAccessWarning(place)) return isSelected ? "#D97706" : "#F59E0B";
 
     const nonOfficialCoolColor = "#4C1D95";
     let pinColor = nonOfficialCoolColor;
@@ -259,7 +260,9 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
     const primaryLabel = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${typeBadgeColor}">${escapeHtml(typeLabel)}</span>`;
     const statusLabel = isTemporarilyClosed(place)
       ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#FEE2E2] text-[#991B1B]">${escapeHtml(t.temporarilyClosed)}</span>`
-      : "";
+      : hasAccessWarning(place)
+        ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#FEF3C7] text-[#92400E]">${escapeHtml(t.accessWarning)}</span>`
+        : "";
     const categoryLabel = escapeHtml(translateCategory(place.category, lang));
     const mapsUrl = googleMapsUrlForPlace(place);
 
@@ -275,6 +278,7 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
         </div>
         <p class="text-xs text-[#718096] mb-2 leading-relaxed font-normal">${escapeHtml(place.address)}</p>
         ${isTemporarilyClosed(place) ? `<p class="text-[11px] text-[#991B1B] mb-2 leading-relaxed font-semibold">${escapeHtml(t.temporarilyClosedNote)}</p>` : ""}
+        ${hasAccessWarning(place) ? `<p class="text-[11px] text-[#92400E] mb-2 leading-relaxed font-semibold">${escapeHtml(t.accessWarningNote)}</p>` : ""}
         ${place.hours.length > 0 ? `<p class="text-[11px] text-slate-500 font-semibold m-0 flex items-center gap-1">${escapeHtml(place.hours[0])}</p>` : ""}
         <div class="mt-2.5 pt-2 border-t border-[#F0F4F8]">
           <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" style="color: #3498DB; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 2px; font-size: 12px;">
