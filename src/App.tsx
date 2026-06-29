@@ -6,8 +6,10 @@ import { ViennaMap } from "./components/ViennaMap";
 import { PlaceList } from "./components/PlaceList";
 import { PlaceDetailCard } from "./components/PlaceDetailCard";
 import { SuggestPlaceModal } from "./components/SuggestPlaceModal";
-import { Droplets, LocateFixed, Loader2, MessageSquarePlus, Snowflake, Toilet, Waves, X } from "lucide-react";
-import { distanceMetersBetween, getAccessibilityStatus, UserLocation } from "./data/place_utils";
+import { SearchBox } from "./components/SearchBox";
+import { Droplets, LocateFixed, Loader2, Maximize2, MessageSquarePlus, Minimize2, Snowflake, Toilet, Waves, X } from "lucide-react";
+import { distanceMetersBetween, getAccessibilityStatus, getPlaceType, UserLocation } from "./data/place_utils";
+import { translateCategory } from "./data/translations";
 
 type LocationConsent = "unknown" | "granted" | "denied";
 type LocationStatus = "idle" | "requesting" | "granted" | "denied" | "unsupported";
@@ -43,16 +45,47 @@ const formatAutoUpdateDate = (value: string | null, lang: "en" | "de") => {
   }).format(date);
 };
 
+const normalizeSearchText = (value: string) =>
+  value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+
+const placeMatchesSearch = (place: CompactPlace, query: string, lang: "en" | "de") => {
+  if (!query) return true;
+
+  const searchableText = [
+    place.name,
+    place.address,
+    place.district,
+    place.category,
+    translateCategory(place.category, lang),
+    place.coolingType,
+    place.notes,
+    ...place.amenities,
+    ...place.hours,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return normalizeSearchText(searchableText).includes(query);
+};
+
 export default function App() {
   const storedPreferences = useMemo(readStoredPreferences, []);
   const [lang, setLang] = useState<"en" | "de">(storedPreferences.lang ?? "de");
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
   const [selectedDistrict, setSelectedDistrict] = useState<string>("ALL");
   const [activeMode, setActiveMode] = useState<PlaceType>("cool");
   const [datasets, setDatasets] = useState<Partial<Record<PlaceType, CompactPlace[]>>>({
     cool: COOL_PLACES,
   });
+  const [knownPlacesForSuggestions, setKnownPlacesForSuggestions] = useState<CompactPlace[]>(COOL_PLACES);
+  const [areKnownPlacesLoaded, setAreKnownPlacesLoaded] = useState(false);
+  const [isKnownPlacesLoading, setIsKnownPlacesLoading] = useState(false);
   const [isDatasetLoading, setIsDatasetLoading] = useState(false);
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [sortByNearest, setSortByNearest] = useState(false);
@@ -64,6 +97,7 @@ export default function App() {
     () => typeof window !== "undefined" && !window.localStorage.getItem(PREFERENCES_KEY),
   );
   const [isSuggestPlaceOpen, setIsSuggestPlaceOpen] = useState(false);
+  const [isMapExpanded, setIsMapExpanded] = useState(false);
   const [preferencesLang, setPreferencesLang] = useState<"en" | "de">(lang);
   const [preferencesLocationEnabled, setPreferencesLocationEnabled] = useState(
     locationConsent === "granted",
@@ -122,6 +156,63 @@ export default function App() {
     };
   }, [activeDataset, activeMode]);
 
+  useEffect(() => {
+    if (!isSuggestPlaceOpen || areKnownPlacesLoaded) return;
+
+    let cancelled = false;
+    setIsKnownPlacesLoading(true);
+
+    Promise.all([
+      import("./data/drinking_water_places"),
+      import("./data/water_access_places"),
+      import("./data/outside_vienna_water_access_places"),
+      import("./data/public_toilet_places"),
+    ])
+      .then(([drinkingModule, waterModule, outsideWaterModule, toiletModule]) => {
+        if (cancelled) return;
+
+        const drinkingPlaces = drinkingModule.VIENNA_DRINKING_WATER_FOUNTAINS;
+        const waterPlaces = [
+          ...waterModule.VIENNA_WATER_ACCESS_PLACES,
+          ...outsideWaterModule.OUTSIDE_VIENNA_WATER_ACCESS_PLACES,
+        ];
+        const toiletPlaces = toiletModule.VIENNA_PUBLIC_TOILET_PLACES;
+
+        setKnownPlacesForSuggestions([
+          ...COOL_PLACES,
+          ...drinkingPlaces,
+          ...waterPlaces,
+          ...toiletPlaces,
+        ]);
+        setDatasets((current) => ({
+          ...current,
+          cool: current.cool ?? COOL_PLACES,
+          drinking: current.drinking ?? drinkingPlaces,
+          water: current.water ?? waterPlaces,
+          toilet: current.toilet ?? toiletPlaces,
+        }));
+        setAreKnownPlacesLoaded(true);
+      })
+      .finally(() => {
+        if (!cancelled) setIsKnownPlacesLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [areKnownPlacesLoaded, isSuggestPlaceOpen]);
+
+  useEffect(() => {
+    if (!isMapExpanded || typeof document === "undefined") return;
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isMapExpanded]);
+
   const persistPreferences = (next: StoredPreferences) => {
     if (typeof window === "undefined") return;
 
@@ -174,6 +265,7 @@ export default function App() {
 
   const resetFilters = () => {
     setSelectedPlaceId(null);
+    setSearchQuery("");
     setSelectedCategory("ALL");
     setSelectedDistrict("ALL");
     setFilterAc(false);
@@ -213,6 +305,12 @@ export default function App() {
   const handleModeChange = (mode: PlaceType) => {
     setActiveMode(mode);
     resetFilters();
+  };
+
+  const handleSelectExistingSuggestedPlace = (place: CompactPlace) => {
+    resetFilters();
+    setActiveMode(getPlaceType(place));
+    setSelectedPlaceId(place.id);
   };
 
   const requestUserLocation = () => {
@@ -368,7 +466,13 @@ export default function App() {
   };
 
   const filteredPlaces = useMemo(() => {
+    const normalizedQuery = normalizeSearchText(searchQuery);
+
     return datasetPlaces.filter((place) => {
+      if (!placeMatchesSearch(place, normalizedQuery, lang)) {
+        return false;
+      }
+
       if (activeMode === "drinking") {
         return true;
       }
@@ -441,7 +545,7 @@ export default function App() {
 
       return true;
     });
-  }, [datasetPlaces, activeMode, selectedCategory, filterAccessible, filterAc, filterSeating, filterWifi, filterFree, filterSockets, filterTables, filterOpenNow, selectedDay, selectedHourRange]);
+  }, [datasetPlaces, activeMode, selectedCategory, filterAccessible, filterAc, filterSeating, filterWifi, filterFree, filterSockets, filterTables, filterOpenNow, selectedDay, selectedHourRange, searchQuery, lang]);
 
   const visiblePlaces = useMemo(() => {
     if (!userLocation) return filteredPlaces;
@@ -486,6 +590,26 @@ export default function App() {
         : userLocation && sortByNearest
           ? t.nearestActive
           : null;
+
+  const searchLabel =
+    activeMode === "cool"
+      ? t.modeCool
+      : activeMode === "drinking"
+        ? t.modeDrinking
+        : activeMode === "water"
+          ? t.modeWater
+          : t.modeToilets;
+
+  const renderMap = (isExpanded = false) => (
+    <ViennaMap
+      places={visiblePlaces}
+      selectedPlaceId={selectedPlaceId}
+      onSelectPlace={handleSelectPlace}
+      lang={lang}
+      userLocation={userLocation}
+      isExpanded={isExpanded}
+    />
+  );
 
   return (
     <div className="min-h-screen flex flex-col font-sans bg-offwhite text-slate-brand overflow-x-hidden">
@@ -605,6 +729,14 @@ export default function App() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           <div className="hidden lg:col-span-5 lg:flex lg:flex-col lg:gap-6 lg:order-1">
+            <SearchBox
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder={t.searchPlaceholder}
+              clearLabel={t.clearSearch}
+              resultCount={visiblePlaces.length}
+              label={`${t.searchLabel}: ${searchLabel}`}
+            />
             <PlaceList
               places={visiblePlaces}
               selectedPlaceId={selectedPlaceId}
@@ -680,18 +812,32 @@ export default function App() {
               />
             </div>
 
-            <div id="map-section" className="h-[350px] sm:h-[450px] md:h-[500px]">
-              <ViennaMap
-                places={visiblePlaces}
-                selectedPlaceId={selectedPlaceId}
-                onSelectPlace={handleSelectPlace}
-                lang={lang}
-                userLocation={userLocation}
-              />
+            <div id="map-section" className="relative h-[350px] sm:h-[450px] md:h-[500px]">
+              {renderMap(false)}
+              <button
+                type="button"
+                onClick={() => setIsMapExpanded(true)}
+                className="absolute right-3 top-3 z-[1000] inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white/90 text-slate-700 shadow-sm backdrop-blur transition hover:border-green-brand/40 hover:bg-white"
+                aria-label={t.expandMap}
+                title={t.expandMap}
+              >
+                <Maximize2 className="h-4 w-4" />
+              </button>
             </div>
 
             <div>
               <PlaceDetailCard place={selectedPlace} lang={lang} />
+            </div>
+
+            <div className="lg:hidden">
+              <SearchBox
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder={t.searchPlaceholder}
+                clearLabel={t.clearSearch}
+                resultCount={visiblePlaces.length}
+                label={`${t.searchLabel}: ${searchLabel}`}
+              />
             </div>
 
             <div className="lg:hidden">
@@ -734,6 +880,46 @@ export default function App() {
           </div>
         </div>
       </main>
+
+      {isMapExpanded && (
+        <div className="fixed inset-0 z-[2500] bg-offwhite">
+          <div className="absolute left-3 right-3 top-3 z-[2600] flex flex-col gap-2 sm:left-auto sm:right-4 sm:flex-row">
+            <button
+              type="button"
+              onClick={() => setIsSuggestPlaceOpen(true)}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white/95 px-3 py-2.5 text-xs font-bold text-slate-700 shadow-sm backdrop-blur transition hover:border-green-brand/40 hover:bg-white"
+            >
+              <MessageSquarePlus className="h-4 w-4 text-green-brand" />
+              {t.suggestPlace}
+            </button>
+            <button
+              type="button"
+              onClick={requestUserLocation}
+              disabled={locationStatus === "requesting"}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white/95 px-3 py-2.5 text-xs font-bold text-slate-700 shadow-sm backdrop-blur transition hover:border-green-brand/40 hover:bg-white disabled:cursor-wait disabled:text-slate-400"
+            >
+              {locationStatus === "requesting" ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <LocateFixed className="h-4 w-4 text-green-brand" />
+              )}
+              {locationStatus === "requesting" ? t.locating : t.useMyLocation}
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsMapExpanded(false)}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white/95 px-3 py-2.5 text-xs font-bold text-slate-700 shadow-sm backdrop-blur transition hover:border-green-brand/40 hover:bg-white"
+              aria-label={t.exitFullscreenMap}
+            >
+              <Minimize2 className="h-4 w-4 text-green-brand" />
+              {t.exitFullscreenMap}
+            </button>
+          </div>
+          <div className="h-full w-full">
+            {renderMap(true)}
+          </div>
+        </div>
+      )}
 
       <footer className="min-h-12 bg-white border-t border-[#E2E8F0] flex flex-col items-center justify-center gap-1 px-4 py-3 text-center font-sans font-medium text-[11px] text-[#94A3B8] uppercase tracking-widest mt-16 shrink-0 sm:flex-row sm:gap-3">
         <span>{t.madeBy}</span>
@@ -824,6 +1010,9 @@ export default function App() {
         isOpen={isSuggestPlaceOpen}
         activeMode={activeMode}
         lang={lang}
+        knownPlaces={knownPlacesForSuggestions}
+        isKnownPlacesLoading={isKnownPlacesLoading}
+        onSelectExistingPlace={handleSelectExistingSuggestedPlace}
         onClose={() => setIsSuggestPlaceOpen(false)}
       />
     </div>

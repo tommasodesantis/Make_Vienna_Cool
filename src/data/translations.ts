@@ -2,6 +2,8 @@ export interface LanguageTranslations {
   title: string;
   subtitle: string;
   searchPlaceholder: string;
+  searchLabel: string;
+  clearSearch: string;
   category: string;
   allCategories: string;
   places: string;
@@ -30,6 +32,8 @@ export interface LanguageTranslations {
   seating: string;
   wifi: string;
   mapHint: string;
+  expandMap: string;
+  exitFullscreenMap: string;
   details: string;
   filters: string;
   total: string;
@@ -100,6 +104,7 @@ export interface LanguageTranslations {
   reportWrongInfo: string;
   reportTitle: string;
   reportDescription: string;
+  reportWrongInfoOnly: string;
   reportPlaceholder: string;
   reportSubmit: string;
   reportSubmitting: string;
@@ -110,6 +115,10 @@ export interface LanguageTranslations {
   suggestPlace: string;
   suggestPlaceTitle: string;
   suggestPlaceDescription: string;
+  suggestPlaceExistingMatchesTitle: string;
+  suggestPlaceExistingMatchesDescription: string;
+  suggestPlaceViewExisting: string;
+  suggestPlaceLoadingMatches: string;
   suggestedPlaceType: string;
   suggestedPlaceName: string;
   suggestedPlaceNamePlaceholder: string;
@@ -136,6 +145,8 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     title: "Make Vienna Cool",
     subtitle: "Find public cool zones and air-conditioned spots in Vienna.",
     searchPlaceholder: "Search by name, category, address or amenities...",
+    searchLabel: "Search",
+    clearSearch: "Clear search",
     category: "Category",
     allCategories: "All Categories",
     places: "Places",
@@ -164,6 +175,8 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     seating: "Seating",
     wifi: "Free Wi-Fi",
     mapHint: "Click a pin on the map or select a place from the list to view full details.",
+    expandMap: "Expand map",
+    exitFullscreenMap: "Exit fullscreen",
     details: "Details",
     filters: "Filters",
     total: "Total",
@@ -233,8 +246,9 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     accessibilityUnknown: "Accessibility unknown",
     reportWrongInfo: "Report wrong info",
     reportTitle: "Report wrong information",
-    reportDescription: "Briefly describe what is wrong with this place.",
-    reportPlaceholder: "Example: the address is wrong, the place is closed, accessibility info is incorrect...",
+    reportDescription: "Use this only when the information shown for this place is wrong or outdated.",
+    reportWrongInfoOnly: "Do not use this form to confirm that something is present or to suggest a missing place.",
+    reportPlaceholder: "Example: the address is wrong, the place is closed, accessibility info is incorrect, or an amenity listed here is not actually available...",
     reportSubmit: "Submit report",
     reportSubmitting: "Submitting...",
     reportSuccess: "Report submitted. Thank you.",
@@ -243,7 +257,11 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     reportTooShort: "Please add a little more detail.",
     suggestPlace: "Suggest place",
     suggestPlaceTitle: "Suggest a missing place",
-    suggestPlaceDescription: "Send a place that should be reviewed for the map.",
+    suggestPlaceDescription: "Send a place that should be reviewed for the map. Check the live matches below before submitting.",
+    suggestPlaceExistingMatchesTitle: "Already on the map?",
+    suggestPlaceExistingMatchesDescription: "These existing places look similar. Open one before submitting if it is the same place.",
+    suggestPlaceViewExisting: "Open existing place",
+    suggestPlaceLoadingMatches: "Checking existing places...",
     suggestedPlaceType: "Map type",
     suggestedPlaceName: "Place name",
     suggestedPlaceNamePlaceholder: "Example: Stadtpark drinking fountain",
@@ -268,6 +286,8 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     title: "Make Vienna Cool",
     subtitle: "Finde kühle öffentliche Orte, Bibliotheken und klimatisierte Lokale in Wien.",
     searchPlaceholder: "Suche nach Name, Kategorie, Adresse oder Ausstattung...",
+    searchLabel: "Suche",
+    clearSearch: "Suche löschen",
     category: "Kategorie",
     allCategories: "Alle Kategorien",
     places: "Orte",
@@ -296,6 +316,8 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     seating: "Sitzmöglichkeiten",
     wifi: "Kostenloses WLAN",
     mapHint: "Klicke auf eine Nadel auf der Karte oder wähle einen Ort aus der Liste aus, um Details anzuzeigen.",
+    expandMap: "Karte vergrößern",
+    exitFullscreenMap: "Vollbild beenden",
     details: "Detailansicht",
     filters: "Filter",
     total: "Gesamt",
@@ -365,8 +387,9 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     accessibilityUnknown: "Barrierefreiheit unbekannt",
     reportWrongInfo: "Falsche Info melden",
     reportTitle: "Falsche Information melden",
-    reportDescription: "Beschreibe kurz, was an diesem Ort nicht stimmt.",
-    reportPlaceholder: "Beispiel: Die Adresse stimmt nicht, der Ort ist geschlossen, die Barrierefreiheit ist falsch...",
+    reportDescription: "Nutze dieses Formular nur, wenn die angezeigten Informationen zu diesem Ort falsch oder veraltet sind.",
+    reportWrongInfoOnly: "Bitte nicht verwenden, um vorhandene Orte oder Ausstattung nur zu bestätigen oder um fehlende Orte vorzuschlagen.",
+    reportPlaceholder: "Beispiel: Die Adresse stimmt nicht, der Ort ist geschlossen, die Barrierefreiheit ist falsch oder eine hier gelistete Ausstattung ist nicht vorhanden...",
     reportSubmit: "Meldung senden",
     reportSubmitting: "Wird gesendet...",
     reportSuccess: "Meldung gesendet. Danke.",
@@ -375,7 +398,11 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     reportTooShort: "Bitte beschreibe das Problem etwas genauer.",
     suggestPlace: "Ort vorschlagen",
     suggestPlaceTitle: "Fehlenden Ort vorschlagen",
-    suggestPlaceDescription: "Sende einen Ort, der für die Karte geprüft werden sollte.",
+    suggestPlaceDescription: "Sende einen Ort, der für die Karte geprüft werden sollte. Prüfe vor dem Senden die Live-Treffer unten.",
+    suggestPlaceExistingMatchesTitle: "Schon auf der Karte?",
+    suggestPlaceExistingMatchesDescription: "Diese vorhandenen Orte sehen ähnlich aus. Öffne einen Treffer, bevor du sendest, wenn es derselbe Ort ist.",
+    suggestPlaceViewExisting: "Vorhandenen Ort öffnen",
+    suggestPlaceLoadingMatches: "Vorhandene Orte werden geprüft...",
     suggestedPlaceType: "Kartentyp",
     suggestedPlaceName: "Name des Orts",
     suggestedPlaceNamePlaceholder: "Beispiel: Trinkbrunnen im Stadtpark",
@@ -527,6 +554,7 @@ export const AMENITY_LABELS: Record<string, { en: string; de: string }> = {
   "Charging sockets": { en: "Charging sockets", de: "Steckdosen zum Laden" },
   "Hotel lobby": { en: "Hotel lobby", de: "Hotellobby" },
   "Bar / restaurant": { en: "Bar / restaurant", de: "Bar / Restaurant" },
+  "Coworking space": { en: "Coworking space", de: "Coworking-Bereich" },
   "Outdoor seating nearby": { en: "Outdoor seating nearby", de: "Sitzplätze im Außenbereich in der Nähe" },
   "Traditional Viennese Café": { en: "Traditional Viennese Café", de: "Traditionelles Wiener Café" },
   "Classic Viennese interior": { en: "Classic Viennese interior", de: "Klassisches Wiener Interieur" },

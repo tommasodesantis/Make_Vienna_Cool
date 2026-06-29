@@ -1,12 +1,16 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { AlertCircle, Loader2, Send, X } from "lucide-react";
-import { PlaceType } from "../data/vienna_cool_places";
-import { TRANSLATIONS } from "../data/translations";
+import { CompactPlace, PlaceType } from "../data/vienna_cool_places";
+import { TRANSLATIONS, translateCategory } from "../data/translations";
+import { getPlaceType } from "../data/place_utils";
 
 interface SuggestPlaceModalProps {
   isOpen: boolean;
   activeMode: PlaceType;
   lang: "en" | "de";
+  knownPlaces: CompactPlace[];
+  isKnownPlacesLoading: boolean;
+  onSelectExistingPlace: (place: CompactPlace) => void;
   onClose: () => void;
 }
 
@@ -45,10 +49,20 @@ const loadTurnstileScript = () => {
   document.head.appendChild(script);
 };
 
+const normalizeSearchText = (value: string) =>
+  value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+
 export const SuggestPlaceModal: React.FC<SuggestPlaceModalProps> = ({
   isOpen,
   activeMode,
   lang,
+  knownPlaces,
+  isKnownPlacesLoading,
+  onSelectExistingPlace,
   onClose,
 }) => {
   const t = TRANSLATIONS[lang];
@@ -62,6 +76,33 @@ export const SuggestPlaceModal: React.FC<SuggestPlaceModalProps> = ({
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [message, setMessage] = useState<string | null>(null);
   const turnstileRef = useRef<HTMLDivElement>(null);
+
+  const existingPlaceMatches = useMemo(() => {
+    const query = normalizeSearchText(placeName);
+    if (query.length < 2) return [];
+
+    return knownPlaces
+      .map((place) => {
+        const normalizedName = normalizeSearchText(place.name);
+        const normalizedAddress = normalizeSearchText(place.address);
+        const score =
+          normalizedName === query
+            ? 0
+            : normalizedName.startsWith(query)
+              ? 1
+              : normalizedName.includes(query)
+                ? 2
+                : normalizedAddress.includes(query)
+                  ? 3
+                  : 99;
+
+        return { place, score };
+      })
+      .filter((entry) => entry.score < 99)
+      .sort((a, b) => a.score - b.score || a.place.name.localeCompare(b.place.name))
+      .slice(0, 5)
+      .map((entry) => entry.place);
+  }, [knownPlaces, placeName]);
 
   useEffect(() => {
     if (isOpen) {
@@ -253,6 +294,61 @@ export const SuggestPlaceModal: React.FC<SuggestPlaceModalProps> = ({
               placeholder={t.suggestedPlaceNamePlaceholder}
               className="w-full rounded-xl border border-slate-200 bg-offwhite px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-green-brand focus:ring-2 focus:ring-mint"
             />
+            {placeName.trim().length >= 2 && (
+              <div className="mt-2 rounded-xl border border-slate-200 bg-offwhite p-3">
+                <div className="mb-2 flex items-start justify-between gap-3">
+                  <div>
+                    <p className="m-0 text-xs font-black text-slate-700">{t.suggestPlaceExistingMatchesTitle}</p>
+                    <p className="mt-0.5 text-[11px] font-medium leading-relaxed text-slate-500">
+                      {t.suggestPlaceExistingMatchesDescription}
+                    </p>
+                  </div>
+                  {isKnownPlacesLoading && <Loader2 className="mt-0.5 h-4 w-4 shrink-0 animate-spin text-green-brand" />}
+                </div>
+
+                {isKnownPlacesLoading ? (
+                  <p className="m-0 text-xs font-semibold text-slate-500">{t.suggestPlaceLoadingMatches}</p>
+                ) : existingPlaceMatches.length > 0 ? (
+                  <div className="space-y-2">
+                    {existingPlaceMatches.map((place) => {
+                      const type = getPlaceType(place);
+                      const typeLabel =
+                        type === "drinking"
+                          ? t.modeDrinking
+                          : type === "water"
+                            ? t.modeWater
+                            : type === "toilet"
+                              ? t.modeToilets
+                              : t.modeCool;
+
+                      return (
+                        <div key={place.id} className="rounded-lg border border-white bg-white px-3 py-2 shadow-sm">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                              <p className="m-0 truncate text-sm font-bold text-slate-800">{place.name}</p>
+                              <p className="mt-0.5 text-[11px] font-semibold text-slate-500">
+                                {typeLabel} · {translateCategory(place.category, lang)}
+                              </p>
+                              <p className="mt-0.5 truncate text-[11px] text-slate-500">{place.address}</p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                onSelectExistingPlace(place);
+                                close();
+                              }}
+                              className="shrink-0 rounded-lg border border-slate-200 px-2 py-1 text-[10px] font-black text-slate-600 transition hover:border-green-brand/40 hover:text-green-brand"
+                            >
+                              {t.suggestPlaceViewExisting}
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : null}
+              </div>
+            )}
           </div>
 
           <div>

@@ -10,6 +10,7 @@ interface ViennaMapProps {
   onSelectPlace: (id: string | null, fromMap?: boolean) => void;
   lang: "en" | "de";
   userLocation?: UserLocation | null;
+  isExpanded?: boolean;
 }
 
 type PlaceMarker = L.CircleMarker;
@@ -20,6 +21,7 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
   onSelectPlace,
   lang,
   userLocation,
+  isExpanded = false,
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -34,6 +36,17 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
   useEffect(() => {
     placesRef.current = places;
   }, [places]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const timeout = window.setTimeout(() => {
+      map.invalidateSize();
+    }, 120);
+
+    return () => window.clearTimeout(timeout);
+  }, [isExpanded]);
 
   // Initial map setup
   useEffect(() => {
@@ -306,9 +319,11 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
   };
 
   return (
-    <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-sm border border-slate-100">
+    <div className={`relative h-full w-full overflow-hidden shadow-sm border border-slate-100 ${
+      isExpanded ? "rounded-none" : "rounded-2xl"
+    }`}>
       {/* Map Element */}
-      <div ref={mapContainerRef} className="w-full h-full z-10" id="map-leaflet" />
+      <div ref={mapContainerRef} className="w-full h-full z-10" />
     </div>
   );
 };
