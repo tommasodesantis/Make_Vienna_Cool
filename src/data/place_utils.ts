@@ -13,6 +13,22 @@ export const isTemporarilyClosed = (place: CompactPlace): boolean =>
 export const hasAccessWarning = (place: CompactPlace): boolean =>
   place.status === "access_warning";
 
+export const getLocalizedText = (
+  value: CompactPlace["statusNote"],
+  lang: "en" | "de",
+): string | null => {
+  if (!value) return null;
+  if (typeof value === "string") return value;
+
+  return value[lang] ?? value.en ?? value.de ?? null;
+};
+
+export const getStatusNote = (
+  place: CompactPlace,
+  lang: "en" | "de",
+  fallback: string,
+): string => getLocalizedText(place.statusNote, lang) ?? fallback;
+
 export const getAccessibilityStatus = (place: CompactPlace): AccessibilityStatus => {
   if (place.accessibility) return place.accessibility;
 

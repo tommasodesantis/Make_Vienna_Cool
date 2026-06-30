@@ -7,7 +7,7 @@ import { PlaceList } from "./components/PlaceList";
 import { PlaceDetailCard } from "./components/PlaceDetailCard";
 import { SuggestPlaceModal } from "./components/SuggestPlaceModal";
 import { SearchBox } from "./components/SearchBox";
-import { Droplets, LocateFixed, Loader2, Maximize2, MessageSquarePlus, Minimize2, Snowflake, Toilet, Waves, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Droplets, LocateFixed, Loader2, Maximize2, MessageSquarePlus, Minimize2, Snowflake, Toilet, Waves, X } from "lucide-react";
 import { distanceMetersBetween, getAccessibilityStatus, getPlaceType, UserLocation } from "./data/place_utils";
 import { translateCategory } from "./data/translations";
 
@@ -98,6 +98,7 @@ export default function App() {
   );
   const [isSuggestPlaceOpen, setIsSuggestPlaceOpen] = useState(false);
   const [isMapExpanded, setIsMapExpanded] = useState(false);
+  const [isMobileIntroOpen, setIsMobileIntroOpen] = useState(false);
   const [preferencesLang, setPreferencesLang] = useState<"en" | "de">(lang);
   const [preferencesLocationEnabled, setPreferencesLocationEnabled] = useState(
     locationConsent === "granted",
@@ -651,7 +652,7 @@ export default function App() {
 
       <div className="bg-aqua py-6 sm:py-8 border-b border-slate-100">
         <div className="w-full px-4 sm:px-6 lg:px-8 text-center sm:text-left">
-          <p className="text-[#2C3E50] text-sm sm:text-base font-medium max-w-none leading-relaxed m-0">
+          <p className="hidden text-[#2C3E50] text-sm sm:block sm:text-base font-medium max-w-none leading-relaxed m-0">
             {t.heroTextBeforeLink}
             <a
               href="https://github.com/tommasodesantis/Make_Vienna_Cool"
@@ -663,6 +664,35 @@ export default function App() {
             </a>
             {t.heroTextAfterLink}
           </p>
+          <div className="sm:hidden">
+            <button
+              type="button"
+              onClick={() => setIsMobileIntroOpen((open) => !open)}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-sm font-bold text-[#2C3E50] shadow-sm"
+              aria-expanded={isMobileIntroOpen}
+            >
+              {isMobileIntroOpen ? t.introExpandedLabel : t.introCollapsedLabel}
+              {isMobileIntroOpen ? (
+                <ChevronUp className="h-4 w-4 text-green-brand" />
+              ) : (
+                <ChevronDown className="h-4 w-4 text-green-brand" />
+              )}
+            </button>
+            {isMobileIntroOpen && (
+              <p className="mt-3 text-sm font-medium leading-relaxed text-[#2C3E50]">
+                {t.heroTextBeforeLink}
+                <a
+                  href="https://github.com/tommasodesantis/Make_Vienna_Cool"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-bold text-green-brand hover:underline"
+                >
+                  {t.githubRepository}
+                </a>
+                {t.heroTextAfterLink}
+              </p>
+            )}
+          </div>
         </div>
       </div>
 
@@ -709,7 +739,7 @@ export default function App() {
                 type="button"
                 onClick={requestUserLocation}
                 disabled={locationStatus === "requesting"}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs font-bold text-slate-700 shadow-sm transition hover:border-green-brand/40 hover:bg-white disabled:cursor-wait disabled:text-slate-400"
+                className="hidden items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-xs font-bold text-slate-700 shadow-sm transition hover:border-green-brand/40 hover:bg-white disabled:cursor-wait disabled:text-slate-400 sm:inline-flex"
               >
                 {locationStatus === "requesting" ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -823,6 +853,20 @@ export default function App() {
               >
                 <Maximize2 className="h-4 w-4" />
               </button>
+              <button
+                type="button"
+                onClick={requestUserLocation}
+                disabled={locationStatus === "requesting"}
+                className="absolute bottom-3 right-3 z-[1000] inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white/90 text-slate-700 shadow-sm backdrop-blur transition hover:border-green-brand/40 hover:bg-white disabled:cursor-wait disabled:text-slate-400 sm:hidden"
+                aria-label={locationStatus === "requesting" ? t.locating : t.useMyLocation}
+                title={locationStatus === "requesting" ? t.locating : t.useMyLocation}
+              >
+                {locationStatus === "requesting" ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <LocateFixed className="h-4 w-4 text-green-brand" />
+                )}
+              </button>
             </div>
 
             <div>
@@ -883,36 +927,43 @@ export default function App() {
 
       {isMapExpanded && (
         <div className="fixed inset-0 z-[2500] bg-offwhite">
-          <div className="absolute left-3 right-3 top-3 z-[2600] flex flex-col gap-2 sm:left-auto sm:right-4 sm:flex-row">
+          <div className="absolute left-3 right-3 top-3 z-[2600] flex items-center justify-end gap-2 sm:left-auto sm:right-4">
             <button
               type="button"
               onClick={() => setIsSuggestPlaceOpen(true)}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white/95 px-3 py-2.5 text-xs font-bold text-slate-700 shadow-sm backdrop-blur transition hover:border-green-brand/40 hover:bg-white"
+              className="inline-flex h-10 w-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white/95 px-0 text-xs font-bold text-slate-700 shadow-sm backdrop-blur transition hover:border-green-brand/40 hover:bg-white sm:h-auto sm:w-auto sm:px-3 sm:py-2.5"
+              aria-label={t.suggestPlace}
+              title={t.suggestPlace}
             >
               <MessageSquarePlus className="h-4 w-4 text-green-brand" />
-              {t.suggestPlace}
+              <span className="hidden sm:inline">{t.suggestPlace}</span>
             </button>
             <button
               type="button"
               onClick={requestUserLocation}
               disabled={locationStatus === "requesting"}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white/95 px-3 py-2.5 text-xs font-bold text-slate-700 shadow-sm backdrop-blur transition hover:border-green-brand/40 hover:bg-white disabled:cursor-wait disabled:text-slate-400"
+              className="inline-flex h-10 w-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white/95 px-0 text-xs font-bold text-slate-700 shadow-sm backdrop-blur transition hover:border-green-brand/40 hover:bg-white disabled:cursor-wait disabled:text-slate-400 sm:h-auto sm:w-auto sm:px-3 sm:py-2.5"
+              aria-label={locationStatus === "requesting" ? t.locating : t.useMyLocation}
+              title={locationStatus === "requesting" ? t.locating : t.useMyLocation}
             >
               {locationStatus === "requesting" ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <LocateFixed className="h-4 w-4 text-green-brand" />
               )}
-              {locationStatus === "requesting" ? t.locating : t.useMyLocation}
+              <span className="hidden sm:inline">
+                {locationStatus === "requesting" ? t.locating : t.useMyLocation}
+              </span>
             </button>
             <button
               type="button"
               onClick={() => setIsMapExpanded(false)}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white/95 px-3 py-2.5 text-xs font-bold text-slate-700 shadow-sm backdrop-blur transition hover:border-green-brand/40 hover:bg-white"
+              className="inline-flex h-10 w-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white/95 px-0 text-xs font-bold text-slate-700 shadow-sm backdrop-blur transition hover:border-green-brand/40 hover:bg-white sm:h-auto sm:w-auto sm:px-3 sm:py-2.5"
               aria-label={t.exitFullscreenMap}
+              title={t.exitFullscreenMap}
             >
               <Minimize2 className="h-4 w-4 text-green-brand" />
-              {t.exitFullscreenMap}
+              <span className="hidden sm:inline">{t.exitFullscreenMap}</span>
             </button>
           </div>
           <div className="h-full w-full">

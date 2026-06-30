@@ -43,6 +43,8 @@ export interface LanguageTranslations {
   heroTextBeforeLink: string;
   githubRepository: string;
   heroTextAfterLink: string;
+  introCollapsedLabel: string;
+  introExpandedLabel: string;
   filterCoolPlaces: string;
   showFilters: string;
   hideFilters: string;
@@ -188,6 +190,8 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     heroTextBeforeLink: "Find public AC, fountains, swim spots and toilets in Vienna. This is an indie open-source project, not affiliated with the City of Vienna. If you want to collaborate, visit the ",
     githubRepository: "repo",
     heroTextAfterLink: ".",
+    introCollapsedLabel: "What is this?",
+    introExpandedLabel: "Hide",
     filterCoolPlaces: "Filter Cool Places",
     showFilters: "Show Filters",
     hideFilters: "Hide Filters",
@@ -331,6 +335,8 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     heroTextBeforeLink: "Finde öffentliche klimatisierte Orte, Trinkbrunnen, Badestellen und WCs in Wien. Dies ist ein unabhängiges Open-Source-Projekt und steht in keiner Verbindung zur Stadt Wien. Wenn du mitarbeiten möchtest, besuche das ",
     githubRepository: "Repository",
     heroTextAfterLink: ".",
+    introCollapsedLabel: "Was ist das?",
+    introExpandedLabel: "Weniger anzeigen",
     filterCoolPlaces: "Kühle Orte filtern",
     showFilters: "Filter anzeigen",
     hideFilters: "Filter ausblenden",
@@ -450,6 +456,7 @@ export const CATEGORY_LABELS: Record<string, { en: string; de: string }> = {
   "Fast Food": { en: "Fast Food", de: "Fast Food" },
   "Restaurant": { en: "Restaurant", de: "Restaurant" },
   "Hotel Lobby / Bar": { en: "Hotel Lobby / Bar", de: "Hotellobby / Bar" },
+  "Day Center": { en: "Day Center", de: "Tageszentrum" },
   "Drinking Water Fountain": { en: "Drinking Water Fountain", de: "Trinkbrunnen" },
   "Drinking Water Hydrant": { en: "Drinking Water Hydrant", de: "Trinkhydrant" },
   "Official Bathing Site": { en: "Official Bathing Site", de: "Offizielle Badestelle" },
@@ -479,6 +486,12 @@ export const AMENITY_LABELS: Record<string, { en: string; de: string }> = {
   "Cozy seats & corners": { en: "Cozy seats & corners", de: "Gemütliche Sitzecken" },
   "Benches": { en: "Benches", de: "Sitzbänke" },
   "Youth club atmosphere": { en: "Youth club atmosphere", de: "Jugendclub-Atmosphäre" },
+  "Heat refuge": { en: "Heat refuge", de: "Schutz vor Hitze" },
+  "Daytime shelter": { en: "Daytime shelter", de: "Aufenthalt untertags" },
+  "Meals / drinks": { en: "Meals / drinks", de: "Kleine Mahlzeiten / Getränke" },
+  "Showers": { en: "Showers", de: "Duschen" },
+  "Washing facilities": { en: "Washing facilities", de: "Waschmöglichkeiten" },
+  "Dogs welcome": { en: "Dogs welcome", de: "Hunde willkommen" },
   "City library branch Coole Zone": { en: "City library branch Coole Zone", de: "Bücherei-Filiale Coole Zone" },
   "Books": { en: "Books", de: "Bücher" },
   "Books & media": { en: "Books & media", de: "Bücher & Medien" },
@@ -615,6 +628,9 @@ const DRINKING_WATER_NOTE =
 const WATER_REFRESH_NOTE =
   "Official Vienna open-data water feature for cooling down or getting wet. Address label is based on the nearest official Vienna address point. This is not a monitored swimming site; follow posted local rules.";
 
+const NORDLICHT_NOTE =
+  "Volkshilfe day center for adult homeless and roofless people. Provides daytime shelter, heat and storm protection, small meals and drinks, showers, WCs, laundry facilities, and advice. No referral is required for day-center access.";
+
 export const translateNote = (note: string, lang: "en" | "de"): string => {
   if (lang === "en") return note;
 
@@ -624,6 +640,10 @@ export const translateNote = (note: string, lang: "en" | "de"): string => {
 
   if (note === WATER_REFRESH_NOTE) {
     return "Offizielle Wasseranlage aus offenen Daten der Stadt Wien zum Abkühlen oder Nasswerden. Die Adressbezeichnung basiert auf dem nächstgelegenen offiziellen Wiener Adresspunkt. Dies ist keine überwachte Badestelle; beachte die örtlich ausgeschilderten Regeln.";
+  }
+
+  if (note === NORDLICHT_NOTE) {
+    return "Tageszentrum der Volkshilfe für erwachsene obdach- und wohnungslose Menschen. Bietet Aufenthalt untertags, Schutz vor Hitze und Unwettern, kleine Mahlzeiten und Getränke, Duschen, WCs, Waschmöglichkeiten und Beratung. Für den Zugang zum Tageszentrum ist keine Zuweisung notwendig.";
   }
 
   const bathingMatch = note.match(

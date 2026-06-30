@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { CompactPlace } from "../data/vienna_cool_places";
 import { isAirConditioningAmenity, TRANSLATIONS, translateAmenity, translateCategory, translateNote } from "../data/translations";
-import { formatDistance, getAccessibilityStatus, getPlaceType, googleMapsUrlForPlace, hasAccessWarning, isTemporarilyClosed } from "../data/place_utils";
+import { formatDistance, getAccessibilityStatus, getPlaceType, getStatusNote, googleMapsUrlForPlace, hasAccessWarning, isTemporarilyClosed } from "../data/place_utils";
 import { ArrowRight, CheckCircle2, ExternalLink, Flag, Loader2, Send, X } from "lucide-react";
 
 interface PlaceDetailCardProps {
@@ -116,6 +116,7 @@ export const PlaceDetailCard: React.FC<PlaceDetailCardProps> = ({ place, lang })
   const primarySourceUrl = place.sourceUrls?.[0];
   const temporarilyClosed = isTemporarilyClosed(place);
   const accessWarning = hasAccessWarning(place);
+  const accessWarningNote = getStatusNote(place, lang, t.accessWarningNote);
 
   const getPrimaryBadge = () => {
     if (placeType === "drinking") {
@@ -353,7 +354,7 @@ export const PlaceDetailCard: React.FC<PlaceDetailCardProps> = ({ place, lang })
 
       {accessWarning && (
         <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold leading-relaxed text-amber-900">
-          {t.accessWarningNote}
+          {accessWarningNote}
         </div>
       )}
 
