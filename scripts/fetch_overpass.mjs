@@ -1,9 +1,12 @@
 export const PRIMARY_OVERPASS_ENDPOINT = "https://overpass-api.de/api/interpreter";
+export const LAMBERT_OVERPASS_ENDPOINT = "https://lambert.openstreetmap.de/api/interpreter";
+export const GALL_OVERPASS_ENDPOINT = "https://gall.openstreetmap.de/api/interpreter";
 export const FALLBACK_OVERPASS_ENDPOINT = "https://overpass.private.coffee/api/interpreter";
 
 export const DEFAULT_OVERPASS_ATTEMPT_PLAN = Object.freeze([
   Object.freeze({ endpoint: PRIMARY_OVERPASS_ENDPOINT, waitBeforeMs: 0 }),
-  Object.freeze({ endpoint: PRIMARY_OVERPASS_ENDPOINT, waitBeforeMs: 5_000 }),
+  Object.freeze({ endpoint: LAMBERT_OVERPASS_ENDPOINT, waitBeforeMs: 5_000 }),
+  Object.freeze({ endpoint: GALL_OVERPASS_ENDPOINT, waitBeforeMs: 5_000 }),
   Object.freeze({ endpoint: FALLBACK_OVERPASS_ENDPOINT, waitBeforeMs: 20_000 }),
   Object.freeze({ endpoint: PRIMARY_OVERPASS_ENDPOINT, waitBeforeMs: 60_000 }),
 ]);

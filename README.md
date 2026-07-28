@@ -67,7 +67,7 @@ To run the full refresh locally:
 npm run auto-update:data
 ```
 
-The scheduled GitHub Actions workflow runs the same refresh weekly, then runs the automated tests, TypeScript check, and production build. The OpenStreetMap toilet fetch retries transient failures, can use a documented global Overpass fallback, and rejects empty or stale database snapshots. If source APIs are unreachable, schemas change, generation fails, or validation fails, the workflow does not commit partial data. It opens or updates a GitHub issue containing the failure stage and log output so the deployed website can keep using the last successful committed data.
+The scheduled GitHub Actions workflow runs the same refresh weekly, then runs the automated tests, TypeScript check, and production build. The OpenStreetMap toilet fetch uses Vienna's stable administrative-boundary relation, retries transient failures across the independently limited main Overpass backends, can use a documented global fallback, and rejects empty or stale database snapshots. If source APIs are unreachable, schemas change, generation fails, or validation fails, the workflow does not commit partial data. It opens or updates a GitHub issue containing the failure stage and log output so the deployed website can keep using the last successful committed data.
 
 After a successful refresh and commit, the workflow deploys the updated `dist` build to the `make-vienna-cool` Cloudflare Pages project. Configure these GitHub Actions repository secrets before enabling that deployment:
 

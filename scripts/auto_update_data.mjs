@@ -47,14 +47,13 @@ const wfsUrl = (typeName, extraParams = {}) => {
   return url;
 };
 
+// OSM relation 109166 is Vienna's administrative boundary. Its derived Overpass
+// area ID is stable even if descriptive relation tags such as admin_level change.
+const viennaOverpassAreaId = 3_600_000_000 + 109_166;
 const overpassQuery = `
 [out:json][timeout:60];
-area["name"="Wien"]["boundary"="administrative"]["admin_level"="6"]->.searchArea;
-(
-  node["amenity"="toilets"](area.searchArea);
-  way["amenity"="toilets"](area.searchArea);
-  relation["amenity"="toilets"](area.searchArea);
-);
+area(${viennaOverpassAreaId})->.searchArea;
+nwr["amenity"="toilets"](area.searchArea);
 out center tags;
 `;
 

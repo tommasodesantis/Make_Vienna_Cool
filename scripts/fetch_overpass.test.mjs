@@ -1,7 +1,14 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { fetchOverpassData } from "./fetch_overpass.mjs";
+import {
+  DEFAULT_OVERPASS_ATTEMPT_PLAN,
+  FALLBACK_OVERPASS_ENDPOINT,
+  GALL_OVERPASS_ENDPOINT,
+  LAMBERT_OVERPASS_ENDPOINT,
+  PRIMARY_OVERPASS_ENDPOINT,
+  fetchOverpassData,
+} from "./fetch_overpass.mjs";
 
 const NOW_MS = Date.parse("2026-07-28T12:00:00Z");
 const PRIMARY = "https://primary.example/api/interpreter";
@@ -10,6 +17,19 @@ const QUERY = "[out:json];node[amenity=toilets];out;";
 const FRESH_TIMESTAMP = "2026-07-28T11:55:00Z";
 const STALE_TIMESTAMP = "2026-07-26T11:55:00Z";
 const silentLogger = { log() {}, warn() {} };
+
+test("rotates across the official main backends before the global fallback", () => {
+  assert.deepEqual(
+    DEFAULT_OVERPASS_ATTEMPT_PLAN.map(({ endpoint }) => endpoint),
+    [
+      PRIMARY_OVERPASS_ENDPOINT,
+      LAMBERT_OVERPASS_ENDPOINT,
+      GALL_OVERPASS_ENDPOINT,
+      FALLBACK_OVERPASS_ENDPOINT,
+      PRIMARY_OVERPASS_ENDPOINT,
+    ],
+  );
+});
 
 const response = ({ body = "", data, status = 200, statusText = "OK" } = {}) => ({
   ok: status >= 200 && status < 300,
