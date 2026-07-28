@@ -3,6 +3,8 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
+import { fetchOverpassData } from "./fetch_overpass.mjs";
+
 const root = process.cwd();
 const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "make-vienna-cool-auto-"));
 const dataDir = path.join(root, "src", "data");
@@ -101,16 +103,6 @@ const assertFeatureCollection = (label, data, requiredProperties) => {
   }
 };
 
-const assertOverpassElements = (data) => {
-  if (!Array.isArray(data?.elements)) {
-    throw new Error("OpenStreetMap toilet source schema changed: expected an elements array.");
-  }
-
-  if (data.elements.length === 0) {
-    throw new Error("OpenStreetMap toilet source returned no elements.");
-  }
-};
-
 const runNode = (args) => {
   const result = spawnSync(process.execPath, args, {
     cwd: root,
@@ -159,18 +151,12 @@ try {
       "Vienna address labels",
       wfsUrl("ADRESSENOGD", { propertyName: "NAME,NAME_STR,PLZ,GEB_BEZIRK,SHAPE" }),
     ),
-    fetchJson("OpenStreetMap public toilets", "https://overpass-api.de/api/interpreter", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-      body: new URLSearchParams({ data: overpassQuery }),
-    }),
+    fetchOverpassData({ query: overpassQuery }),
   ]);
 
   assertFeatureCollection("TRINKBRUNNENOGD", fountains, ["OBJECTID", "BASIS_TYP_TXT"]);
   assertFeatureCollection("BADESTELLENOGD", bathing, ["BEZEICHNUNG", "BADEQUALITAET", "WASSERTEMPERATUR"]);
   assertFeatureCollection("ADRESSENOGD", addresses, ["NAME"]);
-  assertOverpassElements(toilets);
-
   writeJson(sourceFiles.fountains, fountains);
   writeJson(sourceFiles.bathing, bathing);
   writeJson(sourceFiles.addresses, addresses);

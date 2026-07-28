@@ -64,7 +64,7 @@ const issueBody = ({ fingerprint, log, timestamp }) => {
       : "not available";
 
   return [
-    "The weekly source-data automation failed. The website build should keep using the last committed data.",
+    "The weekly source-data or deployment automation failed. The live website remains on the last successfully deployed build.",
     "",
     `Stage: ${AUTO_UPDATE_STAGE}`,
     `Timestamp: ${timestamp}`,

@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
+    "test": "node --test scripts/fetch_overpass.test.mjs",
     "generate:water-data": "node scripts/generate_water_places.mjs",
     "generate:toilet-data": "node scripts/generate_public_toilets.mjs",
     "auto-update:data": "node scripts/auto_update_data.mjs",

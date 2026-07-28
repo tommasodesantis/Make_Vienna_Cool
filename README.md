@@ -67,7 +67,14 @@ To run the full refresh locally:
 npm run auto-update:data
 ```
 
-The scheduled GitHub Actions workflow runs the same refresh weekly, then runs the TypeScript check and production build. If source APIs are unreachable, schemas change, generation fails, or validation fails, the workflow does not commit partial data. It opens or updates a GitHub issue containing the failure stage and log output so the deployed website can keep using the last successful committed data.
+The scheduled GitHub Actions workflow runs the same refresh weekly, then runs the automated tests, TypeScript check, and production build. The OpenStreetMap toilet fetch retries transient failures, can use a documented global Overpass fallback, and rejects empty or stale database snapshots. If source APIs are unreachable, schemas change, generation fails, or validation fails, the workflow does not commit partial data. It opens or updates a GitHub issue containing the failure stage and log output so the deployed website can keep using the last successful committed data.
+
+After a successful refresh and commit, the workflow deploys the updated `dist` build to the `make-vienna-cool` Cloudflare Pages project. Configure these GitHub Actions repository secrets before enabling that deployment:
+
+- `CLOUDFLARE_API_TOKEN`: a custom Cloudflare token restricted to Account > Cloudflare Pages > Edit for the account that owns the project
+- `CLOUDFLARE_ACCOUNT_ID`: the owning Cloudflare account ID
+
+Deployment failures are reported through the same failure-issue mechanism under the `pages-deployment` stage.
 
 Ignored generated records should be added to `source_ignores.json` by source key, for example `trinkbrunnen:12345`, `badestellen:some-stable-id`, or `node:12345` for OpenStreetMap toilets. Private/customer-only toilets are also excluded by the generator.
 

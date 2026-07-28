@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  deployments: write
   issues: write
 
 jobs:
@@ -43,12 +44,14 @@ jobs:
         shell: bash
         run: |
           set +e
+          npm test >> auto-update.log 2>&1
+          test_status=$?
           npm run lint >> auto-update.log 2>&1
           lint_status=$?
           npm run build >> auto-update.log 2>&1
           build_status=$?
           cat auto-update.log
-          if [ "$lint_status" -ne 0 ] || [ "$build_status" -ne 0 ]; then
+          if [ "$test_status" -ne 0 ] || [ "$lint_status" -ne 0 ] || [ "$build_status" -ne 0 ]; then
             echo "status=1" >> "$GITHUB_OUTPUT"
           else
             echo "status=0" >> "$GITHUB_OUTPUT"
@@ -79,3 +82,35 @@ jobs:
             git commit -m "Auto-update source datasets"
             git push
           fi
+
+      - name: Deploy updated app to Cloudflare Pages
+        id: pages_deploy
+        continue-on-error: true
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=make-vienna-cool --branch=main
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Record Pages deployment failure
+        if: steps.pages_deploy.outcome == 'failure'
+        shell: bash
+        run: |
+          {
+            echo
+            echo "Cloudflare Pages deployment failed. See the deployment step in this workflow run."
+          } >> auto-update.log
+          cat auto-update.log
+
+      - name: Open Pages deployment failure issue
+        if: steps.pages_deploy.outcome == 'failure'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          AUTO_UPDATE_LOG: auto-update.log
+          AUTO_UPDATE_STAGE: pages-deployment
+        run: npm run auto-update:failure-issue
+
+      - name: Stop after Pages deployment failure
+        if: steps.pages_deploy.outcome == 'failure'
+        run: exit 1
