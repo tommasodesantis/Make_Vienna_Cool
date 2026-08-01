@@ -78,7 +78,7 @@ Deployment failures are reported through the same failure-issue mechanism under 
 
 Ignored generated records should be added to `source_ignores.json` by source key, for example `trinkbrunnen:12345`, `badestellen:some-stable-id`, or `node:12345` for OpenStreetMap toilets. Private/customer-only toilets are also excluded by the generator.
 
-Wrong-information reports and missing-place suggestions can be submitted through a Cloudflare Worker. Copy `wrangler.example.toml`, configure the Worker secrets, deploy the Worker, and set these frontend environment variables for the Vite app build. `VITE_REPORT_ENDPOINT` is not a Vite route; it is the frontend build variable used by the report and suggestion forms, and its value should be the deployed Worker URL:
+Wrong-information reports and missing-place suggestions can be submitted through a Cloudflare Worker. Copy `wrangler.example.toml`, configure the Worker secrets, and deploy the Worker. Official production hosts use the public Worker endpoint and Turnstile site key in `public-reporting-config.mjs`, so scheduled Pages builds cannot silently disable the forms. Other hosts keep reporting disabled unless these Vite build variables provide explicit overrides. `VITE_REPORT_ENDPOINT` is not a Vite route; its value should be the deployed Worker URL:
 
 ```bash
 VITE_REPORT_ENDPOINT=https://your-worker.example

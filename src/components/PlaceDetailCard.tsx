@@ -3,6 +3,7 @@ import { CompactPlace } from "../data/vienna_cool_places";
 import { isAirConditioningAmenity, TRANSLATIONS, translateAmenity, translateCategory, translateNote } from "../data/translations";
 import { formatDistance, getAccessibilityStatus, getPlaceType, getStatusNote, googleMapsUrlForPlace, hasAccessWarning, isTemporarilyClosed } from "../data/place_utils";
 import { ArrowRight, CheckCircle2, ExternalLink, Flag, Loader2, Send, X } from "lucide-react";
+import { REPORT_ENDPOINT, TURNSTILE_SITE_KEY } from "../reporting_config";
 
 interface PlaceDetailCardProps {
   place: CompactPlace | null;
@@ -28,9 +29,6 @@ declare global {
     turnstile?: TurnstileApi;
   }
 }
-
-const REPORT_ENDPOINT = import.meta.env.VITE_REPORT_ENDPOINT;
-const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY;
 
 const turnstileScriptId = "cloudflare-turnstile-script";
 

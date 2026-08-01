@@ -3,6 +3,7 @@ import { Loader2, Send, X } from "lucide-react";
 import { CompactPlace, PlaceType } from "../data/vienna_cool_places";
 import { TRANSLATIONS, translateCategory } from "../data/translations";
 import { getPlaceType } from "../data/place_utils";
+import { REPORT_ENDPOINT, TURNSTILE_SITE_KEY } from "../reporting_config";
 
 interface SuggestPlaceModalProps {
   isOpen: boolean;
@@ -34,8 +35,6 @@ declare global {
   }
 }
 
-const REPORT_ENDPOINT = import.meta.env.VITE_REPORT_ENDPOINT;
-const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY;
 const turnstileScriptId = "cloudflare-turnstile-script";
 
 const loadTurnstileScript = () => {
