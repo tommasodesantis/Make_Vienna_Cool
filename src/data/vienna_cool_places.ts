@@ -957,6 +957,36 @@ const CORE_VIENNA_PLACES: CompactPlace[] = [
     accessibility: "unknown"
   },
   {
+    id: "saigon-vienna",
+    name: "Saigon Vienna",
+    address: "Neulerchenfelder Straße 37, 1160 Wien",
+    district: "16",
+    lat: 48.2111709,
+    lng: 16.3345568,
+    category: "Restaurant",
+    coolingType: "visitor_suggested_cool_indoor_room_not_ac_confirmed",
+    ac: false,
+    sitting: true,
+    wifi: null,
+    amenities: [
+      "Indoor seating",
+      "Vietnamese cuisine",
+      "Vegetarian options",
+      "Takeaway",
+      "Limited wheelchair access"
+    ],
+    hours: ["Mon - Sun: 11:30 - 15:00, 17:30 - 22:00"],
+    free: false,
+    notes: "Visitor-suggested cool indoor restaurant serving Vietnamese food. A purchase is expected. The venue website confirms the address, opening hours, vegetarian dishes, and takeaway; OpenStreetMap currently lists air_conditioning=no, so this entry does not claim air conditioning.",
+    sourceUrls: [
+      "https://www.saigonvienna.at/",
+      "https://www.openstreetmap.org/node/410711013",
+      "https://github.com/tommasodesantis/Make_Vienna_Cool/issues/21"
+    ],
+    accessibility: "limited",
+    accessibilitySource: "OpenStreetMap wheelchair=limited"
+  },
+  {
     id: "ikea-wien-westbahnhof",
     name: "IKEA Wien Westbahnhof",
     address: "Europaplatz 1, 1150 Wien",

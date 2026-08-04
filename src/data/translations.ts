@@ -549,6 +549,9 @@ export const AMENITY_LABELS: Record<string, { en: string; de: string }> = {
   "Restaurants": { en: "Restaurants", de: "Restaurants" },
   "Restaurant seating": { en: "Restaurant seating", de: "Restaurant-Sitzplätze" },
   "Restaurants open Sundays": { en: "Restaurants open Sundays", de: "Sonntags geöffnete Restaurants" },
+  "Vietnamese cuisine": { en: "Vietnamese cuisine", de: "Vietnamesische Küche" },
+  "Vegetarian options": { en: "Vegetarian options", de: "Vegetarische Speisen" },
+  "Takeaway": { en: "Takeaway", de: "Speisen zum Mitnehmen" },
   "Food outlets": { en: "Food outlets", de: "Gastronomie-Angebote" },
   "Rooftop dining views": { en: "Rooftop dining views", de: "Rooftop-Dining mit Aussicht" },
   "Cinema nearby": { en: "Cinema nearby", de: "Kino in der Nähe" },
@@ -631,6 +634,9 @@ const WATER_REFRESH_NOTE =
 const NORDLICHT_NOTE =
   "Volkshilfe day center for adult homeless and roofless people. Provides daytime shelter, heat and storm protection, small meals and drinks, showers, WCs, laundry facilities, and advice. No referral is required for day-center access.";
 
+const SAIGON_VIENNA_NOTE =
+  "Visitor-suggested cool indoor restaurant serving Vietnamese food. A purchase is expected. The venue website confirms the address, opening hours, vegetarian dishes, and takeaway; OpenStreetMap currently lists air_conditioning=no, so this entry does not claim air conditioning.";
+
 export const translateNote = (note: string, lang: "en" | "de"): string => {
   if (lang === "en") return note;
 
@@ -644,6 +650,10 @@ export const translateNote = (note: string, lang: "en" | "de"): string => {
 
   if (note === NORDLICHT_NOTE) {
     return "Tageszentrum der Volkshilfe für erwachsene obdach- und wohnungslose Menschen. Bietet Aufenthalt untertags, Schutz vor Hitze und Unwettern, kleine Mahlzeiten und Getränke, Duschen, WCs, Waschmöglichkeiten und Beratung. Für den Zugang zum Tageszentrum ist keine Zuweisung notwendig.";
+  }
+
+  if (note === SAIGON_VIENNA_NOTE) {
+    return "Von einem Besucher vorgeschlagenes kühles Innenraum-Restaurant mit vietnamesischer Küche. Konsumation wird erwartet. Die Website des Lokals bestätigt Adresse, Öffnungszeiten, vegetarische Gerichte und Speisen zum Mitnehmen; OpenStreetMap führt derzeit air_conditioning=no, daher wird für diesen Eintrag keine Klimaanlage angegeben.";
   }
 
   const bathingMatch = note.match(
