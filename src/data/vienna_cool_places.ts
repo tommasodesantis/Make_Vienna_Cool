@@ -987,6 +987,39 @@ const CORE_VIENNA_PLACES: CompactPlace[] = [
     accessibilitySource: "OpenStreetMap wheelchair=limited"
   },
   {
+    id: "sieben-zwerge-family-cafe",
+    name: "Sieben Zwerge",
+    address: "Taborstraße 111, 1020 Wien",
+    district: "2",
+    lat: 48.2282351,
+    lng: 16.3910908,
+    category: "Family Café",
+    coolingType: "venue_confirmed_air_conditioned",
+    ac: true,
+    sitting: true,
+    wifi: null,
+    amenities: [
+      "Air conditioning",
+      "Children's play area (ages 0-5)",
+      "High chairs",
+      "Changing table",
+      "Café food & drinks",
+      "Birthday parties",
+      "Wheelchair & stroller access"
+    ],
+    hours: ["Summer Tue - Sun: 10:00 - 20:00", "Mon: closed"],
+    free: false,
+    notes: "Air-conditioned family café for children ages 0-5. The venue currently advertises summer hours of Tue-Sun 10:00-20:00, a €7.90 play fee per child for up to three hours, and recommends reservations on weekends or during school holidays. WIENXTRA additionally lists a €5 sibling fee, high chairs, a changing table, and wheelchair/stroller access. Children remain under adult supervision.",
+    sourceUrls: [
+      "https://7zwerge.at/",
+      "https://wienxtra.at/informationen/infos-a-z/info/lokal-tipps-mit-kindern-gesucht/",
+      "https://www.openstreetmap.org/node/13438258173",
+      "https://github.com/tommasodesantis/Make_Vienna_Cool/issues/22"
+    ],
+    accessibility: "yes",
+    accessibilitySource: "WIENXTRA states that access is wheelchair- and stroller-friendly"
+  },
+  {
     id: "ikea-wien-westbahnhof",
     name: "IKEA Wien Westbahnhof",
     address: "Europaplatz 1, 1150 Wien",

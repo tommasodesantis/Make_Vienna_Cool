@@ -451,6 +451,7 @@ export const CATEGORY_LABELS: Record<string, { en: string; de: string }> = {
   "Pub / Bar": { en: "Pub / Bar", de: "Pub / Bar" },
   "Café / Bar": { en: "Café / Bar", de: "Café / Bar" },
   "Café": { en: "Café", de: "Café" },
+  "Family Café": { en: "Family Café", de: "Familiencafé" },
   "Confectionery / Café": { en: "Confectionery / Café", de: "Konditorei / Café" },
   "Grand Café": { en: "Grand Café", de: "Traditionscafé" },
   "Fast Food": { en: "Fast Food", de: "Fast Food" },
@@ -479,6 +480,12 @@ export const AMENITY_LABELS: Record<string, { en: string; de: string }> = {
   "Water": { en: "Water", de: "Wasser" },
   "Seating": { en: "Seating", de: "Sitzmöglichkeiten" },
   "Indoor seating": { en: "Indoor seating", de: "Sitzplätze im Innenbereich" },
+  "Air conditioning": { en: "Air conditioning", de: "Klimaanlage" },
+  "Children's play area (ages 0-5)": { en: "Children's play area (ages 0-5)", de: "Spielbereich für Kinder (0-5 Jahre)" },
+  "High chairs": { en: "High chairs", de: "Kinderhochstühle" },
+  "Café food & drinks": { en: "Café food & drinks", de: "Café-Speisen und Getränke" },
+  "Birthday parties": { en: "Birthday parties", de: "Geburtstagsfeiern" },
+  "Wheelchair & stroller access": { en: "Wheelchair & stroller access", de: "Rollstuhl- und kinderwagengerechter Zugang" },
   "Quiet seating": { en: "Quiet seating", de: "Ruhige Sitzmöglichkeiten" },
   "Museum seating / rest areas": { en: "Museum seating / rest areas", de: "Museums-Sitzbereiche" },
   "Seating benches": { en: "Seating benches", de: "Sitzbänke" },
@@ -637,6 +644,9 @@ const NORDLICHT_NOTE =
 const SAIGON_VIENNA_NOTE =
   "Visitor-suggested cool indoor restaurant serving Vietnamese food. A purchase is expected. The venue website confirms the address, opening hours, vegetarian dishes, and takeaway; OpenStreetMap currently lists air_conditioning=no, so this entry does not claim air conditioning.";
 
+const SIEBEN_ZWERGE_NOTE =
+  "Air-conditioned family café for children ages 0-5. The venue currently advertises summer hours of Tue-Sun 10:00-20:00, a €7.90 play fee per child for up to three hours, and recommends reservations on weekends or during school holidays. WIENXTRA additionally lists a €5 sibling fee, high chairs, a changing table, and wheelchair/stroller access. Children remain under adult supervision.";
+
 export const translateNote = (note: string, lang: "en" | "de"): string => {
   if (lang === "en") return note;
 
@@ -654,6 +664,10 @@ export const translateNote = (note: string, lang: "en" | "de"): string => {
 
   if (note === SAIGON_VIENNA_NOTE) {
     return "Von einem Besucher vorgeschlagenes kühles Innenraum-Restaurant mit vietnamesischer Küche. Konsumation wird erwartet. Die Website des Lokals bestätigt Adresse, Öffnungszeiten, vegetarische Gerichte und Speisen zum Mitnehmen; OpenStreetMap führt derzeit air_conditioning=no, daher wird für diesen Eintrag keine Klimaanlage angegeben.";
+  }
+
+  if (note === SIEBEN_ZWERGE_NOTE) {
+    return "Klimatisiertes Familiencafé für Kinder von 0 bis 5 Jahren. Das Lokal nennt derzeit Sommeröffnungszeiten Di-So 10:00-20:00, einen Spielbeitrag von 7,90 € pro Kind für bis zu drei Stunden und empfiehlt am Wochenende oder in den Ferien eine Reservierung. WIENXTRA führt zusätzlich einen Geschwisterbeitrag von 5 €, Kinderhochstühle, einen Wickeltisch sowie rollstuhl- und kinderwagengerechten Zugang an. Kinder bleiben unter Aufsicht ihrer Begleitpersonen.";
   }
 
   const bathingMatch = note.match(
