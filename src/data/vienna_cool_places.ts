@@ -994,7 +994,7 @@ const CORE_VIENNA_PLACES: CompactPlace[] = [
     lat: 48.2282351,
     lng: 16.3910908,
     category: "Family Café",
-    coolingType: "venue_confirmed_air_conditioned",
+    coolingType: "confirmed_air_conditioned",
     ac: true,
     sitting: true,
     wifi: null,
