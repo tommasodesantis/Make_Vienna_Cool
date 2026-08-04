@@ -481,6 +481,19 @@ export const AMENITY_LABELS: Record<string, { en: string; de: string }> = {
   "Seating": { en: "Seating", de: "Sitzmöglichkeiten" },
   "Indoor seating": { en: "Indoor seating", de: "Sitzplätze im Innenbereich" },
   "Air conditioning": { en: "Air conditioning", de: "Klimaanlage" },
+  "Outdoor seating": { en: "Outdoor seating", de: "Außensitzplätze" },
+  "Laptop friendly": { en: "Laptop friendly", de: "Laptopfreundlich" },
+  "Micro-roastery": { en: "Micro-roastery", de: "Mikrorösterei" },
+  "Specialty coffee": { en: "Specialty coffee", de: "Spezialitätenkaffee" },
+  "Cheesecake": { en: "Cheesecake", de: "Cheesecake" },
+  "Breakfast": { en: "Breakfast", de: "Frühstück" },
+  "Plant-based milk": { en: "Plant-based milk", de: "Pflanzliche Milchalternativen" },
+  "Vegan options": { en: "Vegan options", de: "Vegane Optionen" },
+  "Kids' area": { en: "Kids' area", de: "Kinderspielecke" },
+  "Wheelchair-accessible toilet": { en: "Wheelchair-accessible toilet", de: "Rollstuhlgerechtes WC" },
+  "Cash & card payments": { en: "Cash & card payments", de: "Bar- und Kartenzahlung" },
+  "Dog friendly": { en: "Dog friendly", de: "Hundefreundlich" },
+  "Latte art workshops": { en: "Latte art workshops", de: "Latte-Art-Workshops" },
   "Children's play area (ages 0-5)": { en: "Children's play area (ages 0-5)", de: "Spielbereich für Kinder (0-5 Jahre)" },
   "High chairs": { en: "High chairs", de: "Kinderhochstühle" },
   "Café food & drinks": { en: "Café food & drinks", de: "Café-Speisen und Getränke" },
@@ -647,6 +660,9 @@ const SAIGON_VIENNA_NOTE =
 const SIEBEN_ZWERGE_NOTE =
   "Air-conditioned family café for children ages 0-5. The venue currently advertises summer hours of Tue-Sun 10:00-20:00, a €7.90 play fee per child for up to three hours, and recommends reservations on weekends or during school holidays. WIENXTRA additionally lists a €5 sibling fee, high chairs, a changing table, and wheelchair/stroller access. Children remain under adult supervision.";
 
+const VOGEL_KAFFEE_NOTE =
+  "Air-conditioned specialty coffee shop and micro-roastery. A purchase is expected. The venue confirms the 19A address and current hours and describes its roasted coffee, cheesecake, latte-art workshops, and catering. OpenStreetMap currently confirms air conditioning, indoor and outdoor seating, a kids' area, changing table, toilets, cash/card payment, limited wheelchair access, and a wheelchair-accessible toilet. European Coffee Trip additionally lists free Wi-Fi, laptop-friendly seating, breakfast, plant-based milk, vegan options, and dog-friendly access.";
+
 export const translateNote = (note: string, lang: "en" | "de"): string => {
   if (lang === "en") return note;
 
@@ -668,6 +684,10 @@ export const translateNote = (note: string, lang: "en" | "de"): string => {
 
   if (note === SIEBEN_ZWERGE_NOTE) {
     return "Klimatisiertes Familiencafé für Kinder von 0 bis 5 Jahren. Das Lokal nennt derzeit Sommeröffnungszeiten Di-So 10:00-20:00, einen Spielbeitrag von 7,90 € pro Kind für bis zu drei Stunden und empfiehlt am Wochenende oder in den Ferien eine Reservierung. WIENXTRA führt zusätzlich einen Geschwisterbeitrag von 5 €, Kinderhochstühle, einen Wickeltisch sowie rollstuhl- und kinderwagengerechten Zugang an. Kinder bleiben unter Aufsicht ihrer Begleitpersonen.";
+  }
+
+  if (note === VOGEL_KAFFEE_NOTE) {
+    return "Klimatisiertes Spezialitätencafé mit Mikrorösterei. Konsumation wird erwartet. Das Lokal bestätigt die Adresse 19A und die aktuellen Öffnungszeiten und beschreibt eigenen Röstkaffee, Cheesecake, Latte-Art-Workshops und Catering. OpenStreetMap bestätigt derzeit Klimaanlage, Innen- und Außensitzplätze, eine Kinderspielecke, einen Wickeltisch, Toiletten, Bar- und Kartenzahlung, eingeschränkte Rollstuhlzugänglichkeit und ein rollstuhlgerechtes WC. European Coffee Trip führt zusätzlich kostenloses WLAN, laptopfreundliche Sitzplätze, Frühstück, pflanzliche Milchalternativen, vegane Optionen und hundefreundlichen Zugang an.";
   }
 
   const bathingMatch = note.match(
