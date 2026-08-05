@@ -605,6 +605,7 @@ export default function App() {
   const renderMap = (isExpanded = false) => (
     <ViennaMap
       places={visiblePlaces}
+      activeMode={activeMode}
       selectedPlaceId={selectedPlaceId}
       onSelectPlace={handleSelectPlace}
       lang={lang}

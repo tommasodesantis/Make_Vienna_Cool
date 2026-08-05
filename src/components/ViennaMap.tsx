@@ -1,11 +1,12 @@
 import React, { useEffect, useRef } from "react";
 import L from "leaflet";
-import { CompactPlace } from "../data/vienna_cool_places";
+import { CompactPlace, PlaceType } from "../data/vienna_cool_places";
 import { TRANSLATIONS, translateCategory } from "../data/translations";
 import { getPlaceType, getStatusNote, googleMapsUrlForPlace, hasAccessWarning, isTemporarilyClosed, UserLocation } from "../data/place_utils";
 
 interface ViennaMapProps {
   places: CompactPlace[];
+  activeMode: PlaceType;
   selectedPlaceId: string | null;
   onSelectPlace: (id: string | null, fromMap?: boolean) => void;
   lang: "en" | "de";
@@ -17,6 +18,7 @@ type PlaceMarker = L.CircleMarker;
 
 export const ViennaMap: React.FC<ViennaMapProps> = ({
   places,
+  activeMode,
   selectedPlaceId,
   onSelectPlace,
   lang,
@@ -30,6 +32,8 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
   const selectedPlaceIdRef = useRef<string | null>(selectedPlaceId);
   const canvasRendererRef = useRef<L.Canvas | null>(null);
   const placesRef = useRef<CompactPlace[]>(places);
+  const previousModeRef = useRef<PlaceType>(activeMode);
+  const suppressModeChangeFitRef = useRef(false);
   const placeIdsSignature = places.map((place) => place.id).join("|");
 
   // Keep places ref updated so callbacks can read current places
@@ -90,8 +94,19 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
   // Selection styling is handled separately so selecting one item does not
   // rebuild hundreds of markers.
   useEffect(() => {
-    updateMarkers(places, selectedPlaceId);
-  }, [placeIdsSignature, lang]);
+    if (previousModeRef.current !== activeMode) {
+      previousModeRef.current = activeMode;
+      suppressModeChangeFitRef.current = true;
+    }
+
+    updateMarkers(places, selectedPlaceId, !suppressModeChangeFitRef.current);
+
+    // Lazy-loaded modes briefly render without markers. Keep suppressing the
+    // automatic fit until their first non-empty marker set has been rendered.
+    if (places.length > 0) {
+      suppressModeChangeFitRef.current = false;
+    }
+  }, [placeIdsSignature, lang, activeMode]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -290,7 +305,11 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
     `;
   };
 
-  const updateMarkers = (currentPlaces: CompactPlace[], activeId: string | null) => {
+  const updateMarkers = (
+    currentPlaces: CompactPlace[],
+    activeId: string | null,
+    shouldFitBounds: boolean,
+  ) => {
     const map = mapRef.current;
     if (!map) return;
 
@@ -317,7 +336,7 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
     });
 
     // Fit map bounds if places are loaded and map has no active selection
-    if (currentPlaces.length > 0 && !activeId) {
+    if (shouldFitBounds && currentPlaces.length > 0 && !activeId) {
       const bounds = L.latLngBounds(currentPlaces.map((p) => [p.lat, p.lng]));
       map.fitBounds(bounds, { padding: [40, 40] });
     }
