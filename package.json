@@ -9,9 +9,10 @@
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
-    "test": "node --test scripts/fetch_overpass.test.mjs scripts/public_reporting_config.test.mjs",
+    "test": "node --test scripts/fetch_overpass.test.mjs scripts/public_reporting_config.test.mjs scripts/data_generation.test.mjs",
     "generate:water-data": "node scripts/generate_water_places.mjs",
     "generate:toilet-data": "node scripts/generate_public_toilets.mjs",
+    "generate:pool-data": "node scripts/generate_municipal_pools.mjs",
     "auto-update:data": "node scripts/auto_update_data.mjs",
     "auto-update:failure-issue": "node scripts/open_auto_update_failure_issue.mjs"
   },

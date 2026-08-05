@@ -4,6 +4,8 @@ export type PlaceType = "cool" | "drinking" | "water" | "toilet";
 export type AccessibilityStatus = "yes" | "limited" | "no" | "unknown";
 export type PlaceStatus = "temporarily_closed" | "access_warning";
 export type LocalizedText = string | Partial<Record<"en" | "de", string>>;
+export type PoolFacilityType = "indoor" | "outdoor" | "combined" | "family" | "lido";
+export type ToiletFeeStatus = "free" | "paid" | "conditional" | "unknown";
 
 export interface CompactPlace {
   id: string;
@@ -27,6 +29,9 @@ export interface CompactPlace {
   accessibilitySource?: string;
   status?: PlaceStatus;
   statusNote?: LocalizedText;
+  poolFacilityType?: PoolFacilityType;
+  openingHoursUrl?: string;
+  toiletFeeStatus?: ToiletFeeStatus;
   distanceMeters?: number;
 }
 

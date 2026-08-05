@@ -1,4 +1,4 @@
-import type { AccessibilityStatus, CompactPlace, PlaceType } from "./vienna_cool_places";
+import type { AccessibilityStatus, CompactPlace, PlaceType, ToiletFeeStatus } from "./vienna_cool_places";
 
 export interface UserLocation {
   lat: number;
@@ -39,6 +39,9 @@ export const getAccessibilityStatus = (place: CompactPlace): AccessibilityStatus
 
   return "unknown";
 };
+
+export const getToiletFeeStatus = (place: CompactPlace): ToiletFeeStatus =>
+  place.toiletFeeStatus ?? (place.free ? "free" : "unknown");
 
 export const isCoordinateAddress = (address: string): boolean =>
   /^-?\d{1,2}\.\d{3,},\s*-?\d{1,3}\.\d{3,}$/.test(address);

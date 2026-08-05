@@ -1,12 +1,11 @@
 import React, { useEffect, useRef } from "react";
 import L from "leaflet";
-import { CompactPlace, PlaceType } from "../data/vienna_cool_places";
-import { TRANSLATIONS, translateCategory } from "../data/translations";
+import { CompactPlace } from "../data/vienna_cool_places";
+import { TRANSLATIONS, translateCategory, translatePoolFacilityType } from "../data/translations";
 import { getPlaceType, getStatusNote, googleMapsUrlForPlace, hasAccessWarning, isTemporarilyClosed, UserLocation } from "../data/place_utils";
 
 interface ViennaMapProps {
   places: CompactPlace[];
-  activeMode: PlaceType;
   selectedPlaceId: string | null;
   onSelectPlace: (id: string | null, fromMap?: boolean) => void;
   lang: "en" | "de";
@@ -18,7 +17,6 @@ type PlaceMarker = L.CircleMarker;
 
 export const ViennaMap: React.FC<ViennaMapProps> = ({
   places,
-  activeMode,
   selectedPlaceId,
   onSelectPlace,
   lang,
@@ -32,8 +30,7 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
   const selectedPlaceIdRef = useRef<string | null>(selectedPlaceId);
   const canvasRendererRef = useRef<L.Canvas | null>(null);
   const placesRef = useRef<CompactPlace[]>(places);
-  const previousModeRef = useRef<PlaceType>(activeMode);
-  const suppressModeChangeFitRef = useRef(false);
+  const hasInitialFitRef = useRef(false);
   const placeIdsSignature = places.map((place) => place.id).join("|");
 
   // Keep places ref updated so callbacks can read current places
@@ -94,19 +91,14 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
   // Selection styling is handled separately so selecting one item does not
   // rebuild hundreds of markers.
   useEffect(() => {
-    if (previousModeRef.current !== activeMode) {
-      previousModeRef.current = activeMode;
-      suppressModeChangeFitRef.current = true;
-    }
+    updateMarkers(places, selectedPlaceId, !hasInitialFitRef.current);
 
-    updateMarkers(places, selectedPlaceId, !suppressModeChangeFitRef.current);
-
-    // Lazy-loaded modes briefly render without markers. Keep suppressing the
-    // automatic fit until their first non-empty marker set has been rendered.
+    // Fit only the first non-empty result set. Later mode, category, search,
+    // and filter changes preserve the viewport the user chose.
     if (places.length > 0) {
-      suppressModeChangeFitRef.current = false;
+      hasInitialFitRef.current = true;
     }
-  }, [placeIdsSignature, lang, activeMode]);
+  }, [placeIdsSignature, lang]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -281,6 +273,9 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
     const categoryLabel = escapeHtml(translateCategory(place.category, lang));
     const mapsUrl = googleMapsUrlForPlace(place);
     const accessWarningNote = getStatusNote(place, lang, t.accessWarningNote);
+    const poolFacilityLabel = place.poolFacilityType
+      ? translatePoolFacilityType(place.poolFacilityType, lang)
+      : null;
 
     return `
       <div class="p-1 max-w-[240px] font-sans">
@@ -295,7 +290,9 @@ export const ViennaMap: React.FC<ViennaMapProps> = ({
         <p class="text-xs text-[#718096] mb-2 leading-relaxed font-normal">${escapeHtml(place.address)}</p>
         ${isTemporarilyClosed(place) ? `<p class="text-[11px] text-[#991B1B] mb-2 leading-relaxed font-semibold">${escapeHtml(t.temporarilyClosedNote)}</p>` : ""}
         ${hasAccessWarning(place) ? `<p class="text-[11px] text-[#92400E] mb-2 leading-relaxed font-semibold">${escapeHtml(accessWarningNote)}</p>` : ""}
+        ${poolFacilityLabel ? `<p class="text-[11px] text-[#155E75] mb-2 leading-relaxed font-bold">${escapeHtml(poolFacilityLabel)}</p>` : ""}
         ${place.hours.length > 0 ? `<p class="text-[11px] text-slate-500 font-semibold m-0 flex items-center gap-1">${escapeHtml(place.hours[0])}</p>` : ""}
+        ${place.openingHoursUrl ? `<a href="${escapeHtml(place.openingHoursUrl)}" target="_blank" rel="noopener noreferrer" style="color: #0E7490; text-decoration: none; font-weight: 700; display: inline-flex; margin-top: 6px; font-size: 12px;">${escapeHtml(t.officialOpeningHours)} &rarr;</a>` : ""}
         <div class="mt-2.5 pt-2 border-t border-[#F0F4F8]">
           <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" style="color: #3498DB; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 2px; font-size: 12px;">
             ${t.openInGoogleMaps} &rarr;

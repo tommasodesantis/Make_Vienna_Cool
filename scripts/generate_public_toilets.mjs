@@ -186,6 +186,23 @@ const meaningfulName = (tags) => {
   return raw;
 };
 
+const feeStatusFromTags = (tags) => {
+  if (String(tags["fee:conditional"] ?? "").trim()) return "conditional";
+  if (tags.fee === "yes") return "paid";
+  if (tags.fee === "no") return "free";
+  if (String(tags.charge ?? "").trim()) return "paid";
+  return "unknown";
+};
+
+const feeNoteFromTags = (tags, feeStatus) => {
+  const details = [];
+  if (tags.charge) details.push(`OSM charge: ${tags.charge}.`);
+  if (tags["fee:conditional"]) details.push(`OSM conditional fee: ${tags["fee:conditional"]}.`);
+  if (details.length > 0) return ` ${details.join(" ")}`;
+  if (feeStatus === "unknown") return " The fee status is not specified in OpenStreetMap.";
+  return "";
+};
+
 const displayNameForToilet = (tags, location) => {
   const specificName = meaningfulName(tags);
   if (!specificName) return `WC - ${location.label}`;
@@ -212,7 +229,7 @@ const sortedPlaces = elements
 
     const location = locationFromTagsAndAddressIndex(tags, addressIndex, lat, lng);
     const readableName = displayNameForToilet(tags, location);
-    const feeRequired = tags.fee === "yes" || Boolean(tags.charge);
+    const feeStatus = feeStatusFromTags(tags);
     const amenities = ["Public toilet", "OpenStreetMap toilet point"];
 
     if (/stadt wien|gemeinde wien|ma\s*48|magistrat/i.test(tags.operator ?? "")) {
@@ -220,8 +237,9 @@ const sortedPlaces = elements
     }
     if (tags.wheelchair === "yes" || tags["toilets:wheelchair"] === "yes") amenities.push("Wheelchair accessible");
     if (tags.changing_table === "yes") amenities.push("Changing table");
-    if (feeRequired) amenities.push("Fee may apply");
-    if (tags.fee === "no") amenities.push("Free public toilet");
+    if (feeStatus === "conditional") amenities.push("Conditional fee");
+    if (feeStatus === "paid") amenities.push("Paid public toilet");
+    if (feeStatus === "free") amenities.push("Free public toilet");
     if (tags.opening_hours === "24/7") amenities.push("24/7");
     if (tags.drinking_water === "yes") amenities.push("Drinking water");
     if (tags.shower === "yes") amenities.push("Shower");
@@ -248,9 +266,10 @@ const sortedPlaces = elements
       wifi: null,
       amenities,
       hours: normalizeHours(tags.opening_hours),
-      free: !feeRequired,
+      free: feeStatus === "free",
       notes:
-        "Public toilet point from OpenStreetMap. Address labels use OSM address tags or the nearest official Vienna address point where available. Check local signs for temporary closures or fees.",
+        "Public toilet point from OpenStreetMap. Address labels use OSM address tags or the nearest official Vienna address point where available. Check local signs for temporary closures or fees." +
+        feeNoteFromTags(tags, feeStatus),
       sourceUrls: [
         `https://www.openstreetmap.org/${element.type}/${element.id}`,
         VIENNA_PUBLIC_WC_URL,
@@ -259,6 +278,7 @@ const sortedPlaces = elements
       accessibility: accessibilityFromWheelchair(tags.wheelchair ?? tags["toilets:wheelchair"]),
       accessibilitySource:
         tags.wheelchair || tags["toilets:wheelchair"] ? "OpenStreetMap wheelchair tag" : undefined,
+      toiletFeeStatus: feeStatus,
     };
   })
   .filter(Boolean)

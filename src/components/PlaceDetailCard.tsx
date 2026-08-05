@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { CompactPlace } from "../data/vienna_cool_places";
-import { isAirConditioningAmenity, TRANSLATIONS, translateAmenity, translateCategory, translateNote } from "../data/translations";
-import { formatDistance, getAccessibilityStatus, getPlaceType, getStatusNote, googleMapsUrlForPlace, hasAccessWarning, isTemporarilyClosed } from "../data/place_utils";
+import { isAirConditioningAmenity, TRANSLATIONS, translateAmenity, translateCategory, translateNote, translatePoolFacilityType } from "../data/translations";
+import { formatDistance, getAccessibilityStatus, getPlaceType, getStatusNote, getToiletFeeStatus, googleMapsUrlForPlace, hasAccessWarning, isTemporarilyClosed } from "../data/place_utils";
 import { ArrowRight, CheckCircle2, ExternalLink, Flag, Loader2, Send, X } from "lucide-react";
 import { REPORT_ENDPOINT, TURNSTILE_SITE_KEY } from "../reporting_config";
 
@@ -111,10 +111,20 @@ export const PlaceDetailCard: React.FC<PlaceDetailCardProps> = ({ place, lang })
     placeType === "toilet"
       ? []
       : place.amenities.filter((amenity) => !isAirConditioningAmenity(amenity));
-  const primarySourceUrl = place.sourceUrls?.[0];
+  const primarySourceUrl =
+    place.sourceUrls?.find((url) => url !== place.openingHoursUrl) ?? place.sourceUrls?.[0];
   const temporarilyClosed = isTemporarilyClosed(place);
   const accessWarning = hasAccessWarning(place);
   const accessWarningNote = getStatusNote(place, lang, t.accessWarningNote);
+  const toiletFeeStatus = getToiletFeeStatus(place);
+  const toiletFeeLabel =
+    toiletFeeStatus === "free"
+      ? t.freeAccess
+      : toiletFeeStatus === "paid"
+        ? t.paid
+        : toiletFeeStatus === "conditional"
+          ? t.conditionalFee
+          : t.feeUnknown;
 
   const getPrimaryBadge = () => {
     if (placeType === "drinking") {
@@ -254,8 +264,8 @@ export const PlaceDetailCard: React.FC<PlaceDetailCardProps> = ({ place, lang })
           </span>
         )}
         {(isCoolPlace || placeType === "toilet") && (
-          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${place.free ? "bg-mint text-dark-green" : "bg-amber-100 text-amber-800"}`}>
-            {place.free ? (placeType === "toilet" ? t.freeAccess : t.freeEntry) : t.paidRequired}
+          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${placeType === "toilet" ? (toiletFeeStatus === "free" ? "bg-mint text-dark-green" : toiletFeeStatus === "unknown" ? "bg-slate-100 text-slate-600" : "bg-amber-100 text-amber-800") : (place.free ? "bg-mint text-dark-green" : "bg-amber-100 text-amber-800")}`}>
+            {placeType === "toilet" ? toiletFeeLabel : place.free ? t.freeEntry : t.paidRequired}
           </span>
         )}
       </div>
@@ -293,6 +303,29 @@ export const PlaceDetailCard: React.FC<PlaceDetailCardProps> = ({ place, lang })
             {formatDistance(place.distanceMeters, lang)}
           </p>
         </div>
+      )}
+
+      {place.poolFacilityType && (
+        <div className="mb-4">
+          <p className="mb-0.5 text-xs font-semibold uppercase tracking-wider text-slate-500">
+            {t.poolFacilityType}
+          </p>
+          <p className="m-0 text-sm font-bold text-cyan-800">
+            {translatePoolFacilityType(place.poolFacilityType, lang)}
+          </p>
+        </div>
+      )}
+
+      {place.openingHoursUrl && (
+        <a
+          href={place.openingHoursUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mb-4 inline-flex items-center gap-1.5 rounded-xl border border-cyan-200 bg-cyan-50 px-3 py-2 text-sm font-bold text-cyan-900 transition hover:border-cyan-400 hover:bg-cyan-100"
+        >
+          {t.officialOpeningHours}
+          <ExternalLink className="h-3.5 w-3.5" />
+        </a>
       )}
 
       {/* Opening Hours */}

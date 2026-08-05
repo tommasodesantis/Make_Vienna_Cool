@@ -15,12 +15,14 @@ const sourceFiles = {
   bathing: path.join(tempRoot, "badestellen.json"),
   addresses: path.join(tempRoot, "adressen_compact.json"),
   toilets: path.join(tempRoot, "vienna_public_toilets_osm.json"),
+  pools: path.join(tempRoot, "vienna_municipal_pools.json"),
 };
 
 const generatedFiles = {
   drinking: path.join(tempRoot, "drinking_water_places.ts"),
   water: path.join(tempRoot, "water_access_places.ts"),
   toilet: path.join(tempRoot, "public_toilet_places.ts"),
+  pools: path.join(tempRoot, "municipal_pool_places.ts"),
   metadata: path.join(tempRoot, "auto_update_metadata.ts"),
 };
 
@@ -28,7 +30,28 @@ const trackedFiles = {
   drinking: path.join(dataDir, "drinking_water_places.ts"),
   water: path.join(dataDir, "water_access_places.ts"),
   toilet: path.join(dataDir, "public_toilet_places.ts"),
+  pools: path.join(dataDir, "municipal_pool_places.ts"),
   metadata: path.join(dataDir, "auto_update_metadata.ts"),
+};
+
+const municipalPoolSearchUrl = "https://search.wien.gv.at/site_baeder/_search/template";
+const municipalPoolSearchOptions = {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Origin: "https://www.wien.gv.at",
+    Referer: "https://www.wien.gv.at/freizeit/baeder",
+    Authorization: "ApiKey ",
+  },
+  body: JSON.stringify({
+    id: "search_template_specific",
+    params: {
+      query_string: "",
+      filters: [{ field: "defined_terms.id", values: ["141386"] }],
+      from: 0,
+      size: 100,
+    },
+  }),
 };
 
 const wfsUrl = (typeName, extraParams = {}) => {
@@ -102,6 +125,29 @@ const assertFeatureCollection = (label, data, requiredProperties) => {
   }
 };
 
+const assertMunicipalPoolSearch = (data) => {
+  const hits = data?.hits?.hits;
+  if (!Array.isArray(hits) || hits.length === 0) {
+    throw new Error("Municipal pool search schema changed: expected non-empty hits.hits.");
+  }
+
+  for (const hit of hits) {
+    const source = hit?._source;
+    const coordinates = source?.address?.[0]?.location?.coordinates;
+    if (
+      !source ||
+      !Number.isFinite(Number(source.source_id)) ||
+      !String(source.title ?? "").trim() ||
+      !String(source.link ?? "").startsWith("https://www.wien.gv.at/") ||
+      !Array.isArray(source.defined_terms) ||
+      !Array.isArray(coordinates) ||
+      coordinates.length < 2
+    ) {
+      throw new Error("Municipal pool search schema changed: a result is missing required fields.");
+    }
+  }
+};
+
 const runNode = (args) => {
   const result = spawnSync(process.execPath, args, {
     cwd: root,
@@ -135,6 +181,7 @@ const writeMetadata = (timestamp) => {
     drinking: ${JSON.stringify(timestamp)},
     water: ${JSON.stringify(timestamp)},
     toilet: ${JSON.stringify(timestamp)},
+    pools: ${JSON.stringify(timestamp)},
   },
 } as const;
 `;
@@ -143,7 +190,7 @@ const writeMetadata = (timestamp) => {
 };
 
 try {
-  const [fountains, bathing, addresses, toilets] = await Promise.all([
+  const [fountains, bathing, addresses, toilets, pools] = await Promise.all([
     fetchJson("Vienna drinking-water and refresh fountains", wfsUrl("TRINKBRUNNENOGD")),
     fetchJson("Vienna bathing-water sites", wfsUrl("BADESTELLENOGD")),
     fetchJson(
@@ -151,15 +198,18 @@ try {
       wfsUrl("ADRESSENOGD", { propertyName: "NAME,NAME_STR,PLZ,GEB_BEZIRK,SHAPE" }),
     ),
     fetchOverpassData({ query: overpassQuery }),
+    fetchJson("City of Vienna municipal pools", municipalPoolSearchUrl, municipalPoolSearchOptions),
   ]);
 
   assertFeatureCollection("TRINKBRUNNENOGD", fountains, ["OBJECTID", "BASIS_TYP_TXT"]);
   assertFeatureCollection("BADESTELLENOGD", bathing, ["BEZEICHNUNG", "BADEQUALITAET", "WASSERTEMPERATUR"]);
   assertFeatureCollection("ADRESSENOGD", addresses, ["NAME"]);
+  assertMunicipalPoolSearch(pools);
   writeJson(sourceFiles.fountains, fountains);
   writeJson(sourceFiles.bathing, bathing);
   writeJson(sourceFiles.addresses, addresses);
   writeJson(sourceFiles.toilets, toilets);
+  writeJson(sourceFiles.pools, pools);
 
   runNode([
     "scripts/generate_water_places.mjs",
@@ -169,6 +219,11 @@ try {
     generatedFiles.drinking,
     generatedFiles.water,
     ignorePath,
+  ]);
+  runNode([
+    "scripts/generate_municipal_pools.mjs",
+    sourceFiles.pools,
+    generatedFiles.pools,
   ]);
   runNode([
     "scripts/generate_public_toilets.mjs",
@@ -181,6 +236,7 @@ try {
   assertGeneratedFile("Drinking-water data", generatedFiles.drinking, "VIENNA_DRINKING_WATER_FOUNTAINS");
   assertGeneratedFile("Swim/refresh data", generatedFiles.water, "VIENNA_WATER_ACCESS_PLACES");
   assertGeneratedFile("Public-toilet data", generatedFiles.toilet, "VIENNA_PUBLIC_TOILET_PLACES");
+  assertGeneratedFile("Municipal-pool data", generatedFiles.pools, "VIENNA_MUNICIPAL_POOL_PLACES");
 
   const timestamp = new Date().toISOString();
   writeMetadata(timestamp);

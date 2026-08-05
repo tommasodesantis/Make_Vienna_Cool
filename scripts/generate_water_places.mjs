@@ -262,7 +262,7 @@ const bathingSites = bathingData.features.map((feature) => {
     district: props.BEZIRK ? String(props.BEZIRK) : "Vienna",
     lat: roundCoord(lat),
     lng: roundCoord(lng),
-    category: props.TYP === 1 ? "Official Bathing Site" : "Natural Bathing Site",
+    category: "Natural Bathing Site",
     coolingType: "water_access",
     ac: null,
     sitting: null,

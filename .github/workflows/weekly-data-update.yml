@@ -75,7 +75,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/data/drinking_water_places.ts src/data/water_access_places.ts src/data/public_toilet_places.ts src/data/auto_update_metadata.ts src/data/source_ignores.json
+          git add src/data/drinking_water_places.ts src/data/water_access_places.ts src/data/public_toilet_places.ts src/data/municipal_pool_places.ts src/data/auto_update_metadata.ts src/data/source_ignores.json
           if git diff --cached --quiet; then
             echo "No source data changes to commit."
           else

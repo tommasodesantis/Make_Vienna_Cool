@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from "react";
 import { CompactPlace, PlaceType } from "../data/vienna_cool_places";
-import { TRANSLATIONS, translateCategory } from "../data/translations";
-import { ChevronDown, ChevronUp, Droplets, HelpCircle, Loader2 } from "lucide-react";
-import { formatDistance, getAccessibilityStatus, hasAccessWarning, isTemporarilyClosed } from "../data/place_utils";
+import { TRANSLATIONS, translateCategory, translatePoolFacilityType } from "../data/translations";
+import { ChevronDown, ChevronUp, Droplets, ExternalLink, HelpCircle, Loader2 } from "lucide-react";
+import { formatDistance, getAccessibilityStatus, getToiletFeeStatus, hasAccessWarning, isTemporarilyClosed } from "../data/place_utils";
 
 interface PlaceListProps {
   places: CompactPlace[];
@@ -202,6 +202,22 @@ export const PlaceList: React.FC<PlaceListProps> = ({
                 ))}
               </select>
             </div>
+          </div>
+        )}
+
+        {activeMode === "water" && selectedCategory === "Municipal Pool" && (
+          <div className="rounded-xl border border-cyan-200 bg-cyan-50 px-3 py-2.5 text-xs text-cyan-950">
+            <p className="mb-1 font-bold">{t.municipalPoolPassTitle}</p>
+            <p className="mb-1.5 leading-relaxed">{t.municipalPoolPassBody}</p>
+            <a
+              href="https://www.wien.gv.at/freizeit/baeder-monatskarten"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 font-bold text-cyan-800 hover:underline"
+            >
+              {t.municipalPoolPassLink}
+              <ExternalLink className="h-3 w-3" />
+            </a>
           </div>
         )}
 
@@ -464,9 +480,18 @@ export const PlaceList: React.FC<PlaceListProps> = ({
             }
 
             if (isToiletMode) {
+              const feeStatus = getToiletFeeStatus(place);
+              const feeLabel =
+                feeStatus === "free"
+                  ? t.freeAccess
+                  : feeStatus === "paid"
+                    ? t.paid
+                    : feeStatus === "conditional"
+                      ? t.conditionalFee
+                      : t.feeUnknown;
               metadataItems.push(
-                <span className={place.free ? "text-[#2ECC71] font-bold" : "text-amber-600 font-bold"}>
-                  {place.free ? t.freeAccess : t.paid}
+                <span className={feeStatus === "free" ? "text-[#2ECC71] font-bold" : feeStatus === "unknown" ? "text-slate-500 font-bold" : "text-amber-600 font-bold"}>
+                  {feeLabel}
                 </span>
               );
 
@@ -477,6 +502,14 @@ export const PlaceList: React.FC<PlaceListProps> = ({
                   </span>
                 );
               }
+            }
+
+            if (activeMode === "water" && place.poolFacilityType) {
+              metadataItems.push(
+                <span className="font-bold text-cyan-800">
+                  {translatePoolFacilityType(place.poolFacilityType, lang)}
+                </span>
+              );
             }
 
             if (typeof place.distanceMeters === "number") {

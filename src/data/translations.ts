@@ -143,6 +143,13 @@ export interface LanguageTranslations {
   accessWarningNote: string;
   dataLastUpdated: string;
   autoUpdateUnknown: string;
+  officialOpeningHours: string;
+  poolFacilityType: string;
+  municipalPoolPassTitle: string;
+  municipalPoolPassBody: string;
+  municipalPoolPassLink: string;
+  conditionalFee: string;
+  feeUnknown: string;
 }
 
 export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations } = {
@@ -291,6 +298,13 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     accessWarningNote: "Recent user reports indicate access, seating, or cooling may be restricted. Check current on-site rules before relying on this as a cooling stop.",
     dataLastUpdated: "Data last updated",
     autoUpdateUnknown: "not yet recorded",
+    officialOpeningHours: "Official opening hours",
+    poolFacilityType: "Pool type",
+    municipalPoolPassTitle: "Municipal pool passes",
+    municipalPoolPassBody: "City pool passes can be used at participating municipal pools. Check the official information for current validity and conditions.",
+    municipalPoolPassLink: "Official pass information",
+    conditionalFee: "Conditional fee",
+    feeUnknown: "Fee unknown",
   },
   de: {
     title: "Make Vienna Cool",
@@ -437,6 +451,13 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     accessWarningNote: "Aktuelle Nutzerhinweise deuten darauf hin, dass Zugang, Sitzplätze oder Kühlung eingeschränkt sein können. Prüfe die Regeln vor Ort, bevor du diesen Ort als Abkühlungsstopp einplanst.",
     dataLastUpdated: "Daten zuletzt aktualisiert",
     autoUpdateUnknown: "noch nicht erfasst",
+    officialOpeningHours: "Offizielle Öffnungszeiten",
+    poolFacilityType: "Badtyp",
+    municipalPoolPassTitle: "Städtische Bäderkarten",
+    municipalPoolPassBody: "Bäderkarten der Stadt gelten in teilnehmenden städtischen Bädern. Aktuelle Gültigkeit und Bedingungen stehen in der offiziellen Information.",
+    municipalPoolPassLink: "Offizielle Karteninformation",
+    conditionalFee: "Zeitweise kostenpflichtig",
+    feeUnknown: "Gebühr unbekannt",
   }
 };
 
@@ -464,8 +485,8 @@ export const CATEGORY_LABELS: Record<string, { en: string; de: string }> = {
   "Day Center": { en: "Day Center", de: "Tageszentrum" },
   "Drinking Water Fountain": { en: "Drinking Water Fountain", de: "Trinkbrunnen" },
   "Drinking Water Hydrant": { en: "Drinking Water Hydrant", de: "Trinkhydrant" },
-  "Official Bathing Site": { en: "Official Bathing Site", de: "Offizielle Badestelle" },
   "Natural Bathing Site": { en: "Natural Bathing Site", de: "Naturbadestelle" },
+  "Municipal Pool": { en: "Municipal Pool", de: "Städtisches Bad" },
   "Free Natural Water Access": { en: "Free Natural Water Access", de: "Freier Naturwasserzugang" },
   "Mist / Spray Cooling": { en: "Mist / Spray Cooling", de: "Sprühnebel / Sommerspritzer" },
   "Water Play Fountain": { en: "Water Play Fountain", de: "Wasserspiel / Fontäne" },
@@ -474,6 +495,19 @@ export const CATEGORY_LABELS: Record<string, { en: string; de: string }> = {
 
 export const translateCategory = (category: string, lang: "en" | "de"): string =>
   CATEGORY_LABELS[category]?.[lang] || category;
+
+export const POOL_FACILITY_TYPE_LABELS = {
+  indoor: { en: "Indoor pool", de: "Hallenbad" },
+  outdoor: { en: "Outdoor pool", de: "Freibad" },
+  combined: { en: "Combined indoor/outdoor pool", de: "Kombibad" },
+  family: { en: "Family pool", de: "Familienbad" },
+  lido: { en: "Lido", de: "Strandbad" },
+} as const;
+
+export const translatePoolFacilityType = (
+  facilityType: keyof typeof POOL_FACILITY_TYPE_LABELS,
+  lang: "en" | "de",
+): string => POOL_FACILITY_TYPE_LABELS[facilityType][lang];
 
 export const AMENITY_LABELS: Record<string, { en: string; de: string }> = {
   "Official public cooling space": { en: "Official public cooling space", de: "Offizieller kühler Raum (Stadt Wien)" },

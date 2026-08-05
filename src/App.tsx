@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { COOL_PLACES, CompactPlace, PlaceType } from "./data/vienna_cool_places";
-import { TRANSLATIONS } from "./data/translations";
+import { TRANSLATIONS, translatePoolFacilityType } from "./data/translations";
 import { AUTO_UPDATE_METADATA } from "./data/auto_update_metadata";
 import { ViennaMap } from "./components/ViennaMap";
 import { PlaceList } from "./components/PlaceList";
@@ -11,6 +11,7 @@ import { ChevronDown, ChevronUp, Droplets, LocateFixed, Loader2, Maximize2, Mess
 import { distanceMetersBetween, getAccessibilityStatus, getPlaceType, UserLocation } from "./data/place_utils";
 import { translateCategory } from "./data/translations";
 import { applyWaterPlaceOverrides } from "./data/water_place_overrides";
+import { MANUAL_PUBLIC_TOILET_PLACES } from "./data/manual_public_toilet_places";
 
 type LocationConsent = "unknown" | "granted" | "denied";
 type LocationStatus = "idle" | "requesting" | "granted" | "denied" | "unsupported";
@@ -63,6 +64,7 @@ const placeMatchesSearch = (place: CompactPlace, query: string, lang: "en" | "de
     place.category,
     translateCategory(place.category, lang),
     place.coolingType,
+    place.poolFacilityType ? translatePoolFacilityType(place.poolFacilityType, lang) : "",
     place.notes,
     ...place.amenities,
     ...place.hours,
@@ -138,11 +140,16 @@ export default function App() {
           ? Promise.all([
               import("./data/water_access_places"),
               import("./data/outside_vienna_water_access_places"),
-            ]).then(([waterModule, outsideModule]) => [
+              import("./data/municipal_pool_places"),
+            ]).then(([waterModule, outsideModule, poolModule]) => [
               ...applyWaterPlaceOverrides(waterModule.VIENNA_WATER_ACCESS_PLACES),
               ...outsideModule.OUTSIDE_VIENNA_WATER_ACCESS_PLACES,
+              ...poolModule.VIENNA_MUNICIPAL_POOL_PLACES,
             ])
-          : import("./data/public_toilet_places").then((module) => module.VIENNA_PUBLIC_TOILET_PLACES);
+          : import("./data/public_toilet_places").then((module) => [
+              ...module.VIENNA_PUBLIC_TOILET_PLACES,
+              ...MANUAL_PUBLIC_TOILET_PLACES,
+            ]);
 
     loader
       .then((places) => {
@@ -168,17 +175,22 @@ export default function App() {
       import("./data/drinking_water_places"),
       import("./data/water_access_places"),
       import("./data/outside_vienna_water_access_places"),
+      import("./data/municipal_pool_places"),
       import("./data/public_toilet_places"),
     ])
-      .then(([drinkingModule, waterModule, outsideWaterModule, toiletModule]) => {
+      .then(([drinkingModule, waterModule, outsideWaterModule, poolModule, toiletModule]) => {
         if (cancelled) return;
 
         const drinkingPlaces = drinkingModule.VIENNA_DRINKING_WATER_FOUNTAINS;
         const waterPlaces = [
           ...applyWaterPlaceOverrides(waterModule.VIENNA_WATER_ACCESS_PLACES),
           ...outsideWaterModule.OUTSIDE_VIENNA_WATER_ACCESS_PLACES,
+          ...poolModule.VIENNA_MUNICIPAL_POOL_PLACES,
         ];
-        const toiletPlaces = toiletModule.VIENNA_PUBLIC_TOILET_PLACES;
+        const toiletPlaces = [
+          ...toiletModule.VIENNA_PUBLIC_TOILET_PLACES,
+          ...MANUAL_PUBLIC_TOILET_PLACES,
+        ];
 
         setKnownPlacesForSuggestions([
           ...COOL_PLACES,
@@ -605,7 +617,6 @@ export default function App() {
   const renderMap = (isExpanded = false) => (
     <ViennaMap
       places={visiblePlaces}
-      activeMode={activeMode}
       selectedPlaceId={selectedPlaceId}
       onSelectPlace={handleSelectPlace}
       lang={lang}
