@@ -38,7 +38,6 @@ export interface ExcludedSuggestion {
 
 export const EXCLUDED_SUGGESTIONS: ExcludedSuggestion[] = [
   { name: "Albertina", reason: "Paid museum ticket generally required.", url: "https://www.reddit.com/r/wien/comments/1drkc94/where_can_you_chill_in_ac_on_sundays/" },
-  { name: "mumok", reason: "Paid museum ticket generally required.", url: "https://www.reddit.com/r/wien/comments/1drkc94/where_can_you_chill_in_ac_on_sundays/" },
   { name: "Leopold Museum", reason: "Paid museum ticket generally required.", url: "https://www.reddit.com/r/wien/comments/1drkc94/where_can_you_chill_in_ac_on_sundays/" },
   { name: "Kunsthistorisches Museum / KHM", reason: "Paid museum ticket generally required.", url: "https://www.reddit.com/r/wien/comments/1drkc94/where_can_you_chill_in_ac_on_sundays/" },
   { name: "MAK", reason: "Paid museum ticket generally required.", url: "https://www.reddit.com/r/wien/comments/1tne9e1/places_in_vienna_with_air_conditioning/" },
@@ -1063,6 +1062,142 @@ const CORE_VIENNA_PLACES: CompactPlace[] = [
     ],
     accessibility: "limited",
     accessibilitySource: "OpenStreetMap wheelchair=limited; toilets:wheelchair=yes"
+  },
+  {
+    id: "phil-cafe-bookshop-bar",
+    name: "phil",
+    address: "Gumpendorfer Straße 10-12, 1060 Wien",
+    district: "6",
+    lat: 48.2002468,
+    lng: 16.3611169,
+    category: "Café / Bar",
+    coolingType: "confirmed_air_conditioned",
+    ac: true,
+    sitting: true,
+    wifi: null,
+    amenities: ["Air conditioning", "Books", "Indoor seating", "Outdoor seating", "Wheelchair-accessible toilet"],
+    hours: [
+      "Mon: 14:00 - 21:00",
+      "Tue - Thu: 09:00 - 22:00",
+      "Fri - Sat: 09:00 - 23:00",
+      "Sun: 09:00 - 21:00"
+    ],
+    free: false,
+    notes: "Air-conditioned café, bookshop, and evening bar. A purchase is expected. The venue confirms AC, current hours, more than 4,000 books, and a seasonal outdoor garden. OpenStreetMap lists indoor and outdoor seating, limited wheelchair access, and a wheelchair-accessible toilet.",
+    sourceUrls: [
+      "https://www.phil.info/",
+      "https://www.openstreetmap.org/node/351628384",
+      "https://github.com/tommasodesantis/Make_Vienna_Cool/issues/24"
+    ],
+    accessibility: "limited",
+    accessibilitySource: "OpenStreetMap wheelchair=limited; toilets:wheelchair=yes"
+  },
+  {
+    id: "mumok-collection-level-0",
+    name: "mumok collection – Ebene 0",
+    address: "Museumsplatz 1, 1070 Wien",
+    district: "7",
+    lat: 48.2037402,
+    lng: 16.3578325,
+    category: "Museum",
+    coolingType: "confirmed_air_conditioned",
+    ac: true,
+    sitting: null,
+    wifi: true,
+    amenities: ["Air conditioning", "Free Level 0 exhibition", "Free Wi-Fi", "Wheelchair-accessible toilet"],
+    hours: ["Tue - Sun: 10:00 - 18:00", "Mon: closed"],
+    free: true,
+    notes: "Air-conditioned museum entrance-level exhibition. Only Level 0 is free from 20 June through 30 September 2026; other levels normally require paid admission. The museum's renovation information documents climate control and cooling operation. OpenStreetMap lists free Wi-Fi, wheelchair access, and a wheelchair-accessible toilet.",
+    sourceUrls: [
+      "https://www.mumok.at/kalender/mumok-collection-freier-eintritt-ebene-0",
+      "https://www.mumok.at/fileadmin/Bibliothek/08_Presse/Aktuelle_Pressemeldungen/2024/Sanierung_mumok/PT_Sanierung_dt.pdf",
+      "https://www.openstreetmap.org/way/8097556",
+      "https://github.com/tommasodesantis/Make_Vienna_Cool/issues/25",
+      "https://github.com/tommasodesantis/Make_Vienna_Cool/issues/26"
+    ],
+    accessibility: "yes",
+    accessibilitySource: "mumok documents lift and stair-lift access; OpenStreetMap wheelchair=yes; toilets:wheelchair=yes"
+  },
+  {
+    id: "sil-breakfast-brunch",
+    name: "SiL",
+    address: "Babenbergerstraße 5, 1010 Wien",
+    district: "1",
+    lat: 48.2031745,
+    lng: 16.3628708,
+    category: "Restaurant",
+    coolingType: "confirmed_air_conditioned",
+    ac: true,
+    sitting: true,
+    wifi: true,
+    amenities: ["Air conditioning", "Breakfast", "Specialty coffee", "Free Wi-Fi", "Power outlets"],
+    hours: ["Mon - Sun: 09:00 - 18:00", "Kitchen: 09:00 - 17:30"],
+    free: false,
+    notes: "Air-conditioned all-day breakfast and specialty-coffee restaurant. A purchase is expected. Official hours are daily 09:00-18:00, with the kitchen open until 17:30. The venue confirms weekday laptop use, unlimited Wi-Fi, and power outlets; OpenStreetMap and WIENerLEBEN corroborate AC and wheelchair access.",
+    sourceUrls: [
+      "https://www.sil.wien/",
+      "https://wienerleben.wko.at/unternehmen/677cfa41ff5b2ec1b38e5630/sil",
+      "https://www.openstreetmap.org/node/11112205868",
+      "https://github.com/tommasodesantis/Make_Vienna_Cool/issues/28"
+    ],
+    accessibility: "yes",
+    accessibilitySource: "OpenStreetMap wheelchair=yes"
+  },
+  {
+    id: "tomochan-ramen-1060",
+    name: "Tomochan Ramen 1060",
+    address: "Stiegengasse 16-18, 1060 Wien",
+    district: "6",
+    lat: 48.1988126,
+    lng: 16.3569087,
+    category: "Restaurant",
+    coolingType: "visitor_suggested_air_conditioned_unverified",
+    ac: true,
+    sitting: true,
+    wifi: null,
+    amenities: ["Ramen", "Indoor seating", "Outdoor seating"],
+    hours: [
+      "Mon - Thu: 11:30 - 22:00",
+      "Fri: 12:00 - 22:00",
+      "Sat - Sun, PH: 12:30 - 22:00"
+    ],
+    free: false,
+    notes: "Visitor-reported air-conditioned ramen restaurant; the AC claim is not independently confirmed. A purchase is expected. The official site confirms the Stiegengasse 16/18 location and current hours; OpenStreetMap lists indoor and outdoor seating and wheelchair=no.",
+    sourceUrls: [
+      "https://tomochanramen.at/",
+      "https://www.openstreetmap.org/node/13361294293",
+      "https://github.com/tommasodesantis/Make_Vienna_Cool/issues/29"
+    ],
+    accessibility: "no",
+    accessibilitySource: "OpenStreetMap wheelchair=no"
+  },
+  {
+    id: "sang-sang-1060",
+    name: "Sang Sang",
+    address: "Gumpendorfer Straße 14, 1060 Wien",
+    district: "6",
+    lat: 48.1999317,
+    lng: 16.3607822,
+    category: "Restaurant",
+    coolingType: "visitor_suggested_air_conditioned_unverified",
+    ac: true,
+    sitting: true,
+    wifi: null,
+    amenities: ["Korean cuisine", "Indoor seating", "Outdoor seating"],
+    hours: [
+      "Mon: 17:00 - 22:00",
+      "Tue - Sat: 12:00 - 14:30, 17:00 - 22:00",
+      "Sun: closed"
+    ],
+    free: false,
+    notes: "Visitor-reported air-conditioned Korean restaurant; the AC claim is not independently confirmed. A purchase is expected. The venue confirms its current hours, effective 1 August 2026, and Korean menu; OpenStreetMap lists indoor and outdoor seating and wheelchair=no.",
+    sourceUrls: [
+      "https://www.sangsang.at/1060",
+      "https://www.openstreetmap.org/node/1591079431",
+      "https://github.com/tommasodesantis/Make_Vienna_Cool/issues/30"
+    ],
+    accessibility: "no",
+    accessibilitySource: "OpenStreetMap wheelchair=no"
   },
   {
     id: "ikea-wien-westbahnhof",

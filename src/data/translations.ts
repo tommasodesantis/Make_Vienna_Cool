@@ -21,6 +21,7 @@ export interface LanguageTranslations {
   acConfirmed: string;
   acLikely: string;
   acUnverified: string;
+  acVisitorUnverified: string;
   acOfficialZone: string;
   acCoolRoom: string;
   excludedTitle: string;
@@ -168,6 +169,7 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     acConfirmed: "Confirmed AC",
     acLikely: "Likely AC",
     acUnverified: "Reddit Claimed AC (Unverified)",
+    acVisitorUnverified: "Visitor-Reported AC (Unverified)",
     acOfficialZone: "Official Cool Zone",
     acCoolRoom: "Cool Indoor Room",
     excludedTitle: "Paid Venues Excluded",
@@ -313,6 +315,7 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     acConfirmed: "Bestätigte Klimaanlage",
     acLikely: "Wahrscheinlich klimatisiert",
     acUnverified: "Klimaanlage laut Reddit (nicht bestätigt)",
+    acVisitorUnverified: "Klimaanlage von Besucher*in gemeldet (nicht bestätigt)",
     acOfficialZone: "Offizielle Coole Zone",
     acCoolRoom: "Kühler Raum (ohne Klima)",
     excludedTitle: "Kostenpflichtige Orte ausgeschlossen",
@@ -491,6 +494,9 @@ export const AMENITY_LABELS: Record<string, { en: string; de: string }> = {
   "Vegan options": { en: "Vegan options", de: "Vegane Optionen" },
   "Kids' area": { en: "Kids' area", de: "Kinderspielecke" },
   "Wheelchair-accessible toilet": { en: "Wheelchair-accessible toilet", de: "Rollstuhlgerechtes WC" },
+  "Free Level 0 exhibition": { en: "Free Level 0 exhibition", de: "Kostenlose Ausstellung auf Ebene 0" },
+  "Ramen": { en: "Ramen", de: "Ramen" },
+  "Korean cuisine": { en: "Korean cuisine", de: "Koreanische Küche" },
   "Cash & card payments": { en: "Cash & card payments", de: "Bar- und Kartenzahlung" },
   "Dog friendly": { en: "Dog friendly", de: "Hundefreundlich" },
   "Latte art workshops": { en: "Latte art workshops", de: "Latte-Art-Workshops" },
@@ -663,6 +669,24 @@ const SIEBEN_ZWERGE_NOTE =
 const VOGEL_KAFFEE_NOTE =
   "Air-conditioned specialty coffee shop and micro-roastery. A purchase is expected. The venue confirms the 19A address and current hours and describes its roasted coffee, cheesecake, latte-art workshops, and catering. OpenStreetMap currently confirms air conditioning, indoor and outdoor seating, a kids' area, changing table, toilets, cash/card payment, limited wheelchair access, and a wheelchair-accessible toilet. European Coffee Trip additionally lists free Wi-Fi, laptop-friendly seating, breakfast, plant-based milk, vegan options, and dog-friendly access.";
 
+const PHIL_NOTE =
+  "Air-conditioned café, bookshop, and evening bar. A purchase is expected. The venue confirms AC, current hours, more than 4,000 books, and a seasonal outdoor garden. OpenStreetMap lists indoor and outdoor seating, limited wheelchair access, and a wheelchair-accessible toilet.";
+
+const MUMOK_LEVEL_0_NOTE =
+  "Air-conditioned museum entrance-level exhibition. Only Level 0 is free from 20 June through 30 September 2026; other levels normally require paid admission. The museum's renovation information documents climate control and cooling operation. OpenStreetMap lists free Wi-Fi, wheelchair access, and a wheelchair-accessible toilet.";
+
+const SIL_NOTE =
+  "Air-conditioned all-day breakfast and specialty-coffee restaurant. A purchase is expected. Official hours are daily 09:00-18:00, with the kitchen open until 17:30. The venue confirms weekday laptop use, unlimited Wi-Fi, and power outlets; OpenStreetMap and WIENerLEBEN corroborate AC and wheelchair access.";
+
+const TOMOCHAN_NOTE =
+  "Visitor-reported air-conditioned ramen restaurant; the AC claim is not independently confirmed. A purchase is expected. The official site confirms the Stiegengasse 16/18 location and current hours; OpenStreetMap lists indoor and outdoor seating and wheelchair=no.";
+
+const SANG_SANG_NOTE =
+  "Visitor-reported air-conditioned Korean restaurant; the AC claim is not independently confirmed. A purchase is expected. The venue confirms its current hours, effective 1 August 2026, and Korean menu; OpenStreetMap lists indoor and outdoor seating and wheelchair=no.";
+
+const VENEDIGER_AU_WATER_NOTE =
+  'Official Vienna data identifies this as a Spielbrunnen, and the City park page confirms a children\'s playground with water play. "Kinderplantschbecken" (children\'s paddling pool) is the visitor-reported local description. Round-the-clock access is visitor-reported and is also listed by Sunny.at; the City page does not publish opening hours.';
+
 export const translateNote = (note: string, lang: "en" | "de"): string => {
   if (lang === "en") return note;
 
@@ -688,6 +712,30 @@ export const translateNote = (note: string, lang: "en" | "de"): string => {
 
   if (note === VOGEL_KAFFEE_NOTE) {
     return "Klimatisiertes Spezialitätencafé mit Mikrorösterei. Konsumation wird erwartet. Das Lokal bestätigt die Adresse 19A und die aktuellen Öffnungszeiten und beschreibt eigenen Röstkaffee, Cheesecake, Latte-Art-Workshops und Catering. OpenStreetMap bestätigt derzeit Klimaanlage, Innen- und Außensitzplätze, eine Kinderspielecke, einen Wickeltisch, Toiletten, Bar- und Kartenzahlung, eingeschränkte Rollstuhlzugänglichkeit und ein rollstuhlgerechtes WC. European Coffee Trip führt zusätzlich kostenloses WLAN, laptopfreundliche Sitzplätze, Frühstück, pflanzliche Milchalternativen, vegane Optionen und hundefreundlichen Zugang an.";
+  }
+
+  if (note === PHIL_NOTE) {
+    return "Klimatisiertes Café, Buchhandlung und abendliche Bar. Konsumation wird erwartet. Das Lokal bestätigt Klimaanlage, aktuelle Öffnungszeiten, mehr als 4.000 Bücher und einen saisonalen Schanigarten. OpenStreetMap führt Innen- und Außensitzplätze, eingeschränkte Rollstuhlzugänglichkeit und ein rollstuhlgerechtes WC.";
+  }
+
+  if (note === MUMOK_LEVEL_0_NOTE) {
+    return "Klimatisierte Ausstellung im Eingangsbereich des Museums. Nur Ebene 0 ist vom 20. Juni bis 30. September 2026 bei freiem Eintritt zugänglich; für andere Ebenen ist normalerweise ein Ticket erforderlich. Die Renovierungsinformation des Museums belegt Klimatisierung und Kühlbetrieb. OpenStreetMap führt kostenloses WLAN, rollstuhlgerechten Zugang und ein rollstuhlgerechtes WC.";
+  }
+
+  if (note === SIL_NOTE) {
+    return "Klimatisiertes Restaurant mit ganztägigem Frühstück und Spezialitätenkaffee. Konsumation wird erwartet. Die offiziellen Öffnungszeiten sind täglich 09:00-18:00, die Küche ist bis 17:30 geöffnet. Das Lokal bestätigt Laptopnutzung an Werktagen, unbegrenztes WLAN und Steckdosen; OpenStreetMap und WIENerLEBEN bestätigen Klimaanlage und rollstuhlgerechten Zugang.";
+  }
+
+  if (note === TOMOCHAN_NOTE) {
+    return "Von einem Besucher als klimatisiert gemeldetes Ramen-Restaurant; die Klimaanlage ist nicht unabhängig bestätigt. Konsumation wird erwartet. Die offizielle Website bestätigt den Standort Stiegengasse 16/18 und die aktuellen Öffnungszeiten; OpenStreetMap führt Innen- und Außensitzplätze sowie wheelchair=no.";
+  }
+
+  if (note === SANG_SANG_NOTE) {
+    return "Von einem Besucher als klimatisiert gemeldetes koreanisches Restaurant; die Klimaanlage ist nicht unabhängig bestätigt. Konsumation wird erwartet. Das Lokal bestätigt die seit 1. August 2026 geltenden Öffnungszeiten und die koreanische Speisekarte; OpenStreetMap führt Innen- und Außensitzplätze sowie wheelchair=no.";
+  }
+
+  if (note === VENEDIGER_AU_WATER_NOTE) {
+    return "Offizielle Wiener Daten führen die Anlage als Spielbrunnen, und die Parkseite der Stadt bestätigt einen Kinderspielplatz mit Wasserspielmöglichkeit. „Kinderplantschbecken“ beziehungsweise Kinderplanschbecken ist die von einem Besucher gemeldete lokale Bezeichnung. Der Rund-um-die-Uhr-Zugang wurde von einem Besucher gemeldet und wird auch von Sunny.at angeführt; die Stadtseite veröffentlicht keine Öffnungszeiten.";
   }
 
   const bathingMatch = note.match(

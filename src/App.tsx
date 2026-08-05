@@ -10,6 +10,7 @@ import { SearchBox } from "./components/SearchBox";
 import { ChevronDown, ChevronUp, Droplets, LocateFixed, Loader2, Maximize2, MessageSquarePlus, Minimize2, Snowflake, Toilet, Waves, X } from "lucide-react";
 import { distanceMetersBetween, getAccessibilityStatus, getPlaceType, UserLocation } from "./data/place_utils";
 import { translateCategory } from "./data/translations";
+import { applyWaterPlaceOverrides } from "./data/water_place_overrides";
 
 type LocationConsent = "unknown" | "granted" | "denied";
 type LocationStatus = "idle" | "requesting" | "granted" | "denied" | "unsupported";
@@ -138,7 +139,7 @@ export default function App() {
               import("./data/water_access_places"),
               import("./data/outside_vienna_water_access_places"),
             ]).then(([waterModule, outsideModule]) => [
-              ...waterModule.VIENNA_WATER_ACCESS_PLACES,
+              ...applyWaterPlaceOverrides(waterModule.VIENNA_WATER_ACCESS_PLACES),
               ...outsideModule.OUTSIDE_VIENNA_WATER_ACCESS_PLACES,
             ])
           : import("./data/public_toilet_places").then((module) => module.VIENNA_PUBLIC_TOILET_PLACES);
@@ -174,7 +175,7 @@ export default function App() {
 
         const drinkingPlaces = drinkingModule.VIENNA_DRINKING_WATER_FOUNTAINS;
         const waterPlaces = [
-          ...waterModule.VIENNA_WATER_ACCESS_PLACES,
+          ...applyWaterPlaceOverrides(waterModule.VIENNA_WATER_ACCESS_PLACES),
           ...outsideWaterModule.OUTSIDE_VIENNA_WATER_ACCESS_PLACES,
         ];
         const toiletPlaces = toiletModule.VIENNA_PUBLIC_TOILET_PLACES;

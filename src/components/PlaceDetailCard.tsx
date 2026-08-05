@@ -154,6 +154,11 @@ export const PlaceDetailCard: React.FC<PlaceDetailCardProps> = ({ place, lang })
           bg: "bg-mint text-dark-green",
           text: t.acUnverified,
         };
+      case "visitor_suggested_air_conditioned_unverified":
+        return {
+          bg: "bg-mint text-dark-green",
+          text: t.acVisitorUnverified,
+        };
       case "official_cool_indoor_room_not_ac_confirmed":
         return {
           bg: "bg-mint text-dark-green",
