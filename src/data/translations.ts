@@ -174,7 +174,7 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     acCoolRoom: "Cool Indoor Room",
     excludedTitle: "Paid Venues Excluded",
     excludedDesc: "The following places were recommended as air-conditioned but require a paid entry ticket. They are excluded from our primary map & list:",
-    madeBy: "OS project started by Tommaso De Santis",
+    madeBy: "OS project started by Tommaso De Santis, Vienna",
     district: "District",
     yes: "Yes",
     no: "No",
@@ -320,7 +320,7 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     acCoolRoom: "Kühler Raum (ohne Klima)",
     excludedTitle: "Kostenpflichtige Orte ausgeschlossen",
     excludedDesc: "Die folgenden Orte wurden als klimatisiert empfohlen, erfordern jedoch ein kostenpflichtiges Eintrittsticket. Sie sind aus unserer Hauptkarte & Liste ausgeschlossen:",
-    madeBy: "OS project started by Tommaso De Santis",
+    madeBy: "OS-Projekt gestartet von Tommaso De Santis, Wien",
     district: "Bezirk",
     yes: "Ja",
     no: "Nein",
@@ -460,6 +460,7 @@ export const CATEGORY_LABELS: Record<string, { en: string; de: string }> = {
   "Fast Food": { en: "Fast Food", de: "Fast Food" },
   "Restaurant": { en: "Restaurant", de: "Restaurant" },
   "Hotel Lobby / Bar": { en: "Hotel Lobby / Bar", de: "Hotellobby / Bar" },
+  "Public Indoor Space": { en: "Public Indoor Space", de: "Öffentlicher Innenraum" },
   "Day Center": { en: "Day Center", de: "Tageszentrum" },
   "Drinking Water Fountain": { en: "Drinking Water Fountain", de: "Trinkbrunnen" },
   "Drinking Water Hydrant": { en: "Drinking Water Hydrant", de: "Trinkhydrant" },
@@ -601,6 +602,9 @@ export const AMENITY_LABELS: Record<string, { en: string; de: string }> = {
   "Coffee drinks": { en: "Coffee drinks", de: "Kaffeespezialitäten" },
   "Charging sockets": { en: "Charging sockets", de: "Steckdosen zum Laden" },
   "Hotel lobby": { en: "Hotel lobby", de: "Hotellobby" },
+  "Publicly accessible ground floor": { en: "Publicly accessible ground floor", de: "Öffentlich zugängliches Erdgeschoß" },
+  "District cooling": { en: "District cooling", de: "Fernkälte" },
+  "Restaurants / cafés": { en: "Restaurants / cafés", de: "Restaurants / Cafés" },
   "Bar / restaurant": { en: "Bar / restaurant", de: "Bar / Restaurant" },
   "Coworking space": { en: "Coworking space", de: "Coworking-Bereich" },
   "Outdoor seating nearby": { en: "Outdoor seating nearby", de: "Sitzplätze im Außenbereich in der Nähe" },
@@ -618,6 +622,10 @@ export const AMENITY_LABELS: Record<string, { en: string; de: string }> = {
   "Ringstraße luxury café": { en: "Ringstraße luxury café", de: "Ringstraßen-Luxuscafé" },
   "Elegant atmosphere": { en: "Elegant atmosphere", de: "Elegante Atmosphäre" },
   "Fast service": { en: "Fast service", de: "Schneller Service" },
+  "Station connected": { en: "Station connected", de: "Direkt im Bahnhof" },
+  "McCafé": { en: "McCafé", de: "McCafé" },
+  "Burgers": { en: "Burgers", de: "Burger" },
+  "Italian cuisine": { en: "Italian cuisine", de: "Italienische Küche" },
   "Quick stop": { en: "Quick stop", de: "Schneller Stopp" },
   "Quick meals": { en: "Quick meals", de: "Schnelle Mahlzeiten" },
   "Sub sandwiches": { en: "Sub sandwiches", de: "Sub-Sandwiches" },
@@ -667,7 +675,25 @@ const SIEBEN_ZWERGE_NOTE =
   "Air-conditioned family café for children ages 0-5. The venue currently advertises summer hours of Tue-Sun 10:00-20:00, a €7.90 play fee per child for up to three hours, and recommends reservations on weekends or during school holidays. WIENXTRA additionally lists a €5 sibling fee, high chairs, a changing table, and wheelchair/stroller access. Children remain under adult supervision.";
 
 const VOGEL_KAFFEE_NOTE =
-  "Air-conditioned specialty coffee shop and micro-roastery. A purchase is expected. The venue confirms the 19A address and current hours and describes its roasted coffee, cheesecake, latte-art workshops, and catering. OpenStreetMap currently confirms air conditioning, indoor and outdoor seating, a kids' area, changing table, toilets, cash/card payment, limited wheelchair access, and a wheelchair-accessible toilet. European Coffee Trip additionally lists free Wi-Fi, laptop-friendly seating, breakfast, plant-based milk, vegan options, and dog-friendly access.";
+  "Specialty coffee shop and micro-roastery; a purchase is expected. OpenStreetMap currently lists air_conditioning=yes, but a recent visitor reports that the café is often uncomfortably hot and that the system may not be running. The venue confirms the address and current hours; OpenStreetMap lists limited wheelchair access and a wheelchair-accessible toilet.";
+
+const IBIS_HAUPTBAHNHOF_NOTE =
+  "Accor describes a lobby open to everyone for a short rest or checking email, with 24/7 reception service, and lists air conditioning among the hotel's on-site services. The source does not state separately that the lobby itself is air-conditioned, so this is marked as likely rather than confirmed. Staff rules or purchase expectations can apply.";
+
+const ERSTE_CAMPUS_NOTE =
+  "Erste Group says the ground-floor zones are publicly accessible, contain restaurants and a café, and that the building is connected to Vienna's district-cooling network. This is listed as a cool indoor space rather than conventional air conditioning. Access hours, security rules, and purchase expectations at individual businesses can vary.";
+
+const MCDONALDS_HAUPTBAHNHOF_NOTE =
+  "Visitor-reported air-conditioned McDonald's at Vienna Hauptbahnhof; the AC claim is not independently confirmed. A purchase is expected. ÖBB confirms the ground-floor location, current hours, integrated McCafé, and lounge seating.";
+
+const SUBWAY_HAUPTBAHNHOF_NOTE =
+  "Visitor-reported air-conditioned Subway at Vienna Hauptbahnhof; the AC claim is not independently confirmed. A purchase is expected. ÖBB confirms the lower-ground-floor location and current daily hours.";
+
+const BURGER_KING_HAUPTBAHNHOF_NOTE =
+  "Visitor-reported air-conditioned Burger King at Vienna Hauptbahnhof; the AC claim is not independently confirmed. A purchase is expected. ÖBB confirms the ground-floor location and current daily hours.";
+
+const LOSTERIA_HAUPTBAHNHOF_NOTE =
+  "Visitor-reported air-conditioned L'Osteria at Vienna Hauptbahnhof; the AC claim is not independently confirmed. A purchase is expected. ÖBB confirms the ground-floor location and current hours.";
 
 const PHIL_NOTE =
   "Air-conditioned café, bookshop, and evening bar. A purchase is expected. The venue confirms AC, current hours, more than 4,000 books, and a seasonal outdoor garden. OpenStreetMap lists indoor and outdoor seating, limited wheelchair access, and a wheelchair-accessible toilet.";
@@ -711,7 +737,31 @@ export const translateNote = (note: string, lang: "en" | "de"): string => {
   }
 
   if (note === VOGEL_KAFFEE_NOTE) {
-    return "Klimatisiertes Spezialitätencafé mit Mikrorösterei. Konsumation wird erwartet. Das Lokal bestätigt die Adresse 19A und die aktuellen Öffnungszeiten und beschreibt eigenen Röstkaffee, Cheesecake, Latte-Art-Workshops und Catering. OpenStreetMap bestätigt derzeit Klimaanlage, Innen- und Außensitzplätze, eine Kinderspielecke, einen Wickeltisch, Toiletten, Bar- und Kartenzahlung, eingeschränkte Rollstuhlzugänglichkeit und ein rollstuhlgerechtes WC. European Coffee Trip führt zusätzlich kostenloses WLAN, laptopfreundliche Sitzplätze, Frühstück, pflanzliche Milchalternativen, vegane Optionen und hundefreundlichen Zugang an.";
+    return "Spezialitätencafé mit Mikrorösterei; Konsumation wird erwartet. OpenStreetMap führt derzeit air_conditioning=yes, ein aktueller Besucherbericht beschreibt das Café jedoch als oft unangenehm heiß und die Anlage als möglicherweise nicht in Betrieb. Das Lokal bestätigt Adresse und aktuelle Öffnungszeiten; OpenStreetMap führt eingeschränkte Rollstuhlzugänglichkeit und ein rollstuhlgerechtes WC.";
+  }
+
+  if (note === IBIS_HAUPTBAHNHOF_NOTE) {
+    return "Accor beschreibt eine für alle offene Lobby für eine kurze Pause oder zum E-Mail-Lesen, einen rund um die Uhr erreichbaren Rezeptionsservice und führt Klimaanlage als Hotelleistung vor Ort. Die Quelle bestätigt nicht gesondert, dass die Lobby selbst klimatisiert ist; der Eintrag ist daher als wahrscheinlich statt bestätigt gekennzeichnet. Hausregeln oder Konsumerwartungen können gelten.";
+  }
+
+  if (note === ERSTE_CAMPUS_NOTE) {
+    return "Laut Erste Group sind die Erdgeschoßzonen öffentlich zugänglich, beherbergen Restaurants und ein Café, und das Gebäude ist an das Wiener Fernkältenetz angeschlossen. Der Eintrag ist als kühler Innenraum und nicht als konventionell klimatisiert gekennzeichnet. Zugangszeiten, Sicherheitsregeln und Konsumerwartungen einzelner Betriebe können variieren.";
+  }
+
+  if (note === MCDONALDS_HAUPTBAHNHOF_NOTE) {
+    return "Von einem Besucher als klimatisiert gemeldetes McDonald's im Wiener Hauptbahnhof; die Klimaanlage ist nicht unabhängig bestätigt. Konsumation wird erwartet. ÖBB bestätigt den Standort im Erdgeschoß, die aktuellen Öffnungszeiten, das integrierte McCafé und Lounge-Sitzplätze.";
+  }
+
+  if (note === SUBWAY_HAUPTBAHNHOF_NOTE) {
+    return "Von einem Besucher als klimatisiert gemeldetes Subway im Wiener Hauptbahnhof; die Klimaanlage ist nicht unabhängig bestätigt. Konsumation wird erwartet. ÖBB bestätigt den Standort im ersten Untergeschoß und die aktuellen täglichen Öffnungszeiten.";
+  }
+
+  if (note === BURGER_KING_HAUPTBAHNHOF_NOTE) {
+    return "Von einem Besucher als klimatisiert gemeldetes Burger King im Wiener Hauptbahnhof; die Klimaanlage ist nicht unabhängig bestätigt. Konsumation wird erwartet. ÖBB bestätigt den Standort im Erdgeschoß und die aktuellen täglichen Öffnungszeiten.";
+  }
+
+  if (note === LOSTERIA_HAUPTBAHNHOF_NOTE) {
+    return "Von einem Besucher als klimatisiert gemeldete L'Osteria im Wiener Hauptbahnhof; die Klimaanlage ist nicht unabhängig bestätigt. Konsumation wird erwartet. ÖBB bestätigt den Standort im Erdgeschoß und die aktuellen Öffnungszeiten.";
   }
 
   if (note === PHIL_NOTE) {

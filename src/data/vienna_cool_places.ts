@@ -85,20 +85,28 @@ const CORE_VIENNA_PLACES: CompactPlace[] = [
   },
   {
     id: "pensionist-innenklub-ljuba-welitsch-promenade",
-    name: "Pensionist*innenklub Ljuba-Welitsch-Promenade",
+    name: "Pensionist*innenklub / Klub+ All in Village3",
     address: "Ljuba-Welitsch-Promenade 12A/B, 1030 Wien",
     district: "3",
-    lat: 48.1913,
-    lng: 16.4137,
+    lat: 48.1883706,
+    lng: 16.3938448,
     category: "Official Cool Zone",
     coolingType: "official_cool_indoor_room_not_ac_confirmed",
     ac: false,
     sitting: true,
     wifi: true,
     amenities: ["Official public cooling space", "Cold drinks / free drinking water", "Seating"],
-    hours: ["Mon - Fri: 09:00 - 17:00"],
+    hours: ["Mon - Fri: 09:00 - 17:00", "Sat - Sun: 12:00 - 18:00"],
     free: true,
-    notes: null
+    notes: null,
+    sourceUrls: [
+      "https://kwp.at/pensionistenklubs/clubs/ljuba-welitsch-promenade-12a-b/",
+      "https://www.wien.gv.at/umwelt/coole-zonen",
+      "https://www.openstreetmap.org/node/13675128872",
+      "https://github.com/tommasodesantis/Make_Vienna_Cool/issues/31"
+    ],
+    accessibility: "yes",
+    accessibilitySource: "City of Vienna Coole Zonen listing"
   },
   {
     id: "pensionist-innenklub-weyringergasse",
@@ -838,6 +846,29 @@ const CORE_VIENNA_PLACES: CompactPlace[] = [
     accessibilitySource: "OpenStreetMap wheelchair=yes"
   },
   {
+    id: "ibis-wien-hauptbahnhof-lobby",
+    name: "ibis Wien Hauptbahnhof - Lobby",
+    address: "Canettistraße 8, 1100 Wien",
+    district: "10",
+    lat: 48.185211,
+    lng: 16.379242,
+    category: "Hotel Lobby / Bar",
+    coolingType: "likely_air_conditioned",
+    ac: true,
+    sitting: true,
+    wifi: true,
+    amenities: ["Air conditioning", "Hotel lobby", "Indoor seating", "Free Wi-Fi", "Wheelchair accessible"],
+    hours: ["Daily: reception service available 24 hours; lobby access rules can apply"],
+    free: false,
+    notes: "Accor describes a lobby open to everyone for a short rest or checking email, with 24/7 reception service, and lists air conditioning among the hotel's on-site services. The source does not state separately that the lobby itself is air-conditioned, so this is marked as likely rather than confirmed. Staff rules or purchase expectations can apply.",
+    sourceUrls: [
+      "https://all.accor.com/hotel/8564/index.de.shtml",
+      "https://www.openstreetmap.org/node/5584099525"
+    ],
+    accessibility: "yes",
+    accessibilitySource: "Accor lists the hotel as wheelchair accessible"
+  },
+  {
     id: "motel-one-wien-hauptbahnhof-one-lounge",
     name: "Motel One Wien-Hauptbahnhof - One Lounge",
     address: "Gerhard-Bronner-Straße 11, 1100 Wien",
@@ -856,6 +887,30 @@ const CORE_VIENNA_PLACES: CompactPlace[] = [
     sourceUrls: ["https://www.motel-one.com/en/hotels/vienna/hotel-vienna-hauptbahnhof/", "https://www.openstreetmap.org/way/274962561"],
     accessibility: "yes",
     accessibilitySource: "OpenStreetMap wheelchair=yes"
+  },
+  {
+    id: "erste-campus-public-ground-floor",
+    name: "Erste Campus",
+    address: "Am Belvedere 1, 1100 Wien",
+    district: "10",
+    lat: 48.1874201,
+    lng: 16.3806577,
+    category: "Public Indoor Space",
+    coolingType: "cool_indoor_refuge_not_ac_confirmed",
+    ac: false,
+    sitting: true,
+    wifi: null,
+    amenities: ["District cooling", "Publicly accessible ground floor", "Restaurants / cafés", "Wheelchair accessible"],
+    hours: [],
+    free: true,
+    notes: "Erste Group says the ground-floor zones are publicly accessible, contain restaurants and a café, and that the building is connected to Vienna's district-cooling network. This is listed as a cool indoor space rather than conventional air conditioning. Access hours, security rules, and purchase expectations at individual businesses can vary.",
+    sourceUrls: [
+      "https://www.erstegroup.com/de/ueber-uns/erste-campus",
+      "https://www.erstegroup.com/en/about-us/subsidiaries/objektmanagement/immobilien",
+      "https://www.openstreetmap.org/relation/4641397"
+    ],
+    accessibility: "yes",
+    accessibilitySource: "Erste Group says the building was designed to be fully barrier-free"
   },
   {
     id: "hotel-schani-wien-coworking-bar",
@@ -1026,40 +1081,27 @@ const CORE_VIENNA_PLACES: CompactPlace[] = [
     lat: 48.2252034,
     lng: 16.393207,
     category: "Café",
-    coolingType: "confirmed_air_conditioned",
+    coolingType: "likely_air_conditioned",
     ac: true,
     sitting: true,
     wifi: true,
-    amenities: [
-      "Air conditioning",
-      "Indoor seating",
-      "Outdoor seating",
-      "Free Wi-Fi",
-      "Laptop friendly",
-      "Micro-roastery",
-      "Specialty coffee",
-      "Cheesecake",
-      "Breakfast",
-      "Plant-based milk",
-      "Vegan options",
-      "Kids' area",
-      "Changing table",
-      "Toilets",
-      "Wheelchair-accessible toilet",
-      "Cash & card payments",
-      "Dog friendly",
-      "Latte art workshops"
-    ],
+    amenities: ["Indoor seating", "Outdoor seating", "Free Wi-Fi", "Specialty coffee", "Wheelchair-accessible toilet"],
     hours: ["Mon - Fri: 07:30 - 17:30", "Sat - Sun: 08:30 - 17:30"],
     free: false,
-    notes: "Air-conditioned specialty coffee shop and micro-roastery. A purchase is expected. The venue confirms the 19A address and current hours and describes its roasted coffee, cheesecake, latte-art workshops, and catering. OpenStreetMap currently confirms air conditioning, indoor and outdoor seating, a kids' area, changing table, toilets, cash/card payment, limited wheelchair access, and a wheelchair-accessible toilet. European Coffee Trip additionally lists free Wi-Fi, laptop-friendly seating, breakfast, plant-based milk, vegan options, and dog-friendly access.",
+    notes: "Specialty coffee shop and micro-roastery; a purchase is expected. OpenStreetMap currently lists air_conditioning=yes, but a recent visitor reports that the café is often uncomfortably hot and that the system may not be running. The venue confirms the address and current hours; OpenStreetMap lists limited wheelchair access and a wheelchair-accessible toilet.",
     sourceUrls: [
       "https://www.vogelkaffee.at/pages/contact",
       "https://www.vogelkaffee.at/",
       "https://www.openstreetmap.org/node/7056724591",
       "https://europeancoffeetrip.com/cafe/cowome-vienna/",
-      "https://github.com/tommasodesantis/Make_Vienna_Cool/issues/23"
+      "https://github.com/tommasodesantis/Make_Vienna_Cool/issues/23",
+      "https://github.com/tommasodesantis/Make_Vienna_Cool/issues/32"
     ],
+    status: "access_warning",
+    statusNote: {
+      en: "A recent visitor reports that this café is often uncomfortably hot and that its air conditioning is usually not running. Do not rely on it as a consistently cool stop without checking on site.",
+      de: "Ein aktueller Besucherbericht beschreibt das Café als oft unangenehm heiß und die Klimaanlage als meist nicht in Betrieb. Verlasse dich ohne Prüfung vor Ort nicht auf diesen Standort als verlässlich kühlen Aufenthaltsort."
+    },
     accessibility: "limited",
     accessibilitySource: "OpenStreetMap wheelchair=limited; toilets:wheelchair=yes"
   },
@@ -1703,14 +1745,15 @@ const CORE_VIENNA_PLACES: CompactPlace[] = [
     lat: 48.1851,
     lng: 16.3762,
     category: "Fast Food",
-    coolingType: "likely_air_conditioned",
+    coolingType: "visitor_suggested_air_conditioned_unverified",
     ac: true,
     sitting: true,
-    wifi: true,
-    amenities: ["Air conditioning", "Fast service", "Free Wi-Fi", "Toilets in station"],
+    wifi: null,
+    amenities: ["McCafé", "Indoor seating", "Station connected"],
     hours: ["Mon - Sat: 06:00 - 00:00", "Sun: 07:00 - 00:00"],
     free: false,
-    notes: "Strong AC, low price point. Purchase required."
+    notes: "Visitor-reported air-conditioned McDonald's at Vienna Hauptbahnhof; the AC claim is not independently confirmed. A purchase is expected. ÖBB confirms the ground-floor location, current hours, integrated McCafé, and lounge seating.",
+    sourceUrls: ["https://hauptbahnhofcity.oebb.at/de/gastronomie/mcdonalds"]
   },
   {
     id: "subway-wien-hauptbahnhof",
@@ -1720,14 +1763,57 @@ const CORE_VIENNA_PLACES: CompactPlace[] = [
     lat: 48.1851,
     lng: 16.3762,
     category: "Fast Food",
-    coolingType: "likely_air_conditioned",
+    coolingType: "visitor_suggested_air_conditioned_unverified",
     ac: true,
     sitting: true,
-    wifi: true,
-    amenities: ["Air conditioning", "Sub sandwiches", "Free Wi-Fi", "Quick stop"],
+    wifi: null,
+    amenities: ["Sub sandwiches", "Indoor seating", "Station connected"],
     hours: ["Mon - Sun: 09:00 - 23:00"],
     free: false,
-    notes: "Located in the air-conditioned train station concourse. Purchase required."
+    notes: "Visitor-reported air-conditioned Subway at Vienna Hauptbahnhof; the AC claim is not independently confirmed. A purchase is expected. ÖBB confirms the lower-ground-floor location and current daily hours.",
+    sourceUrls: ["https://hauptbahnhofcity.oebb.at/de/gastronomie/subway"]
+  },
+  {
+    id: "burger-king-wien-hauptbahnhof",
+    name: "Burger King Wien Hauptbahnhof",
+    address: "Am Hauptbahnhof 1, 1100 Wien",
+    district: "10",
+    lat: 48.1855356,
+    lng: 16.3772519,
+    category: "Fast Food",
+    coolingType: "visitor_suggested_air_conditioned_unverified",
+    ac: true,
+    sitting: true,
+    wifi: null,
+    amenities: ["Burgers", "Indoor seating", "Station connected"],
+    hours: ["Mon - Sun: 09:00 - 23:00"],
+    free: false,
+    notes: "Visitor-reported air-conditioned Burger King at Vienna Hauptbahnhof; the AC claim is not independently confirmed. A purchase is expected. ÖBB confirms the ground-floor location and current daily hours.",
+    sourceUrls: [
+      "https://hauptbahnhofcity.oebb.at/de/gastronomie/burger-king",
+      "https://www.openstreetmap.org/way/395972320"
+    ]
+  },
+  {
+    id: "l-osteria-wien-hauptbahnhof",
+    name: "L'Osteria Wien Hauptbahnhof",
+    address: "Am Hauptbahnhof 1, 1100 Wien",
+    district: "10",
+    lat: 48.1854204,
+    lng: 16.3750665,
+    category: "Restaurant",
+    coolingType: "visitor_suggested_air_conditioned_unverified",
+    ac: true,
+    sitting: true,
+    wifi: null,
+    amenities: ["Italian cuisine", "Indoor seating", "Station connected"],
+    hours: ["Mon - Sat: 11:00 - 00:00", "Sun: 12:00 - 00:00"],
+    free: false,
+    notes: "Visitor-reported air-conditioned L'Osteria at Vienna Hauptbahnhof; the AC claim is not independently confirmed. A purchase is expected. ÖBB confirms the ground-floor location and current hours.",
+    sourceUrls: [
+      "https://hauptbahnhofcity.oebb.at/de/gastronomie/losteria",
+      "https://www.openstreetmap.org/way/396033541"
+    ]
   }
 ];
 
