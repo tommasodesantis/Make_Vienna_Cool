@@ -7,7 +7,7 @@ import { PlaceList } from "./components/PlaceList";
 import { PlaceDetailCard } from "./components/PlaceDetailCard";
 import { SuggestPlaceModal } from "./components/SuggestPlaceModal";
 import { SearchBox } from "./components/SearchBox";
-import { ChevronDown, ChevronUp, Droplets, LocateFixed, Loader2, Maximize2, MessageSquarePlus, Minimize2, Snowflake, Toilet, Waves, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Droplets, LocateFixed, Loader2, Maximize2, MessageSquarePlus, Minimize2, Moon, Snowflake, Sun, Toilet, Waves, X } from "lucide-react";
 import { distanceMetersBetween, getAccessibilityStatus, getPlaceType, UserLocation } from "./data/place_utils";
 import { translateCategory } from "./data/translations";
 import { applyWaterPlaceOverrides } from "./data/water_place_overrides";
@@ -15,10 +15,12 @@ import { MANUAL_PUBLIC_TOILET_PLACES } from "./data/manual_public_toilet_places"
 
 type LocationConsent = "unknown" | "granted" | "denied";
 type LocationStatus = "idle" | "requesting" | "granted" | "denied" | "unsupported";
+type Theme = "light" | "dark";
 
 interface StoredPreferences {
   lang?: "en" | "de";
   locationConsent?: LocationConsent;
+  theme?: Theme;
 }
 
 const PREFERENCES_KEY = "make-vienna-cool.preferences.v1";
@@ -78,6 +80,7 @@ const placeMatchesSearch = (place: CompactPlace, query: string, lang: "en" | "de
 export default function App() {
   const storedPreferences = useMemo(readStoredPreferences, []);
   const [lang, setLang] = useState<"en" | "de">(storedPreferences.lang ?? "de");
+  const [theme, setTheme] = useState<Theme>(storedPreferences.theme ?? "light");
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
@@ -128,6 +131,11 @@ export default function App() {
   const lastAutoUpdate = formatAutoUpdateDate(AUTO_UPDATE_METADATA.lastSuccessfulUpdate, lang);
 
   useEffect(() => {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+    document.documentElement.style.colorScheme = theme;
+  }, [theme]);
+
+  useEffect(() => {
     if (activeDataset || activeMode === "cool") return;
 
     let cancelled = false;
@@ -141,10 +149,12 @@ export default function App() {
               import("./data/water_access_places"),
               import("./data/outside_vienna_water_access_places"),
               import("./data/municipal_pool_places"),
-            ]).then(([waterModule, outsideModule, poolModule]) => [
+              import("./data/manual_water_access_places"),
+            ]).then(([waterModule, outsideModule, poolModule, manualWaterModule]) => [
               ...applyWaterPlaceOverrides(waterModule.VIENNA_WATER_ACCESS_PLACES),
               ...outsideModule.OUTSIDE_VIENNA_WATER_ACCESS_PLACES,
               ...poolModule.VIENNA_MUNICIPAL_POOL_PLACES,
+              ...manualWaterModule.MANUAL_WATER_ACCESS_PLACES,
             ])
           : import("./data/public_toilet_places").then((module) => [
               ...module.VIENNA_PUBLIC_TOILET_PLACES,
@@ -176,9 +186,10 @@ export default function App() {
       import("./data/water_access_places"),
       import("./data/outside_vienna_water_access_places"),
       import("./data/municipal_pool_places"),
+      import("./data/manual_water_access_places"),
       import("./data/public_toilet_places"),
     ])
-      .then(([drinkingModule, waterModule, outsideWaterModule, poolModule, toiletModule]) => {
+      .then(([drinkingModule, waterModule, outsideWaterModule, poolModule, manualWaterModule, toiletModule]) => {
         if (cancelled) return;
 
         const drinkingPlaces = drinkingModule.VIENNA_DRINKING_WATER_FOUNTAINS;
@@ -186,6 +197,7 @@ export default function App() {
           ...applyWaterPlaceOverrides(waterModule.VIENNA_WATER_ACCESS_PLACES),
           ...outsideWaterModule.OUTSIDE_VIENNA_WATER_ACCESS_PLACES,
           ...poolModule.VIENNA_MUNICIPAL_POOL_PLACES,
+          ...manualWaterModule.MANUAL_WATER_ACCESS_PLACES,
         ];
         const toiletPlaces = [
           ...toiletModule.VIENNA_PUBLIC_TOILET_PLACES,
@@ -238,6 +250,12 @@ export default function App() {
     setLang(nextLang);
     setPreferencesLang(nextLang);
     persistPreferences({ lang: nextLang });
+  };
+
+  const toggleTheme = () => {
+    const nextTheme: Theme = theme === "dark" ? "light" : "dark";
+    setTheme(nextTheme);
+    persistPreferences({ theme: nextTheme });
   };
 
   const openPreferences = () => {
@@ -638,27 +656,44 @@ export default function App() {
             </h1>
           </div>
 
-          <div className="flex items-center gap-1 bg-offwhite p-1 rounded-xl border border-slate-200/40 shrink-0">
+          <div className="flex shrink-0 items-center gap-2">
             <button
-              onClick={() => updateLanguage("en")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-                lang === "en"
-                  ? "bg-green-brand text-white shadow-sm"
-                  : "text-slate-500 hover:text-[#2C3E50] hover:bg-white/50"
+              type="button"
+              onClick={toggleTheme}
+              aria-label={theme === "dark" ? t.enableLightMode : t.enableDarkMode}
+              aria-pressed={theme === "dark"}
+              title={theme === "dark" ? t.enableLightMode : t.enableDarkMode}
+              className={`inline-flex h-8 w-8 items-center justify-center rounded-lg border shadow-sm transition-colors ${
+                theme === "dark"
+                  ? "border-sky-400/30 bg-slate-800 text-sky-300 hover:bg-slate-700"
+                  : "border-slate-200 bg-white/80 text-slate-600 hover:border-green-brand/40 hover:bg-white hover:text-green-brand"
               }`}
             >
-              EN
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
-            <button
-              onClick={() => updateLanguage("de")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-                lang === "de"
-                  ? "bg-green-brand text-white shadow-sm"
-                  : "text-slate-500 hover:text-[#2C3E50] hover:bg-white/50"
-              }`}
-            >
-              DE
-            </button>
+
+            <div className="flex items-center gap-1 bg-offwhite p-1 rounded-xl border border-slate-200/40">
+              <button
+                onClick={() => updateLanguage("en")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  lang === "en"
+                    ? "bg-green-brand text-white shadow-sm"
+                    : "text-slate-500 hover:text-[#2C3E50] hover:bg-white/50"
+                }`}
+              >
+                EN
+              </button>
+              <button
+                onClick={() => updateLanguage("de")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  lang === "de"
+                    ? "bg-green-brand text-white shadow-sm"
+                    : "text-slate-500 hover:text-[#2C3E50] hover:bg-white/50"
+                }`}
+              >
+                DE
+              </button>
+            </div>
           </div>
         </div>
       </header>

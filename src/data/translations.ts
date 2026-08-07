@@ -4,6 +4,8 @@ export interface LanguageTranslations {
   searchPlaceholder: string;
   searchLabel: string;
   clearSearch: string;
+  enableDarkMode: string;
+  enableLightMode: string;
   category: string;
   allCategories: string;
   places: string;
@@ -159,6 +161,8 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     searchPlaceholder: "Search by name, category, address or amenities...",
     searchLabel: "Search",
     clearSearch: "Clear search",
+    enableDarkMode: "Enable dark mode",
+    enableLightMode: "Enable light mode",
     category: "Category",
     allCategories: "All Categories",
     places: "Places",
@@ -312,6 +316,8 @@ export const TRANSLATIONS: { en: LanguageTranslations; de: LanguageTranslations 
     searchPlaceholder: "Suche nach Name, Kategorie, Adresse oder Ausstattung...",
     searchLabel: "Suche",
     clearSearch: "Suche löschen",
+    enableDarkMode: "Dunkelmodus aktivieren",
+    enableLightMode: "Hellmodus aktivieren",
     category: "Kategorie",
     allCategories: "Alle Kategorien",
     places: "Orte",
@@ -487,6 +493,7 @@ export const CATEGORY_LABELS: Record<string, { en: string; de: string }> = {
   "Drinking Water Hydrant": { en: "Drinking Water Hydrant", de: "Trinkhydrant" },
   "Natural Bathing Site": { en: "Natural Bathing Site", de: "Naturbadestelle" },
   "Municipal Pool": { en: "Municipal Pool", de: "Städtisches Bad" },
+  "Private Pool": { en: "Private Pool", de: "Privates Bad" },
   "Free Natural Water Access": { en: "Free Natural Water Access", de: "Freier Naturwasserzugang" },
   "Mist / Spray Cooling": { en: "Mist / Spray Cooling", de: "Sprühnebel / Sommerspritzer" },
   "Water Play Fountain": { en: "Water Play Fountain", de: "Wasserspiel / Fontäne" },

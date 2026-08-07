@@ -46,11 +46,11 @@ const drinkCategory = (type) =>
   type.includes("Hydrant") ? "Drinking Water Hydrant" : "Drinking Water Fountain";
 
 const refreshCategory = (type) =>
-  /Spritz|Sprüh|Sprühnebel/.test(type) ? "Mist / Spray Cooling" : "Water Play Fountain";
+  /spritz|sprüh/i.test(type) ? "Mist / Spray Cooling" : "Water Play Fountain";
 
 const displayType = (type) => {
   if (type.includes("Hydrant")) return "Trinkhydrant";
-  if (/Spritz|Sprüh|Sprühnebel/.test(type)) return "Sprühnebel";
+  if (/spritz|sprüh/i.test(type)) return "Sprühnebel";
   if (/Spiel|Wasserspiel|Fontäne|Bodenfont/.test(type)) return "Wasserspiel";
   return "Trinkbrunnen";
 };

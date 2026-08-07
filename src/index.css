@@ -12,6 +12,125 @@
   --color-dark-green: #1F618D;
 }
 
+:root {
+  color-scheme: light;
+  background: #F4F6F8;
+}
+
+:root.dark {
+  color-scheme: dark;
+  background: #0B1120;
+}
+
+body {
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.dark body {
+  background: #0B1120;
+  color: #E2E8F0;
+}
+
+.dark header {
+  border-color: rgba(51, 65, 85, 0.85);
+  background: rgba(15, 23, 42, 0.82);
+  box-shadow: 0 12px 40px rgba(2, 6, 23, 0.38);
+}
+
+.dark :is(.bg-offwhite) {
+  background-color: #0F172A;
+}
+
+.dark :is(
+  .bg-white,
+  [class~="bg-white/35"],
+  [class~="bg-white/45"],
+  [class~="bg-white/50"],
+  [class~="bg-white/70"],
+  [class~="bg-white/80"],
+  [class~="bg-white/90"],
+  [class~="bg-white/95"]
+) {
+  background-color: rgba(30, 41, 59, 0.94);
+}
+
+.dark :is(.bg-aqua) {
+  background-color: #172554;
+}
+
+.dark :is(.bg-mint, [class~="bg-mint/60"]) {
+  background-color: #0C4A6E;
+}
+
+.dark :is(.bg-slate-50, .bg-slate-100) {
+  background-color: #334155;
+}
+
+.dark :is(
+  .text-slate-brand,
+  .text-slate-800,
+  .text-slate-700,
+  [class~="text-[#2C3E50]"]
+) {
+  color: #E2E8F0;
+}
+
+.dark :is(.text-slate-600, .text-slate-500) {
+  color: #CBD5E1;
+}
+
+.dark :is(.text-slate-400, [class~="text-[#94A3B8]"]) {
+  color: #94A3B8;
+}
+
+.dark :is(.text-dark-green, .text-cyan-800, .text-cyan-900, .text-sky-700) {
+  color: #7DD3FC;
+}
+
+.dark :is(
+  .border-slate-100,
+  [class~="border-slate-100/80"],
+  .border-slate-200,
+  [class~="border-slate-200/40"],
+  [class~="border-slate-200/60"],
+  [class~="border-slate-200/70"],
+  .border-slate-300,
+  [class~="border-[#E2E8F0]"],
+  [class~="border-[#F0F4F8]"],
+  .border-white,
+  [class~="border-white/40"],
+  [class~="border-white/60"]
+) {
+  border-color: #334155;
+}
+
+.dark .divide-slate-100 > :not(:last-child) {
+  border-color: #334155;
+}
+
+.dark :is(input, select, textarea) {
+  color: #E2E8F0;
+}
+
+.dark :is(input, textarea)::placeholder {
+  color: #64748B;
+}
+
+.dark [class~="hover:bg-white"]:hover,
+.dark [class~="hover:bg-white/50"]:hover,
+.dark [class~="hover:bg-offwhite"]:hover,
+.dark [class~="hover:bg-slate-100"]:hover {
+  background-color: #334155;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #64748B;
+}
+
 /* Custom scrollbar styling for high-quality clean layout */
 ::-webkit-scrollbar {
   width: 6px;
@@ -34,6 +153,25 @@
   background-color: #EBF5FB !important; /* light aqua background fallback for map */
 }
 
+.dark .leaflet-container {
+  background-color: #0F172A !important;
+}
+
+.dark .leaflet-tile-pane {
+  filter: none;
+}
+
+.dark .leaflet-control-zoom a,
+.dark .leaflet-control-attribution {
+  border-color: #475569 !important;
+  background: rgba(15, 23, 42, 0.92) !important;
+  color: #CBD5E1 !important;
+}
+
+.dark .leaflet-control-attribution a {
+  color: #7DD3FC !important;
+}
+
 /* Clean up custom leaflet popups to match our minimalist design direction */
 .custom-leaflet-popup .leaflet-popup-content-wrapper {
   border-radius: 12px !important;
@@ -52,6 +190,20 @@
 .custom-leaflet-popup .leaflet-popup-tip {
   box-shadow: none !important;
   border: 1px solid #E2E8F0 !important;
+}
+
+.dark .custom-leaflet-popup .leaflet-popup-content-wrapper,
+.dark .custom-leaflet-popup .leaflet-popup-tip {
+  border-color: #475569 !important;
+  background: #1E293B !important;
+}
+
+.dark .custom-leaflet-popup .leaflet-popup-content {
+  color: #E2E8F0 !important;
+}
+
+.dark .custom-leaflet-popup .leaflet-popup-close-button {
+  color: #CBD5E1 !important;
 }
 
 /* Animation for custom map pins */

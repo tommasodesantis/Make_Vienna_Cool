@@ -17,8 +17,19 @@ const WATER_PLACE_OVERRIDES: Record<string, Partial<CompactPlace>> = {
   }
 };
 
+const normalizeGeneratedWaterPlace = (place: CompactPlace): CompactPlace => {
+  if (!place.amenities.includes("Sommerspritzer")) return place;
+
+  return {
+    ...place,
+    name: place.name.replace(/^Trinkbrunnen - /, "Sprühnebel - "),
+    category: "Mist / Spray Cooling",
+  };
+};
+
 export const applyWaterPlaceOverrides = (places: CompactPlace[]): CompactPlace[] =>
   places.map((place) => {
-    const override = WATER_PLACE_OVERRIDES[place.id];
-    return override ? { ...place, ...override } : place;
+    const normalizedPlace = normalizeGeneratedWaterPlace(place);
+    const override = WATER_PLACE_OVERRIDES[normalizedPlace.id];
+    return override ? { ...normalizedPlace, ...override } : normalizedPlace;
   });

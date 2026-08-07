@@ -105,6 +105,14 @@ test("water generator merges official and natural monitoring points into one cat
           geometry: { coordinates: [16.37, 48.2] },
           properties: { OBJECTID: 1, BASIS_TYP_TXT: "Trinkbrunnen" },
         },
+        {
+          geometry: { coordinates: [16.38, 48.21] },
+          properties: { OBJECTID: 2, BASIS_TYP_TXT: "Sommerspritzer" },
+        },
+        {
+          geometry: { coordinates: [16.39, 48.22] },
+          properties: { OBJECTID: 3, BASIS_TYP_TXT: "Spielbrunnen" },
+        },
       ],
     });
     writeJson(bathingPath, {
@@ -133,10 +141,18 @@ test("water generator merges official and natural monitoring points into one cat
       ignorePath,
     ]);
     const places = readGeneratedArray(waterOutputPath);
+    const drinkingPlaces = readGeneratedArray(drinkingOutputPath);
+    const bathingPlaces = places.filter((place) => place.coolingType === "water_access");
+    const sprayPlace = places.find((place) => place.id === "refresh-fountain-2");
+    const playPlace = places.find((place) => place.id === "refresh-fountain-3");
 
-    assert.equal(places.length, 2);
-    assert.ok(places.every((place) => place.category === "Natural Bathing Site"));
-    assert.ok(places.every((place) => place.category !== "Official Bathing Site"));
+    assert.equal(bathingPlaces.length, 2);
+    assert.ok(bathingPlaces.every((place) => place.category === "Natural Bathing Site"));
+    assert.ok(bathingPlaces.every((place) => place.category !== "Official Bathing Site"));
+    assert.equal(sprayPlace.name, "Sprühnebel - 48.21000, 16.38000");
+    assert.equal(sprayPlace.category, "Mist / Spray Cooling");
+    assert.equal(playPlace.category, "Water Play Fountain");
+    assert.deepEqual(drinkingPlaces.map((place) => place.id), ["drinking-water-1"]);
   }));
 
 test("toilet generator represents conditional and unknown fees without marking them free", () =>

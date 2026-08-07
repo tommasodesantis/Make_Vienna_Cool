@@ -594,8 +594,8 @@ const CORE_VIENNA_PLACES: CompactPlace[] = [
     name: "Pensionist*innenklub Melangasse",
     address: "Melangasse 1/88, 1220 Wien",
     district: "22",
-    lat: 48.2291,
-    lng: 16.4691,
+    lat: 48.25912664,
+    lng: 16.44283632,
     category: "Official Cool Zone",
     coolingType: "official_cool_indoor_room_not_ac_confirmed",
     ac: false,
@@ -604,15 +604,19 @@ const CORE_VIENNA_PLACES: CompactPlace[] = [
     amenities: ["Official public cooling space", "Water", "Seating"],
     hours: ["Mon - Fri: 12:00 - 17:00"],
     free: true,
-    notes: null
+    notes: null,
+    sourceUrls: [
+      "https://kwp.at/pensionistenklubs/?p=685",
+      "https://data.wien.gv.at/daten/OGDAddressService.svc/GetAddressInfo?Address=Melangasse%201%2F88&crs=EPSG%3A4326"
+    ]
   },
   {
     id: "pensionist-innenklub-telephonweg",
     name: "Pensionist*innenklub Telephonweg",
     address: "Telephonweg 1, Stiege 3, Tür 1A, 1220 Wien",
     district: "22",
-    lat: 48.2244,
-    lng: 16.4862,
+    lat: 48.215113,
+    lng: 16.51922585,
     category: "Official Cool Zone",
     coolingType: "official_cool_indoor_room_not_ac_confirmed",
     ac: false,
@@ -621,7 +625,11 @@ const CORE_VIENNA_PLACES: CompactPlace[] = [
     amenities: ["Official public cooling space", "Water", "Seating"],
     hours: ["Mon - Fri: 09:00 - 17:00"],
     free: true,
-    notes: null
+    notes: null,
+    sourceUrls: [
+      "https://kwp.at/pensionistenklubs/clubs/klub-all-in-essling/",
+      "https://data.wien.gv.at/daten/OGDAddressService.svc/GetAddressInfo?Address=Telephonweg%201%2F3%2F1A&crs=EPSG%3A4326"
+    ]
   },
   {
     id: "pensionist-innenklub-breitenfurter-strae",
@@ -1410,8 +1418,8 @@ const CORE_VIENNA_PLACES: CompactPlace[] = [
     name: "Stadion Center",
     address: "Olympiaplatz 2, 1020 Wien",
     district: "2",
-    lat: 48.2114,
-    lng: 16.4258,
+    lat: 48.21053668,
+    lng: 16.42163715,
     category: "Shopping Mall",
     coolingType: "likely_air_conditioned",
     ac: true,
@@ -1420,7 +1428,11 @@ const CORE_VIENNA_PLACES: CompactPlace[] = [
     amenities: ["Air-conditioned shops & dining", "Quiet rest spots", "Free Wi-Fi", "Toilets"],
     hours: ["Mon - Fri: 09:00 - 19:00", "Sat: 09:00 - 18:00"],
     free: true,
-    notes: "Near U2 Stadion station."
+    notes: "Near U2 Stadion station.",
+    sourceUrls: [
+      "https://www.stadioncenter.at/anfahrt",
+      "https://data.wien.gv.at/daten/OGDAddressService.svc/GetAddressInfo?Address=Olympiaplatz%202&crs=EPSG%3A4326"
+    ]
   },
   {
     id: "q19-einkaufsquartier-dobling",
