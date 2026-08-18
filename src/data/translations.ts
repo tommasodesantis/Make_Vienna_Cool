@@ -718,6 +718,9 @@ const SIEBEN_ZWERGE_NOTE =
 const VOGEL_KAFFEE_NOTE =
   "Specialty coffee shop and micro-roastery; a purchase is expected. OpenStreetMap currently lists air_conditioning=yes, but a recent visitor reports that the café is often uncomfortably hot and that the system may not be running. The venue confirms the address and current hours; OpenStreetMap lists limited wheelchair access and a wheelchair-accessible toilet.";
 
+const KAFFEEAMT_NOTE =
+  "Kaffeeamt is a café where a purchase is expected. OpenStreetMap currently lists air_conditioning=yes, but a recent visitor reports that the door is routinely kept open and that it is hotter inside than outdoors. The venue confirms the address and publishes current hours, but does not advertise air conditioning. Do not rely on it as a consistently cool stop without checking on site.";
+
 const IBIS_HAUPTBAHNHOF_NOTE =
   "Accor describes a lobby open to everyone for a short rest or checking email, with 24/7 reception service, and lists air conditioning among the hotel's on-site services. The source does not state separately that the lobby itself is air-conditioned, so this is marked as likely rather than confirmed. Staff rules or purchase expectations can apply.";
 
@@ -779,6 +782,10 @@ export const translateNote = (note: string, lang: "en" | "de"): string => {
 
   if (note === VOGEL_KAFFEE_NOTE) {
     return "Spezialitätencafé mit Mikrorösterei; Konsumation wird erwartet. OpenStreetMap führt derzeit air_conditioning=yes, ein aktueller Besucherbericht beschreibt das Café jedoch als oft unangenehm heiß und die Anlage als möglicherweise nicht in Betrieb. Das Lokal bestätigt Adresse und aktuelle Öffnungszeiten; OpenStreetMap führt eingeschränkte Rollstuhlzugänglichkeit und ein rollstuhlgerechtes WC.";
+  }
+
+  if (note === KAFFEEAMT_NOTE) {
+    return "Kaffeeamt ist ein Café, in dem Konsumation erwartet wird. OpenStreetMap führt derzeit air_conditioning=yes, ein aktueller Besucherbericht beschreibt jedoch eine regelmäßig offenstehende Tür und höhere Temperaturen im Café als im Freien. Das Lokal bestätigt die Adresse und veröffentlicht aktuelle Öffnungszeiten, bewirbt aber keine Klimaanlage. Verlasse dich ohne Prüfung vor Ort nicht auf diesen Standort als verlässlich kühlen Aufenthaltsort.";
   }
 
   if (note === IBIS_HAUPTBAHNHOF_NOTE) {

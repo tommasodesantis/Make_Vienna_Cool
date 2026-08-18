@@ -86,10 +86,22 @@ export const OSM_IMPORTED_PLACES: CompactPlace[] = [
     sitting: true,
     wifi: false,
     amenities: ["Indoor seating", "Coffee drinks", "Toilets", "Wheelchair accessible"],
-    hours: ["Mon, Wed - Fri: 08:00 - 17:30", "Sat - Sun, PH: 09:00 - 17:30"],
+    hours: [],
     free: false,
-    notes: "Imported from OpenStreetMap, which lists air_conditioning=yes. Purchase is expected.",
-    sourceUrls: ["https://www.openstreetmap.org/node/259640958"]
+    notes: "Kaffeeamt is a café where a purchase is expected. OpenStreetMap currently lists air_conditioning=yes, but a recent visitor reports that the door is routinely kept open and that it is hotter inside than outdoors. The venue confirms the address and publishes current hours, but does not advertise air conditioning. Do not rely on it as a consistently cool stop without checking on site.",
+    sourceUrls: [
+      "https://kaffeeamt.at/",
+      "https://www.openstreetmap.org/node/259640958",
+      "https://github.com/tommasodesantis/Make_Vienna_Cool/issues/38"
+    ],
+    status: "access_warning",
+    statusNote: {
+      en: "A recent visitor reports that the door is routinely kept open and that this café is hotter inside than outdoors. Do not rely on it as a cool stop without checking on site.",
+      de: "Ein aktueller Besucherbericht beschreibt eine regelmäßig offenstehende Tür und höhere Temperaturen im Café als im Freien. Verlasse dich ohne Prüfung vor Ort nicht auf diesen Standort als kühlen Aufenthaltsort."
+    },
+    accessibility: "yes",
+    accessibilitySource: "OpenStreetMap wheelchair=yes",
+    openingHoursUrl: "https://kaffeeamt.at/"
   },
   {
     id: "cafe-sperl",
