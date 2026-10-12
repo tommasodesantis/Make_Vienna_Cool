@@ -1,9 +1,9 @@
 export const AUTO_UPDATE_METADATA = {
-  lastSuccessfulUpdate: "2026-09-28T10:58:31.577Z",
+  lastSuccessfulUpdate: "2026-10-12T12:00:42.690Z",
   datasets: {
-    drinking: "2026-09-28T10:58:31.577Z",
-    water: "2026-09-28T10:58:31.577Z",
-    toilet: "2026-09-28T10:58:31.577Z",
-    pools: "2026-09-28T10:58:31.577Z",
+    drinking: "2026-10-12T12:00:42.690Z",
+    water: "2026-10-12T12:00:42.690Z",
+    toilet: "2026-10-12T12:00:42.690Z",
+    pools: "2026-10-12T12:00:42.690Z",
   },
 } as const;
